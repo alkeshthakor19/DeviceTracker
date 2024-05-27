@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">DeviceTracker</string>
+    <string name="str_email_address">Email Address</string>
+    <string name="str_welcome_to_device_tracker">Welcome to Device Tracker</string>
 </resources>
