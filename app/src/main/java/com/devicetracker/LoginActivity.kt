@@ -35,55 +35,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DeviceTrackerTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = Color.White
-                ) {
-                    MainContent()
-                }
-            }
+            DeviceTrackerRoute()
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MainContent() {
-    Column (
-        Modifier
-            .fillMaxSize()
-            .absolutePadding(16.dp, 64.dp, 16.dp, 16.dp),
-             horizontalAlignment =  Alignment.CenterHorizontally) {
-
-        Text(text = stringResource(R.string.str_welcome_to_device_tracker),
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold)
-
-         Spacer(modifier = Modifier.height(160.dp))
-         SimpleOutlinedTextFiled()
-         Spacer(modifier = Modifier.height(32.dp))
-         Button(onClick = {  }) {
-            Text(text ="SignIn", fontSize = 18.sp, modifier = Modifier.absolutePadding(8.dp,2.dp,8.dp,2.dp))
-         }
-    }
-}
-
-@Composable
-fun SimpleOutlinedTextFiled() {
-    var text  = remember { mutableStateOf("") }
-    OutlinedTextField(
-        value = text.value,
-        onValueChange = {
-            text.value = it
-        },
-        label = {
-            Text(text = stringResource(R.string.str_email_address))
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-    )
-
 }
 
 @Serializable
