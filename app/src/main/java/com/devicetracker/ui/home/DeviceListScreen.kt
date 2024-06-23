@@ -22,27 +22,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.devicetracker.DataHelper
+import com.devicetracker.Device
+import com.devicetracker.DeviceType
 import com.devicetracker.R
 import com.devicetracker.User
 
 @Composable
 fun DeviceListScreen() {
-    val userList = DataHelper.getDummyUserList()
+    val deviceList = DataHelper.getDeviceDummyList()
     LazyColumn {
-        items(userList) {
-             UserRow(user = it)
+        items(deviceList) {
+            DeviceRow(device = it)
         }
     }
 }
 
 @Composable
-fun UserRow(user: User) {
+fun DeviceRow(device: Device) {
     ElevatedCard (
-        shape = CutCornerShape(topEnd = 24.dp, bottomStart = 24.dp),
+        shape = CutCornerShape(topEnd = 24.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         ),
@@ -59,14 +62,14 @@ fun UserRow(user: User) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            UserPicture(user)
-            UserContent(user = user)
+            DeviceTypePicture(device)
+            DeviceContent(device)
         }
     }
 }
 
 @Composable
-fun UserPicture(user: User) {
+fun DeviceTypePicture(device: Device) {
     Card(
         shape = CircleShape,
         border = BorderStroke(
@@ -74,33 +77,46 @@ fun UserPicture(user: User) {
             color = MaterialTheme.colorScheme.secondary
         )
     ) {
+        val resourceId = if(device.type == DeviceType.TAB.ordinal) {
+            R.drawable.ic_devices
+        } else if(device.type == DeviceType.CABLE.ordinal) {
+            R.drawable.ic_baseline_cable
+        } else {
+            R.drawable.ic_devices_other
+        }
         Image(
-            painter = painterResource(id = R.drawable.ic_my_profile),
-            modifier = Modifier.size(72.dp),
+            painter = painterResource(id = resourceId),
+            modifier = Modifier.size(76.dp),
             contentDescription = stringResource(
             id = R.string.app_name
-        ))
+        ),
+            contentScale = ContentScale.Inside)
     }
 }
 
 @Composable
-fun UserContent(user: User) {
+fun DeviceContent(device: Device) {
     Column(
         Modifier
             .padding(8.dp)
             .fillMaxWidth()
     ) {
          Text(
-             text = user.name,
+             text = device.name,
              style = MaterialTheme.typography.titleLarge
              )
-          Row {
-              Text(text = stringResource(id = R.string.str_emp_id), color = Color.Gray)
-              Text(text = user.empCode.toString())
+           val deviceTypeName = if(device.type == DeviceType.TAB.ordinal) {
+               stringResource(id = R.string.str_device_type_tab)
+           } else if(device.type == DeviceType.USB.ordinal) {
+               stringResource(id = R.string.str_device_type_storage)
+           } else if(device.type == DeviceType.CABLE.ordinal) {
+               stringResource(id = R.string.str_device_type_cable)
+           } else {
+               stringResource(id = R.string.str_device_type_other)
+           }
+           Row {
+              Text(text = stringResource(id = R.string.str_device_type), color = Color.Gray)
+              Text(text = deviceTypeName)
           }
-        Row {
-            Text(text = stringResource(id = R.string.str_email), color = Color.Gray)
-            Text(text = user.email)
-        }
     }
 }

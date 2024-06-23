@@ -48,7 +48,6 @@ fun HomeScreen() {
     val pages: Array<HomeScreenPage> = HomeScreenPage.values()
 
     val pagerState = rememberPagerState(pageCount = {pages.size})
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold (topBar = {
         HomeTopAppBar()
     }){
@@ -102,15 +101,10 @@ private fun HomeScreenMainContent(
             verticalAlignment = Alignment.Top) {index ->
             when(pages[index]) {
                 HomeScreenPage.MEMBERS -> {
-                    /*Text(text = "Member page will goes here",
-                        Modifier.align(alignment =  Alignment.CenterHorizontally).fillMaxSize())*/
-                    DeviceListScreen()
+                    MemberListScreen()
                 }
                 HomeScreenPage.DEVICES-> {
-                    Text(text = "Device page will goes here",
-                        Modifier
-                            .align(alignment = Alignment.CenterHorizontally)
-                            .fillMaxSize())
+                    DeviceListScreen()
                 }
             }
         }

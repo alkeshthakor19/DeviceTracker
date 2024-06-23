@@ -83,16 +83,20 @@ object DataHelper {
 
     fun getDeviceDummyList(): List<Device> {
         val deviceList: MutableList<Device> = mutableListOf()
-            deviceList.add(Device(1,"Samsung Galaxy S6"))
-            deviceList.add(Device(1,"Samsung Galaxy Active TAB3"))
-            deviceList.add(Device(1,"Samsung Galaxy S8"))
-            deviceList.add(Device(1,"Samsung Galaxy S8 plus"))
-            deviceList.add(Device(1,"Samsung Galaxy S8 ultra"))
-            deviceList.add(Device(1,"Samsung Galaxy S9"))
-            deviceList.add(Device(1,"Lenovo 11"))
-            deviceList.add(Device(1,"Lenovo 11 Pro"))
-            deviceList.add(Device(1,"Lenovo 12"))
-            deviceList.add(Device(1,"Lenovo Yoga 13"))
+        deviceList.add(Device(1,"Samsung Galaxy S6",DeviceType.TAB.ordinal))
+        deviceList.add(Device(1,"Samsung Galaxy Active TAB3",DeviceType.TAB.ordinal))
+        deviceList.add(Device(1,"Samsung Galaxy S8",DeviceType.TAB.ordinal))
+        deviceList.add(Device(1,"Samsung Galaxy S8 plus",DeviceType.TAB.ordinal))
+        deviceList.add(Device(1,"Samsung Galaxy S8 ultra",DeviceType.TAB.ordinal))
+        deviceList.add(Device(1,"Samsung Galaxy S9",DeviceType.TAB.ordinal))
+
+        deviceList.add(Device(1,"Trizon USB",DeviceType.USB.ordinal))
+        deviceList.add(Device(1,"TORSO one",DeviceType.PROB.ordinal))
+
+        deviceList.add(Device(1,"Lenovo 11",DeviceType.TAB.ordinal))
+        deviceList.add(Device(1,"Lenovo 11 Pro",DeviceType.TAB.ordinal))
+        deviceList.add(Device(1,"Lenovo 12",DeviceType.TAB.ordinal))
+        deviceList.add(Device(1,"Lenovo Yoga 13",DeviceType.TAB.ordinal))
         return deviceList
 
     }

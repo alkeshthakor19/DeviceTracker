@@ -9,4 +9,11 @@
     <string name="str_emp_id">Employee ID: </string>
     <string name="str_email">Email: </string>
 
+    <string name="str_device_type">Device Type: </string>
+    <string name="str_device_type_tab">TAB</string>
+    <string name="str_device_type_storage">USB STORAGE</string>
+    <string name="str_device_type_cable">CABLE</string>
+    <string name="str_device_type_other">OTHER</string>
+
+
 </resources>
