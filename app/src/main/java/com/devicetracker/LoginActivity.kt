@@ -35,21 +35,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DeviceTrackerRoute()
+            DeviceTrackerTheme {
+                DeviceTrackerRoute()
+            }
         }
     }
 }
-
-@Serializable
-data class User (
-    @SerialName("Id") val id: String,
-    @SerialName("Name") val name: String,
-    @SerialName("Emp_Code") val empCode: Int,
-    @SerialName("Email") val email: String,
-    @SerialName("Created_At")val createdAt: String,
-    @SerialName("Deleted_At")val deletedAt: String?,
-)
-
 
 /*@Serializable
 data class User(

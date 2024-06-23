@@ -58,7 +58,7 @@ fun MainContent(onSignInButtonCLick: (email: String, password: String) -> Unit) 
             } else if(!passwordState.isValid) {
                  passwordState.enableShowError()
             } else {
-                onSignInButtonCLick(emailState.email!!,passwordState.text)
+                onSignInButtonCLick(emailState.text,passwordState.text)
             }
         }
 
@@ -78,9 +78,7 @@ fun MainContent(onSignInButtonCLick: (email: String, password: String) -> Unit) 
 }
 
 @Composable
-fun EmailFiled(
-    emailState: TextFiledState = remember { EmailState() }
-) {
+fun EmailFiled( emailState: TextFiledState ) {
     OutlinedTextField(
         value = emailState.text,
         onValueChange = {
@@ -102,6 +100,7 @@ fun EmailFiled(
     emailState.getError()?.let {error ->
         TextFieldError(textError = error, )
     }
+    emailState.text ="alkeshthakor@gmail.com"
 }
 
 @Composable
@@ -120,6 +119,8 @@ fun PasswordTextFiled(
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
         singleLine = true
     )
+
+    passwordState.text = "alkesjsj"
 }
 
 @Composable

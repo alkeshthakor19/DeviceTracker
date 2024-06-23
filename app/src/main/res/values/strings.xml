@@ -3,4 +3,10 @@
     <string name="str_email_address">Email Address</string>
     <string name="str_password">Password</string>
     <string name="str_welcome_to_device_tracker">Welcome to Device Tracker</string>
+    <string name="str_member">Members</string>
+    <string name="str_devices">Devices</string>
+
+    <string name="str_emp_id">Employee ID: </string>
+    <string name="str_email">Email: </string>
+
 </resources>
