@@ -1,7 +1,8 @@
-package com.devicetracker.ui.home
+package com.devicetracker.ui.member
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,17 +31,17 @@ import com.devicetracker.R
 import com.devicetracker.User
 
 @Composable
-fun MemberListScreen() {
+fun MemberListScreen(navigateMemberProfileCallBack: (String)-> Unit) {
     val userList = DataHelper.getDummyUserList()
     LazyColumn {
         items(userList) {
-            UserRow(user = it)
+            UserRow(it, navigateMemberProfileCallBack)
         }
     }
 }
 
 @Composable
-fun UserRow(user: User) {
+fun UserRow(user: User, navigateMemberProfileCallBack: (String)-> Unit) {
     ElevatedCard (
         shape = CutCornerShape(topEnd = 24.dp, bottomStart = 24.dp),
         elevation = CardDefaults.cardElevation(
@@ -55,9 +56,9 @@ fun UserRow(user: User) {
         Row(
             modifier = Modifier
                 .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth().clickable { navigateMemberProfileCallBack.invoke(user.id) },
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
         ) {
             UserPicture(user)
             UserContent(user = user)

@@ -7,7 +7,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -21,16 +20,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import com.devicetracker.R
-import com.devicetracker.ui.theme.DeviceTrackerTheme
+import com.devicetracker.ui.member.MemberListScreen
 import kotlinx.coroutines.launch
 
 
@@ -44,7 +42,7 @@ enum class HomeScreenPage(
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navHostController: NavHostController) {
     val pages: Array<HomeScreenPage> = HomeScreenPage.values()
 
     val pagerState = rememberPagerState(pageCount = {pages.size})
@@ -54,7 +52,8 @@ fun HomeScreen() {
         HomeScreenMainContent(
             pagerState = pagerState,
             pages = pages,
-            Modifier.padding(top = it.calculateTopPadding()))
+            Modifier.padding(top = it.calculateTopPadding()),
+            navHostController)
     }
 }
 
@@ -77,7 +76,8 @@ private fun HomeTopAppBar() {
 private fun HomeScreenMainContent(
     pagerState: PagerState,
     pages: Array<HomeScreenPage>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navHostController: NavHostController
 ) {
     Column(modifier) {
         val coroutineScope = rememberCoroutineScope()
@@ -101,20 +101,25 @@ private fun HomeScreenMainContent(
             verticalAlignment = Alignment.Top) {index ->
             when(pages[index]) {
                 HomeScreenPage.MEMBERS -> {
-                    MemberListScreen()
+                    MemberListScreen(navigateMemberProfileCallBack = {
+                        navHostController.navigate("member_detail/$it")
+                    })
                 }
                 HomeScreenPage.DEVICES-> {
-                    DeviceListScreen()
+                    DeviceListScreen(navigateDeviceDetailCallBack =  {
+                        navHostController.navigate("device_detail/$it")
+                    })
                 }
             }
         }
     }
 }
 
+/*
 @Preview
 @Composable
 private fun HomeScreenPreview() {
     DeviceTrackerTheme {
         HomeScreen()
     }
-}
+}*/

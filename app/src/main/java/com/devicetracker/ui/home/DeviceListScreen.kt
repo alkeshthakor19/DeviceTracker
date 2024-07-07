@@ -2,6 +2,7 @@ package com.devicetracker.ui.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,17 +34,17 @@ import com.devicetracker.R
 import com.devicetracker.User
 
 @Composable
-fun DeviceListScreen() {
+fun DeviceListScreen(navigateDeviceDetailCallBack: (String)-> Unit) {
     val deviceList = DataHelper.getDeviceDummyList()
     LazyColumn {
         items(deviceList) {
-            DeviceRow(device = it)
+            DeviceRow(device = it, navigateDeviceDetailCallBack)
         }
     }
 }
 
 @Composable
-fun DeviceRow(device: Device) {
+fun DeviceRow(device: Device, navigateDeviceDetailCallBack: (String)-> Unit) {
     ElevatedCard (
         shape = CutCornerShape(topEnd = 24.dp),
         elevation = CardDefaults.cardElevation(
@@ -52,7 +53,10 @@ fun DeviceRow(device: Device) {
         modifier = Modifier
             .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth()
-            .wrapContentHeight(align = Alignment.Top),
+            .wrapContentHeight(align = Alignment.Top)
+            .clickable {
+                navigateDeviceDetailCallBack.invoke(device.id.toString())
+                       },
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ){
         Row(
