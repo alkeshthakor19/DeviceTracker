@@ -65,7 +65,7 @@ private fun HomeTopAppBar() {
             Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center){
               Text(
-                  text = stringResource(id = R.string.app_name),
+                  text = stringResource(id = R.string.app_title),
                   style = MaterialTheme.typography.displaySmall
               )
     }})
