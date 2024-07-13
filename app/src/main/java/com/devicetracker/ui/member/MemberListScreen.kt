@@ -1,5 +1,7 @@
 package com.devicetracker.ui.member
 
+import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -18,24 +20,35 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.devicetracker.DataHelper
 import com.devicetracker.R
 import com.devicetracker.User
+import com.devicetracker.ui.AppFloatingButton
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MemberListScreen(navigateMemberProfileCallBack: (String)-> Unit) {
     val userList = DataHelper.getDummyUserList()
-    LazyColumn {
-        items(userList) {
-            UserRow(it, navigateMemberProfileCallBack)
+    val context = LocalContext.current
+    Scaffold (floatingActionButton = {
+        AppFloatingButton {
+            Toast.makeText(context,"Floating button clicked", Toast.LENGTH_SHORT).show()
+        }
+    }) {
+        LazyColumn {
+            items(userList) {
+                UserRow(it, navigateMemberProfileCallBack)
+            }
         }
     }
 }
@@ -56,7 +69,8 @@ fun UserRow(user: User, navigateMemberProfileCallBack: (String)-> Unit) {
         Row(
             modifier = Modifier
                 .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
-                .fillMaxWidth().clickable { navigateMemberProfileCallBack.invoke(user.id) },
+                .fillMaxWidth()
+                .clickable { navigateMemberProfileCallBack.invoke(user.id) },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {

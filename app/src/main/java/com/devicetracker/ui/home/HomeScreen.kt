@@ -79,6 +79,7 @@ private fun HomeScreenMainContent(
     modifier: Modifier = Modifier,
     navHostController: NavHostController
 ) {
+
     Column(modifier) {
         val coroutineScope = rememberCoroutineScope()
 

@@ -1,5 +1,6 @@
 package com.devicetracker.ui.home
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -18,6 +19,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,14 +33,21 @@ import com.devicetracker.DataHelper
 import com.devicetracker.Device
 import com.devicetracker.DeviceType
 import com.devicetracker.R
-import com.devicetracker.User
+import com.devicetracker.ui.AppFloatingButton
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun DeviceListScreen(navigateDeviceDetailCallBack: (String)-> Unit) {
     val deviceList = DataHelper.getDeviceDummyList()
-    LazyColumn {
-        items(deviceList) {
-            DeviceRow(device = it, navigateDeviceDetailCallBack)
+    Scaffold(floatingActionButton = {
+        AppFloatingButton {
+
+        }
+    }) {
+        LazyColumn {
+            items(deviceList) {
+                DeviceRow(device = it, navigateDeviceDetailCallBack)
+            }
         }
     }
 }
@@ -56,7 +65,7 @@ fun DeviceRow(device: Device, navigateDeviceDetailCallBack: (String)-> Unit) {
             .wrapContentHeight(align = Alignment.Top)
             .clickable {
                 navigateDeviceDetailCallBack.invoke(device.id.toString())
-                       },
+            },
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ){
         Row(
