@@ -1,4 +1,4 @@
-package com.devicetracker.ui.home
+package com.devicetracker.ui.dashbord.assets
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
@@ -15,12 +15,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,24 +36,44 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.devicetracker.DataHelper
 import com.devicetracker.Device
 import com.devicetracker.DeviceType
 import com.devicetracker.R
 import com.devicetracker.ui.AppFloatingButton
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun DeviceListScreen(navigateDeviceDetailCallBack: (String)-> Unit) {
+fun DeviceListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
     val deviceList = DataHelper.getDeviceDummyList()
-    Scaffold(floatingActionButton = {
-        AppFloatingButton {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Asset List",  style = MaterialTheme.typography.headlineMedium) },
+                navigationIcon = {
+                    IconButton(onClick = openDrawer) {
+                        Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    titleContentColor = Color.Black,
+                ),
+            )
+        },
+        floatingActionButton = {
+            AppFloatingButton {
 
+            }
         }
-    }) {
-        LazyColumn {
+    ) {
+        LazyColumn(modifier = Modifier.padding(top = it.calculateTopPadding())) {
             items(deviceList) {
-                DeviceRow(device = it, navigateDeviceDetailCallBack)
+                DeviceRow(device = it) {
+                    navHostController.navigate("assets_detail/$it")
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.devicetracker.ui.member
+package com.devicetracker.ui.dashbord.member
 
 import android.annotation.SuppressLint
 import android.widget.Toast
@@ -16,12 +16,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,24 +37,47 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.devicetracker.DataHelper
 import com.devicetracker.R
 import com.devicetracker.User
 import com.devicetracker.ui.AppFloatingButton
+import com.devicetracker.ui.Destinations.NEW_MEMBER
+import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MemberListScreen(navigateMemberProfileCallBack: (String)-> Unit) {
+fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
     val userList = DataHelper.getDummyUserList()
     val context = LocalContext.current
-    Scaffold (floatingActionButton = {
-        AppFloatingButton {
-            Toast.makeText(context,"Floating button clicked", Toast.LENGTH_SHORT).show()
+    Scaffold (
+        topBar = {
+            TopAppBar(
+                title = { Text("Member List",  style = MaterialTheme.typography.headlineMedium) },
+                navigationIcon = {
+                    IconButton(onClick = openDrawer) {
+                        Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    titleContentColor = Color.Black,
+                ),
+            )
+        },
+        floatingActionButton = {
+            AppFloatingButton {
+                Toast.makeText(context,"Floating button clicked", Toast.LENGTH_SHORT).show()
+                navHostController.navigate(NEW_MEMBER)
+            }
         }
-    }) {
-        LazyColumn {
+    ) {
+        LazyColumn(modifier = Modifier.padding(top = it.calculateTopPadding())) {
             items(userList) {
-                UserRow(it, navigateMemberProfileCallBack)
+                UserRow(it) {
+                    navHostController.navigate("member_detail/$it")
+                }
             }
         }
     }

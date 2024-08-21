@@ -2,6 +2,10 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     kotlin("plugin.serialization") version "1.9.0"
+    id("com.google.gms.google-services")
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.hilt.plugin)
+    alias(libs.plugins.ksp.plugin)
 }
 
 android {
@@ -61,6 +65,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.volley)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -68,9 +73,24 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
+    implementation (libs.coil.kt.coil.compose)
+    implementation (libs.yalantis.ucrop)
+    implementation (libs.androidx.compose.material3.material3.v120)
+    implementation (libs.androidx.material.icons.extended)
+    implementation (libs.ui.tooling.preview)
     implementation(platform("io.github.jan-tennert.supabase:bom:2.3.0-beta-2"))
     implementation("io.github.jan-tennert.supabase:postgrest-kt")
     implementation("io.ktor:ktor-client-android:2.3.9")
+    implementation(libs.androidx.runtime.livedata)
+
+    // Import the Firebase BoM
+    implementation(platform(libs.firebase.bom))
+    // Declare the dependency for the Firebase Authentication library
+    implementation(libs.firebase.auth)
+
+    //Dagger Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
 
 }

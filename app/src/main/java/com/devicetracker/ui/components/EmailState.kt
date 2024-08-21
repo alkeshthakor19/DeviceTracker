@@ -1,5 +1,7 @@
-package com.devicetracker
+package com.devicetracker.ui.components
 
+import com.devicetracker.TextFiledState
+import com.devicetracker.textFiledStateSaver
 import java.util.regex.Pattern
 
 private const val EMAIL_VALIDATION_REGEX = "^(.+)@(.+)\$"
