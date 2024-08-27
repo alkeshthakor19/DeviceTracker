@@ -1,11 +1,11 @@
-package com.devicetracker
+package com.devicetracker.ui.components
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
 
-open class TextFiledState(
+open class TextFieldState(
     private val validator: (String) -> Boolean = {true},
     private val errorFor:(String) -> String = {""}
 ) {
@@ -44,7 +44,7 @@ open class TextFiledState(
     }
 }
 
-fun textFiledStateSaver(state: TextFiledState) = listSaver<TextFiledState, Any>(
+fun textFiledStateSaver(state: TextFieldState) = listSaver<TextFieldState, Any>(
     save = { listOf(it.text, it.isFocusedDirty) },
     restore = {
         state.apply {

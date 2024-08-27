@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,11 +18,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.devicetracker.R
+import com.devicetracker.ui.components.EmailField
 import com.devicetracker.ui.components.EmailState
 import com.devicetracker.ui.components.PasswordState
-import com.devicetracker.R
-import com.devicetracker.ui.components.EmailFiled
-import com.devicetracker.ui.components.PasswordTextFiled
+import com.devicetracker.ui.components.PasswordTextField
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -63,22 +62,14 @@ fun SignInContent(onSignInButtonCLick: (email: String, password: String) -> Unit
             fontWeight = FontWeight.Bold)
 
         Spacer(modifier = Modifier.height(160.dp))
-        EmailFiled(emailState)
+        EmailField(emailState)
         Spacer(modifier = Modifier.height(16.dp))
-        PasswordTextFiled(passwordState)
+        PasswordTextField(passwordState)
         Spacer(modifier = Modifier.height(36.dp))
         Button(onClick = onSignInAction) {
             Text(text ="Login", fontSize = 18.sp, modifier = Modifier.absolutePadding(8.dp,2.dp,8.dp,2.dp))
         }
     }
-}
-
-@Composable
-fun TextFieldError(textError: String = "Invalid email") {
-    Text(
-        text = textError,
-        color = MaterialTheme.colorScheme.error,
-    )
 }
 
 @Preview

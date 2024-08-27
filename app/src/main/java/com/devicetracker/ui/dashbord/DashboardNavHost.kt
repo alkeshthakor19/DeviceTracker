@@ -17,9 +17,9 @@ import com.devicetracker.ui.Destinations.NEW_MEMBER
 import com.devicetracker.ui.dashbord.assets.AssetDetailScreen
 import com.devicetracker.ui.dashbord.assets.DeviceListScreen
 import com.devicetracker.ui.dashbord.home.HomeScreen
+import com.devicetracker.ui.dashbord.member.AddMemberRoute
 import com.devicetracker.ui.dashbord.member.MemberListScreen
 import com.devicetracker.ui.dashbord.member.MemberProfileScreen
-import com.devicetracker.ui.dashbord.member.NewMember
 import kotlinx.coroutines.launch
 
 @Composable
@@ -43,7 +43,7 @@ fun DashboardNavHost(navigationController: NavHostController, drawerState: Drawe
         }
 
         composable(NEW_MEMBER) {
-            NewMember{
+            AddMemberRoute{
                 navigationController.navigateUp()
             }
         }

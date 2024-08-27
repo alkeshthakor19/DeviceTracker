@@ -30,6 +30,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +39,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.devicetracker.DataHelper
 import com.devicetracker.R
@@ -49,7 +52,11 @@ import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
-    val userList = DataHelper.getDummyUserList()
+    val memberViewModel: NewMemberViewModel = hiltViewModel()
+    memberViewModel.fetchMembers()
+    val members by memberViewModel.members.observeAsState(emptyList())
+
+    //val userList = DataHelper.getDummyUserList()
     val context = LocalContext.current
     Scaffold (
         topBar = {
@@ -74,7 +81,7 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
         }
     ) {
         LazyColumn(modifier = Modifier.padding(top = it.calculateTopPadding())) {
-            items(userList) {
+            items(members) {
                 UserRow(it) {
                     navHostController.navigate("member_detail/$it")
                 }
@@ -84,7 +91,7 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
 }
 
 @Composable
-fun UserRow(user: User, navigateMemberProfileCallBack: (String)-> Unit) {
+fun UserRow(member: Member, navigateMemberProfileCallBack: (String)-> Unit) {
     ElevatedCard (
         shape = CutCornerShape(topEnd = 24.dp, bottomStart = 24.dp),
         elevation = CardDefaults.cardElevation(
@@ -100,18 +107,18 @@ fun UserRow(user: User, navigateMemberProfileCallBack: (String)-> Unit) {
             modifier = Modifier
                 .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 .fillMaxWidth()
-                .clickable { navigateMemberProfileCallBack.invoke(user.id) },
+                .clickable { navigateMemberProfileCallBack.invoke(member.employeeCode.toString()) },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            UserPicture(user)
-            UserContent(user = user)
+            UserPicture(member)
+            UserContent(member = member)
         }
     }
 }
 
 @Composable
-fun UserPicture(user: User) {
+fun UserPicture(member: Member) {
     Card(
         shape = CircleShape,
         border = BorderStroke(
@@ -130,23 +137,23 @@ fun UserPicture(user: User) {
 }
 
 @Composable
-fun UserContent(user: User) {
+fun UserContent(member: Member) {
     Column(
         Modifier
             .padding(8.dp)
             .fillMaxWidth()
     ) {
         Text(
-            text = user.name,
+            text = member.memberName,
             style = MaterialTheme.typography.titleLarge
         )
         Row {
             Text(text = stringResource(id = R.string.str_emp_id), color = Color.Gray)
-            Text(text = user.empCode.toString())
+            Text(text = member.employeeCode.toString())
         }
         Row {
             Text(text = stringResource(id = R.string.str_email), color = Color.Gray)
-            Text(text = user.email)
+            Text(text = member.emailAddress)
         }
     }
 }

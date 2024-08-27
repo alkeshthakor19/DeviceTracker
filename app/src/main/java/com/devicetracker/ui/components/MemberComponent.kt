@@ -1,21 +1,36 @@
 package com.devicetracker.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import com.devicetracker.R
-import com.devicetracker.TextFiledState
-import com.devicetracker.ui.login.TextFieldError
 
 @Composable
-fun EmailFiled( emailState: TextFiledState) {
+fun TextFieldError(textError: String = "Invalid email") {
+    Row( horizontalArrangement = Arrangement.Start) {
+        Text(
+            text = textError,
+            color = MaterialTheme.colorScheme.error,
+        )
+    }
+}
+
+@Composable
+fun EmailField(emailState: TextFieldState) {
     OutlinedTextField(
         value = emailState.text,
         onValueChange = {
@@ -37,12 +52,11 @@ fun EmailFiled( emailState: TextFiledState) {
     emailState.getError()?.let {error ->
         TextFieldError(textError = error, )
     }
-    //emailState.text ="alkeshthakor@gmail.com"
 }
 
 @Composable
-fun PasswordTextFiled(
-    passwordState: TextFiledState
+fun PasswordTextField(
+    passwordState: TextFieldState
 ) {
     OutlinedTextField(
         value = passwordState.text,
@@ -57,6 +71,70 @@ fun PasswordTextFiled(
         isError = passwordState.showError(),
         visualTransformation = PasswordVisualTransformation()
     )
+}
 
-    //passwordState.text = "alkesjsj"
+@Composable
+fun EmployeeIdField(employeeId: TextFieldState) {
+    OutlinedTextField(
+        value = employeeId.text,
+        onValueChange = {
+            employeeId.text = it
+        },
+        label = {
+            Text(text = stringResource(R.string.str_employee_id))
+        },
+        modifier = Modifier
+            .onFocusChanged {
+            employeeId.onFocusChange(it.isFocused)
+            if(!it.isFocused) {
+                employeeId.enableShowError()
+            }
+        },
+        isError = employeeId.showError(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+        singleLine = true
+    )
+    employeeId.getError()?.let {error ->
+        TextFieldError(textError = error, )
+    }
+}
+
+@Composable
+fun MemberNameField(memberName: TextFieldState) {
+    OutlinedTextField(
+        value = memberName.text,
+        onValueChange = {
+            memberName.text = it
+        },
+        label = {
+            Text(text = stringResource(R.string.str_member_name))
+        },
+        modifier = Modifier.onFocusChanged {
+            memberName.onFocusChange(it.isFocused)
+            if(!it.isFocused) {
+                memberName.enableShowError()
+            }
+        },
+        isError = memberName.showError(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+        singleLine = true
+    )
+    memberName.getError()?.let {error ->
+        TextFieldError(textError = error, )
+    }
+}
+
+@Composable
+fun MemberTypeCheckBox(memberWritablePermission: BooleanFieldState){
+    Row(
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = memberWritablePermission.isChecked,
+            onCheckedChange = { memberWritablePermission.isChecked = it },
+            colors = CheckboxDefaults.colors(Color.Green)
+        )
+        Text(text = stringResource(R.string.str_member_permission))
+    }
 }

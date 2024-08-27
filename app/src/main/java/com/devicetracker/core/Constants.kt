@@ -4,8 +4,7 @@ object Constants {
     //App
     const val TAG = "AppTag"
 
-    //Screens
-    const val SIGN_IN_SCREEN = "Sign in"
-    const val FORGOT_PASSWORD_SCREEN = "Forgot password"
-    const val USER_PROFILE_SCREEN = "Profile"
+    //Database
+    const val COLLECTION_MEMBERS = "members"
+    const val FIRE_STORAGE_IMAGES = "images"
 }

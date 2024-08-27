@@ -2,11 +2,11 @@ package com.devicetracker.ui.dashbord.member
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,24 +20,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.RotateLeft
 import androidx.compose.material.icons.filled.RotateRight
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.filled.ZoomOut
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,9 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -59,42 +53,59 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import co.touchlab.kermit.Severity
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.devicetracker.R
+import com.devicetracker.domain.models.Response
+import com.devicetracker.noRippleClickable
+import com.devicetracker.singleClick
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
-import com.devicetracker.ui.home.isValidEmail
-import com.devicetracker.ui.home.isValidEmployeeId
-import com.devicetracker.ui.home.isValidUserName
-import com.devicetracker.ui.theme.DeviceTrackerTheme
+import com.devicetracker.ui.components.CheckBoxState
+import com.devicetracker.ui.components.EmailField
+import com.devicetracker.ui.components.EmailState
+import com.devicetracker.ui.components.EmployeeIdField
+import com.devicetracker.ui.components.EmployeeIdState
+import com.devicetracker.ui.components.MemberNameField
+import com.devicetracker.ui.components.MemberNameState
+import com.devicetracker.ui.components.MemberTypeCheckBox
+import com.devicetracker.ui.theme.AssetTrackerTheme
 
 @Composable
-fun NewMember(onNavUp: () -> Unit) {
+fun NewMemberScreen(onNavUp: () -> Unit) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         topBar = {
-            TopBarWithTitleAndBackNavigation(titleText = "New Member", onNavUp)
+            TopBarWithTitleAndBackNavigation(titleText = "New Member", onNavUp )
         },
     ) { paddingValues: PaddingValues ->
         Box(
             modifier = Modifier
-                .padding(paddingValues)
                 .fillMaxSize()
+                .padding(paddingValues)
                 .pointerInput(Unit) {
                     detectTransformGestures { _, pan, zoom, rotation ->
                         focusManager.clearFocus()
                         keyboardController?.hide()
                     }
-                }
+                },
         ) {
+            val newMemberViewModel: NewMemberViewModel = hiltViewModel()
             AddUser(
-                onUserSaved = { onNavUp() },
+                onMemberSaved = { imageUri, imageBitmap, employeeId, memberName, memberEmail, isMemberWritablePermission ->
+                    newMemberViewModel.uploadImageAndAddNewMemberToFirebase(
+                        imageUri,
+                        imageBitmap,
+                        employeeId,
+                        memberName,
+                        memberEmail,
+                        isMemberWritablePermission
+                    )
+                },
                 focusManager = focusManager,
                 keyboardController = keyboardController
             )
@@ -104,30 +115,23 @@ fun NewMember(onNavUp: () -> Unit) {
 
 @Composable
 fun AddUser(
-    onUserSaved: () -> Unit,
+    onMemberSaved: (imageUri: Uri?, imageBitmap: Bitmap?, employeeId: Int, memberName: String, memberEmail: String, isMemberWritablePermission: Boolean) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?
 ) {
-    var employeeId by remember { mutableStateOf(TextFieldValue()) }
-    var memberName by remember { mutableStateOf(TextFieldValue()) }
-    var emailId by remember { mutableStateOf(TextFieldValue()) }
+    val emailState = remember { EmailState() }
+    val employeeIdState = remember { EmployeeIdState() }
+    val memberNameState = remember { MemberNameState() }
+    val memberWritablePermission = remember { CheckBoxState() }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var showMenu by remember { mutableStateOf(false) }
-    var isEditingImage by remember { mutableStateOf(false) }
-    var imageOffset by remember { mutableStateOf(Offset.Zero) }
-    var imageScale by remember { mutableStateOf(1f) }
-    var imageRotation by remember { mutableStateOf(0f) }
-    var employeeIdError by remember { mutableStateOf<String?>(null) }
-    var userNameError by remember { mutableStateOf<String?>(null) }
-    var emailIdError by remember { mutableStateOf<String?>(null) }
 
     val galleryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
             imageUri = uri
             imageBitmap = null
-            isEditingImage = true
         }
     )
 
@@ -136,28 +140,13 @@ fun AddUser(
         onResult = { bitmap ->
             imageBitmap = bitmap
             imageUri = null
-            isEditingImage = true
         }
     )
 
-    val focusRequester = remember { FocusRequester() }
-
-    fun validateEmployeeId(value: String) {
-        employeeIdError = if (isValidEmployeeId(value)) null else "Employee ID must be an integer"
-    }
-
-    fun validateUserName(value: String) {
-        userNameError = if (isValidUserName(value)) null else "User Name must contain only characters"
-    }
-
-    fun validateEmail(value: String) {
-        emailIdError = if (isValidEmail(value)) null else "Invalid email format or domain"
-    }
-
     Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
+            .size(height = 600.dp, width = 400.dp)
+            .noRippleClickable {
                 focusManager.clearFocus()
                 keyboardController?.hide()
             }
@@ -165,6 +154,18 @@ fun AddUser(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val onAddNewMemberInAction = {
+            if(!employeeIdState.isValid) {
+                employeeIdState.enableShowError()
+            } else if(!memberNameState.isValid) {
+                memberNameState.enableShowError()
+            } else if(!emailState.isValid) {
+                emailState.enableShowError()
+            } else {
+                Log.d("NewMemberScreen", "nkp imageUri ${imageUri?.path}  ${imageUri}")
+                onMemberSaved(imageUri, imageBitmap, employeeIdState.text.toInt(), memberNameState.text, emailState.text,memberWritablePermission.isChecked)
+            }
+        }
         Box(
             modifier = Modifier
                 .size(120.dp)
@@ -172,26 +173,7 @@ fun AddUser(
                 .background(Color.Gray)
                 .align(Alignment.CenterHorizontally)
         ) {
-            val imageModifier = if (isEditingImage) {
-                Modifier
-                    .fillMaxSize()
-                    .graphicsLayer(
-                        scaleX = imageScale,
-                        scaleY = imageScale,
-                        translationX = imageOffset.x,
-                        translationY = imageOffset.y,
-                        rotationZ = imageRotation
-                    )
-                    .pointerInput(Unit) {
-                        detectTransformGestures { _, pan, zoom, rotation ->
-                            imageScale *= zoom
-                            imageRotation += rotation
-                            imageOffset = Offset(imageOffset.x + pan.x, imageOffset.y + pan.y)
-                        }
-                    }
-            } else {
-                Modifier.fillMaxSize()
-            }
+            val imageModifier = Modifier.fillMaxSize()
 
             imageBitmap?.let {
                 Image(
@@ -224,145 +206,83 @@ fun AddUser(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        if (isEditingImage) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(onClick = { imageRotation -= 15f }) {
-                    Icon(imageVector = Icons.Filled.RotateLeft, contentDescription = "Rotate Left")
-                }
-                IconButton(onClick = { imageRotation += 15f }) {
-                    Icon(imageVector = Icons.Filled.RotateRight, contentDescription = "Rotate Right")
-                }
-                IconButton(onClick = { imageScale *= 1.1f }) {
-                    Icon(imageVector = Icons.Filled.ZoomIn, contentDescription = "Zoom In")
-                }
-                IconButton(onClick = { imageScale /= 1.1f }) {
-                    Icon(imageVector = Icons.Filled.ZoomOut, contentDescription = "Zoom Out")
-                }
-            }
-        }
-
-        OutlinedTextField(
-            value = employeeId,
-            onValueChange = {
-                employeeId = it
-                validateEmployeeId(it.text)
-            },
-            label = { Text("Employee ID") },
-            isError = employeeIdError != null,
-            keyboardActions = KeyboardActions {  ImeAction.Next },
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .onFocusChanged { focusState ->
-                    if (focusState.isFocused) {
-                        keyboardController?.show()
-                    }
-                },
-            trailingIcon = {
-                if (employeeIdError != null) {
-                    Icon(imageVector = Severity.Error, contentDescription = "Error")
-                }
-            }
-        )
-        employeeIdError?.let {
-            Text(text = it, color = Color.Red, style = MaterialTheme.typography.bodySmall)
-        }
-
-        OutlinedTextField(
-            value = memberName,
-            onValueChange = {
-                memberName = it
-                validateUserName(it.text)
-            },
-            label = { Text("Member Name") },
-            isError = userNameError != null,
-            keyboardActions = KeyboardActions {  ImeAction.Next },
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .onFocusChanged { focusState ->
-                    if (focusState.isFocused) {
-                        keyboardController?.show()
-                    }
-                },
-            trailingIcon = {
-                if (userNameError != null) {
-                    Icon(imageVector = Severity.Error, contentDescription = "Error")
-                }
-            }
-        )
-        userNameError?.let {
-            Text(text = it, color = Color.Red, style = MaterialTheme.typography.bodySmall)
-        }
-
-        OutlinedTextField(
-            value = emailId,
-            onValueChange = {
-                emailId = it
-                validateEmail(it.text)
-            },
-            label = { Text("Email ID") },
-            isError = emailIdError != null,
-            keyboardActions = KeyboardActions {  ImeAction.Done },
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .onFocusChanged { focusState ->
-                    if (focusState.isFocused) {
-                        keyboardController?.show()
-                    }
-                },
-            trailingIcon = {
-                if (emailIdError != null) {
-                    Icon(imageVector = Icons.Filled.Error, contentDescription = "Error")
-                }
-            }
-        )
-        emailIdError?.let {
-            Text(text = it, color = Color.Red, style = MaterialTheme.typography.bodySmall)
-        }
-        DropdownMenu(
-            expanded = showMenu,
-            onDismissRequest = { showMenu = false }
-        ) {
-            DropdownMenuItem(
-                text = { Text("Capture Image") },
-                onClick = {
+        EmployeeIdField(employeeIdState)
+        MemberNameField(memberNameState)
+        EmailField(emailState)
+        MemberTypeCheckBox(memberWritablePermission)
+        if (showMenu){
+            ImagePickDialog(
+                {
                     showMenu = false
+                },
+                onCamera = {
                     cameraPicker.launch(null)
-                }
-            )
-            DropdownMenuItem(
-                text = { Text("Select from Gallery") },
-                onClick = {
                     showMenu = false
+                },
+                onGallery = {
                     galleryPicker.launch("image/*")
-                }
+                    showMenu = false
+                },
+                "Choose Image",
+                "Please select image from Gallery or Camera"
             )
         }
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(onClick = { onUserSaved() }) {
-                Text("Save")
+            Button(onClick = singleClick{onAddNewMemberInAction()}) {
+                Text(stringResource(id = R.string.str_save))
             }
         }
     }
 }
 
-fun Icon(imageVector: Severity, contentDescription: String) {
-    TODO("Not yet implemented")
+@Composable
+fun ImagePickDialog(
+    onDismissRequest: () -> Unit,
+    onCamera: () -> Unit,
+    onGallery: () -> Unit,
+    dialogTitle: String,
+    dialogText: String
+) {
+    AlertDialog(
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onCamera()
+                }
+            ) {
+                Text("Camera")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onGallery()
+                }
+            ) {
+                Text("Gallery")
+            }
+        }
+    )
 }
 
 @Preview
 @Composable
 private fun AddUserOrAssetPreview() {
-    DeviceTrackerTheme {
-        NewMember(onNavUp = {})
+    AssetTrackerTheme {
+        NewMemberScreen(onNavUp = {})
     }
 }

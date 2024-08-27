@@ -11,7 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.devicetracker.ui.Destinations.DASHBOARD_ROUTE
 import com.devicetracker.ui.Destinations.LOGIN_ROUTE
-import com.devicetracker.ui.theme.DeviceTrackerTheme
+import com.devicetracker.ui.theme.AssetTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            DeviceTrackerTheme {
+            AssetTrackerTheme {
                 navController = rememberNavController()
                 MainNavHost(navHostController = navController)
                 AuthState()

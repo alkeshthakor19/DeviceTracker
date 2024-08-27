@@ -21,6 +21,7 @@ materialIconsExtended = "1.6.8"
 ucropVersion = "2.2.6"
 uiToolingPreview = "1.5.0"
 volley = "1.2.1"
+firebaseStorageKtx = "21.0.0"
 
 [libraries]
 androidx-compose-material3-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3Version" }
@@ -31,6 +32,7 @@ firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 coil-kt-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilComposeVersion" }
+firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -53,6 +55,7 @@ hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-com
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
 volley = { group = "com.android.volley", name = "volley", version.ref = "volley" }
 yalantis-ucrop = { module = "com.github.yalantis:ucrop", version.ref = "ucropVersion" }
+firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 
 
 [plugins]

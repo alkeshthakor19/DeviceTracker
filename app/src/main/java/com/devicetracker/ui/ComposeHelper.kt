@@ -57,7 +57,6 @@ fun AppFloatingButton(onClick: () -> Unit) {
 
 @Composable
 fun ProgressBar() {
-    Log.d("progress", "nkp start")
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center

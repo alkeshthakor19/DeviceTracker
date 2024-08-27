@@ -10,27 +10,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.devicetracker.DataHelper
+import com.devicetracker.DataHelper.getDummyUserList
+import com.devicetracker.User
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MemberProfileScreen(memberId: String,onNavUp: () -> Unit) {
-    val memberData = DataHelper.getMemberById(memberId)
+    val memberViewModel: NewMemberViewModel = hiltViewModel()
+
+    val memberData = memberViewModel.members.value?.first { it.employeeCode.toString() == memberId }
     Scaffold(
         topBar = {
-            TopBarWithTitleAndBackNavigation(titleText = memberData.name, onNavUp)
+            TopBarWithTitleAndBackNavigation(titleText = memberData?.memberName ?: "NA", onNavUp)
         }
     ) {
         Column(modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 64.dp)){
             Row(Modifier.padding(top = 4.dp)) {
                 Text(text = "Emp_ID: ")
-                Text(text = "${memberData.empCode}", color = Color.Black)
+                Text(text = "${memberData?.employeeCode}", color = Color.Black)
             }
             Row(Modifier.padding(top = 4.dp)) {
                 Text(text = "Email: ")
-                Text(text = "${memberData.email}", color = Color.Black)
+                Text(text = "${memberData?.emailAddress}", color = Color.Black)
             }
             Row(Modifier.padding(top = 4.dp)) {
                 Text(text = "Date of Join: ")

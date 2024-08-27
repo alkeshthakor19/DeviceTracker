@@ -1,8 +1,6 @@
 package com.devicetracker.ui.components
 
-import com.devicetracker.TextFiledState
-
-class PasswordState : TextFiledState(validator = ::isPasswordValid, errorFor = ::passwordValidationError)
+class PasswordState : TextFieldState(validator = ::isPasswordValid, errorFor = ::passwordValidationError)
 private fun isPasswordValid(password: String): Boolean {
     return password.length > 3
 }

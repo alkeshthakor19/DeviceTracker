@@ -1,12 +1,10 @@
 package com.devicetracker.ui.components
 
-import com.devicetracker.TextFiledState
-import com.devicetracker.textFiledStateSaver
 import java.util.regex.Pattern
 
 private const val EMAIL_VALIDATION_REGEX = "^(.+)@(.+)\$"
 
-class EmailState (val email: String? = null) : TextFiledState(validator = :: isEmailValid, errorFor = ::emailValidationError) {
+class EmailState (val email: String? = null) : TextFieldState(validator = :: isEmailValid, errorFor = ::emailValidationError) {
     init {
         email?.let {
             text = it

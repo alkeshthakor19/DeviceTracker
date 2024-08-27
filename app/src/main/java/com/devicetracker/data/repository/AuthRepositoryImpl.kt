@@ -23,9 +23,7 @@ class AuthRepositoryImpl @Inject constructor(private val auth: FirebaseAuth) : A
     override suspend fun firebaseSignInWithEmailAndPassword(
         email: String, password: String
     ) = try {
-        Log.d("AuthRepositoryImpl", "nkp before")
         auth.signInWithEmailAndPassword(email, password).await()
-        Log.d("AuthRepositoryImpl", "nkp after")
         Success(true)
     } catch (e: Exception) {
         Failure(e)
