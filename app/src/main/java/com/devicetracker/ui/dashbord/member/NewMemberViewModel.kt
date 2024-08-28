@@ -3,7 +3,6 @@ package com.devicetracker.ui.dashbord.member
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,19 +10,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.devicetracker.core.Utils.Companion.showMessage
 import com.devicetracker.domain.models.Response
 import com.devicetracker.domain.repository.AddMemberResponse
 import com.devicetracker.domain.repository.GetMembersResponse
 import com.devicetracker.domain.repository.MemberRepository
-import com.devicetracker.domain.repository.UploadImageResponse
-import com.devicetracker.ui.ProgressBar
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,6 +29,9 @@ class NewMemberViewModel @Inject constructor(
     var addedMemberResponse by mutableStateOf<AddMemberResponse>(Response.Success(false))
         private set
 
+    var isLoaderShowing by mutableStateOf<Boolean>(true)
+        private set
+
     var getMemberResponse by mutableStateOf<GetMembersResponse>(Response.Success(null))
         private set
 
@@ -45,22 +41,41 @@ class NewMemberViewModel @Inject constructor(
         addedMemberResponse = repo.addMember(employeeCode,memberName, emailAddress, imageUrl, isMemberWritablePermission)
     }
 
-    fun uploadImageAndAddNewMemberToFirebase(imageUri: Uri?, imageBitmap: Bitmap?, employeeCode: Int, memberName: String, emailAddress: String, isMemberWritablePermission: Boolean) = viewModelScope.launch {
+    fun uploadImageAndAddNewMemberToFirebase(
+        imageUri: Uri?,
+        imageBitmap: Bitmap?,
+        employeeCode: Int,
+        memberName: String,
+        emailAddress: String,
+        isMemberWritablePermission: Boolean,
+        onNavUp: () -> Unit
+    ) = viewModelScope.launch {
         addedMemberResponse = Response.Loading
-        addedMemberResponse = repo.uploadImageAndAddNewMemberToFirebase(imageUri, imageBitmap, employeeCode,memberName, emailAddress, isMemberWritablePermission)
+        addedMemberResponse = repo.uploadImageAndAddNewMemberToFirebase(imageUri, imageBitmap, employeeCode,memberName, emailAddress, isMemberWritablePermission, onNavUp)
     }
 
     fun fetchMembers() = viewModelScope.launch {
-        //getMemberResponse = Response.Loading
+        isLoaderShowing = true
         getMemberResponse = repo.getMembersFromFirebase()
         if(getMemberResponse is Response.Success){
-            val querySnapshot = (getMemberResponse as Response.Success<QuerySnapshot?>).data
-            if (querySnapshot != null && !querySnapshot.isEmpty) {
-                val members = querySnapshot.documents.map { document ->
-                    document.toObject(Member::class.java) ?: Member()
+            try {
+                val querySnapshot = (getMemberResponse as Response.Success<QuerySnapshot?>).data
+                if (querySnapshot != null && !querySnapshot.isEmpty) {
+                    val members = querySnapshot.documents.map { document ->
+                        val member = document.toObject(Member::class.java) ?: Member()
+                        member.memberId = document.id
+                        member
+                    }
+                    _members.value = members
+                    isLoaderShowing = false
                 }
-                _members.value = members
+            } catch (e: Exception) {
+                Log.e(TAG, "Error data fetching : ${e.printStackTrace()}")
             }
         }
+    }
+
+    companion object {
+        private const val TAG = "NewMemberViewModel"
     }
 }

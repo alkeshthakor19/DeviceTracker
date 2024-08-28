@@ -10,8 +10,6 @@ import com.devicetracker.domain.models.Response.Success
 import com.devicetracker.domain.repository.AddMemberResponse
 import com.devicetracker.domain.repository.GetMembersResponse
 import com.devicetracker.domain.repository.MemberRepository
-import com.devicetracker.domain.repository.UploadImageResponse
-import com.devicetracker.ui.dashbord.member.Member
 import com.google.firebase.firestore.FieldValue.serverTimestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
@@ -30,7 +28,6 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
         imageUrl: String,
         isWritablePermission: Boolean
     ): AddMemberResponse = try {
-        Log.d("MemberRepositoryImpl", "nkp before")
         // Create a new user with a first and last name
         val member = hashMapOf(
             "employeeCode" to employeeCode,
@@ -43,14 +40,21 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
 
         // Add a new document with a generated ID
         db.collection(COLLECTION_MEMBERS).add(member).await()
-        Log.d("MemberRepositoryImpl", "nkp after")
         Success(true)
     } catch (e: Exception) {
         e.printStackTrace()
         Failure(e)
     }
 
-    override suspend fun uploadImageAndAddNewMemberToFirebase(imageUri: Uri?, imageBitmap: Bitmap?,  employeeCode: Int, memberName: String, emailAddress: String, isWritablePermission: Boolean): AddMemberResponse = try {
+    override suspend fun uploadImageAndAddNewMemberToFirebase(
+        imageUri: Uri?,
+        imageBitmap: Bitmap?,
+        employeeCode: Int,
+        memberName: String,
+        emailAddress: String,
+        isWritablePermission: Boolean,
+        onNavUp: () -> Unit
+    ): AddMemberResponse = try {
         val imageRef = storageReference.child("$FIRE_STORAGE_IMAGES/${UUID.randomUUID()}.jpg")
         val uploadTask = if (imageUri != null) {
             imageRef.putFile(imageUri)
@@ -66,7 +70,7 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
         uploadTask.await()
         val resultUri = imageRef.downloadUrl.await()
         addMember(employeeCode, memberName, emailAddress, resultUri.toString(), isWritablePermission)
-        Log.d("MemberRepositoryImpl", "nkp after resultPath ${resultUri}")
+        onNavUp()
         Success(true)
     } catch (e: Exception) {
         e.printStackTrace()

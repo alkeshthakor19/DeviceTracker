@@ -15,7 +15,7 @@ object Destinations {
     const val HOME = "home"
     const val MEMBERS = "members"
     const val NEW_MEMBER = "new_member"
-    const val MEMBER_DETAIL = "member_detail/{userId}"
+    const val MEMBER_DETAIL = "member_detail/{memberString}"
     const val ASSETS = "assets"
     const val ASSET_DETAIL = "assets_detail/{deviceId}"
     const val LOGOUT = "logout"

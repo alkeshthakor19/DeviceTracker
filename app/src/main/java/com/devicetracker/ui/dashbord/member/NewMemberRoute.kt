@@ -21,20 +21,15 @@ fun AddMemberRoute(onNavUp: () -> Unit) {
 }
 
 @Composable
-fun LoaderShowHide(
-    showErrorMessage: (errorMessage: String?) -> Unit
-) {
+fun LoaderShowHide(showErrorMessage: (errorMessage: String?) -> Unit) {
     val newMemberViewModel: NewMemberViewModel = hiltViewModel()
     val context = LocalContext.current
     when(val addedMemberResponse = newMemberViewModel.addedMemberResponse) {
         is Response.Loading -> ProgressBar()
         is Response.Success -> {
             val isAddedMember = addedMemberResponse.data
-            Log.d("AddMemberRoute", "nkp isAddedMember $isAddedMember")
-
             if (isAddedMember) {
                 showMessage(context, "Added new member successfully!!")
-                Log.d("AddMemberRoute", "nkp Added new member success.")
             }
             Unit
         }

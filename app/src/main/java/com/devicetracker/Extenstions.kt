@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.semantics.Role
+import com.google.gson.Gson
 
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier = composed {
@@ -49,4 +50,12 @@ fun singleClick(onClick: () -> Unit): () -> Unit {
             latest = now
         }
     }
+}
+
+fun <A> A.toJson(): String {
+    return Gson().toJson(this)
+}
+
+fun <A> String.fromJson(type: Class<A>): A {
+    return Gson().fromJson(this, type)
 }

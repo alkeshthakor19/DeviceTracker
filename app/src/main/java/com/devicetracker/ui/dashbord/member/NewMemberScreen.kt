@@ -22,15 +22,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.RotateLeft
-import androidx.compose.material.icons.filled.RotateRight
-import androidx.compose.material.icons.filled.ZoomIn
-import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -44,10 +39,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -66,7 +59,7 @@ import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.CheckBoxState
 import com.devicetracker.ui.components.EmailField
 import com.devicetracker.ui.components.EmailState
-import com.devicetracker.ui.components.EmployeeIdField
+import com.devicetracker.ui.components.EmployeeCodeField
 import com.devicetracker.ui.components.EmployeeIdState
 import com.devicetracker.ui.components.MemberNameField
 import com.devicetracker.ui.components.MemberNameState
@@ -95,7 +88,7 @@ fun NewMemberScreen(onNavUp: () -> Unit) {
                 },
         ) {
             val newMemberViewModel: NewMemberViewModel = hiltViewModel()
-            AddUser(
+            AddMember(
                 onMemberSaved = { imageUri, imageBitmap, employeeId, memberName, memberEmail, isMemberWritablePermission ->
                     newMemberViewModel.uploadImageAndAddNewMemberToFirebase(
                         imageUri,
@@ -103,7 +96,8 @@ fun NewMemberScreen(onNavUp: () -> Unit) {
                         employeeId,
                         memberName,
                         memberEmail,
-                        isMemberWritablePermission
+                        isMemberWritablePermission,
+                        onNavUp
                     )
                 },
                 focusManager = focusManager,
@@ -114,7 +108,7 @@ fun NewMemberScreen(onNavUp: () -> Unit) {
 }
 
 @Composable
-fun AddUser(
+fun AddMember(
     onMemberSaved: (imageUri: Uri?, imageBitmap: Bitmap?, employeeId: Int, memberName: String, memberEmail: String, isMemberWritablePermission: Boolean) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?
@@ -145,7 +139,6 @@ fun AddUser(
 
     Column(
         modifier = Modifier
-            .size(height = 600.dp, width = 400.dp)
             .noRippleClickable {
                 focusManager.clearFocus()
                 keyboardController?.hide()
@@ -206,7 +199,7 @@ fun AddUser(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        EmployeeIdField(employeeIdState)
+        EmployeeCodeField(employeeIdState)
         MemberNameField(memberNameState)
         EmailField(emailState)
         MemberTypeCheckBox(memberWritablePermission)

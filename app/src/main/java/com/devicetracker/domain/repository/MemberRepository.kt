@@ -12,7 +12,15 @@ typealias GetMembersResponse = Response<QuerySnapshot?>
 interface MemberRepository {
     suspend fun addMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, isWritablePermission: Boolean): AddMemberResponse
 
-    suspend fun uploadImageAndAddNewMemberToFirebase(imageUri: Uri?, imageBitmap: Bitmap?, employeeCode: Int, memberName: String, emailAddress: String, isWritablePermission: Boolean) : AddMemberResponse
+    suspend fun uploadImageAndAddNewMemberToFirebase(
+        imageUri: Uri?,
+        imageBitmap: Bitmap?,
+        employeeCode: Int,
+        memberName: String,
+        emailAddress: String,
+        isWritablePermission: Boolean,
+        onNavUp: () -> Unit
+    ) : AddMemberResponse
 
     suspend fun getMembersFromFirebase() : GetMembersResponse
 }

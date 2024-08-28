@@ -74,27 +74,27 @@ fun PasswordTextField(
 }
 
 @Composable
-fun EmployeeIdField(employeeId: TextFieldState) {
+fun EmployeeCodeField(employeeCode: TextFieldState) {
     OutlinedTextField(
-        value = employeeId.text,
+        value = employeeCode.text,
         onValueChange = {
-            employeeId.text = it
+            employeeCode.text = it
         },
         label = {
-            Text(text = stringResource(R.string.str_employee_id))
+            Text(text = stringResource(R.string.str_employee_code))
         },
         modifier = Modifier
             .onFocusChanged {
-            employeeId.onFocusChange(it.isFocused)
+            employeeCode.onFocusChange(it.isFocused)
             if(!it.isFocused) {
-                employeeId.enableShowError()
+                employeeCode.enableShowError()
             }
         },
-        isError = employeeId.showError(),
+        isError = employeeCode.showError(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
         singleLine = true
     )
-    employeeId.getError()?.let {error ->
+    employeeCode.getError()?.let { error ->
         TextFieldError(textError = error, )
     }
 }

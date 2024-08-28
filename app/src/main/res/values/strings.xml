@@ -2,7 +2,7 @@
     <string name="app_name">DeviceTracker</string>
     <string name="app_title">Device Tracker</string>
     <string name="str_email_address">Email Address</string>
-    <string name="str_employee_id">Employee Id</string>
+    <string name="str_employee_code">Employee Code</string>
     <string name="str_member_name">Member Name</string>
     <string name="str_member_permission">Does the member have to give written permission?</string>
     <string name="str_password">Password</string>
@@ -12,7 +12,7 @@
     <string name="str_home">Home</string>
     <string name="str_logout">Logout</string>
 
-    <string name="str_emp_id">Employee ID: </string>
+    <string name="str_emp_code">Employee Code: </string>
     <string name="str_email">Email: </string>
 
     <string name="str_device_type">Device Type: </string>

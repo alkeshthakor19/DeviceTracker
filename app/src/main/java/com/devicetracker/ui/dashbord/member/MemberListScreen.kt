@@ -30,23 +30,31 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.devicetracker.DataHelper
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.devicetracker.R
-import com.devicetracker.User
+import com.devicetracker.core.Utils.Companion.showMessage
+import com.devicetracker.domain.models.Response
+import com.devicetracker.toJson
 import com.devicetracker.ui.AppFloatingButton
 import com.devicetracker.ui.Destinations.NEW_MEMBER
-import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
+import com.devicetracker.ui.ProgressBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -56,7 +64,6 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
     memberViewModel.fetchMembers()
     val members by memberViewModel.members.observeAsState(emptyList())
 
-    //val userList = DataHelper.getDummyUserList()
     val context = LocalContext.current
     Scaffold (
         topBar = {
@@ -80,10 +87,14 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
             }
         }
     ) {
-        LazyColumn(modifier = Modifier.padding(top = it.calculateTopPadding())) {
-            items(members) {
-                UserRow(it) {
-                    navHostController.navigate("member_detail/$it")
+        if(memberViewModel.isLoaderShowing){
+            ProgressBar()
+        } else {
+            LazyColumn(modifier = Modifier.padding(top = it.calculateTopPadding())) {
+                items(members) {
+                    UserRow(it) { memberString ->
+                        navHostController.navigate("member_detail/${memberString}")
+                    }
                 }
             }
         }
@@ -103,11 +114,12 @@ fun UserRow(member: Member, navigateMemberProfileCallBack: (String)-> Unit) {
             .wrapContentHeight(align = Alignment.Top),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ){
+        val memberString = member.toJson()
         Row(
             modifier = Modifier
                 .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 .fillMaxWidth()
-                .clickable { navigateMemberProfileCallBack.invoke(member.employeeCode.toString()) },
+                .clickable { navigateMemberProfileCallBack.invoke(memberString) },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
@@ -126,12 +138,15 @@ fun UserPicture(member: Member) {
             color = MaterialTheme.colorScheme.secondary
         )
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_my_profile),
-            modifier = Modifier.size(72.dp),
-            contentDescription = stringResource(
-                id = R.string.app_name
-            )
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(member.imageUrl)
+                .crossfade(true)
+                .build(),
+            placeholder = painterResource(R.drawable.ic_person),
+            contentDescription = stringResource(R.string.app_name),
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(72.dp)
         )
     }
 }
@@ -148,7 +163,7 @@ fun UserContent(member: Member) {
             style = MaterialTheme.typography.titleLarge
         )
         Row {
-            Text(text = stringResource(id = R.string.str_emp_id), color = Color.Gray)
+            Text(text = stringResource(id = R.string.str_emp_code), color = Color.Gray)
             Text(text = member.employeeCode.toString())
         }
         Row {
