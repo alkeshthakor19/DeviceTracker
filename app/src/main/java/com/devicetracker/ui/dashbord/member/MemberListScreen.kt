@@ -1,9 +1,9 @@
 package com.devicetracker.ui.dashbord.member
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,7 +35,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -43,15 +42,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
-import com.devicetracker.core.Utils.Companion.showMessage
-import com.devicetracker.domain.models.Response
-import com.devicetracker.toJson
+import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
 import com.devicetracker.ui.Destinations.NEW_MEMBER
 import com.devicetracker.ui.ProgressBar
@@ -61,7 +56,7 @@ import com.devicetracker.ui.ProgressBar
 @Composable
 fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
     val memberViewModel: NewMemberViewModel = hiltViewModel()
-    memberViewModel.fetchMembers()
+    //memberViewModel.fetchMembers()
     val members by memberViewModel.members.observeAsState(emptyList())
 
     val context = LocalContext.current
@@ -82,7 +77,6 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
         },
         floatingActionButton = {
             AppFloatingButton {
-                Toast.makeText(context,"Floating button clicked", Toast.LENGTH_SHORT).show()
                 navHostController.navigate(NEW_MEMBER)
             }
         }
@@ -92,8 +86,9 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
         } else {
             LazyColumn(modifier = Modifier.padding(top = it.calculateTopPadding())) {
                 items(members) {
-                    UserRow(it) { memberString ->
-                        navHostController.navigate("member_detail/${memberString}")
+                    UserRow(it) { memberId ->
+                        Log.d("MemberListScreen", "nkp itemClick $memberId")
+                        navHostController.navigate("member_detail/$memberId")
                     }
                 }
             }
@@ -114,12 +109,11 @@ fun UserRow(member: Member, navigateMemberProfileCallBack: (String)-> Unit) {
             .wrapContentHeight(align = Alignment.Top),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ){
-        val memberString = member.toJson()
         Row(
             modifier = Modifier
                 .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 .fillMaxWidth()
-                .clickable { navigateMemberProfileCallBack.invoke(memberString) },
+                .noDoubleClick { navigateMemberProfileCallBack.invoke(member.memberId?:"") },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
@@ -143,7 +137,7 @@ fun UserPicture(member: Member) {
                 .data(member.imageUrl)
                 .crossfade(true)
                 .build(),
-            placeholder = painterResource(R.drawable.ic_person),
+            placeholder = painterResource(R.drawable.ic_baseline_users),
             contentDescription = stringResource(R.string.app_name),
             contentScale = ContentScale.Crop,
             modifier = Modifier.size(72.dp)

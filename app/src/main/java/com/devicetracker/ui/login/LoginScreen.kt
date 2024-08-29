@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -66,8 +67,17 @@ fun SignInContent(onSignInButtonCLick: (email: String, password: String) -> Unit
         Spacer(modifier = Modifier.height(16.dp))
         PasswordTextField(passwordState)
         Spacer(modifier = Modifier.height(36.dp))
-        Button(onClick = onSignInAction) {
-            Text(text ="Login", fontSize = 18.sp, modifier = Modifier.absolutePadding(8.dp,2.dp,8.dp,2.dp))
+        Button(onClick = {
+            // Enable error display on button click
+            emailState.enableShowError()
+            passwordState.enableShowError()
+
+            // Check if the input is valid before proceeding
+            if (emailState.isValid && passwordState.isValid) {
+                onSignInButtonCLick(emailState.text, passwordState.text)
+            }
+        }) {
+            Text(text = "Login", fontSize = 18.sp, modifier = Modifier.padding(8.dp, 2.dp, 8.dp, 2.dp))
         }
     }
 }

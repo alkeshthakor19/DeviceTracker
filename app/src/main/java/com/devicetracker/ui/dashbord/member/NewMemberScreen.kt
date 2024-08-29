@@ -221,12 +221,15 @@ fun AddMember(
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(onClick = singleClick{onAddNewMemberInAction()}) {
+            Button(
+                onClick = singleClick{
+                    onAddNewMemberInAction()
+                    keyboardController?.hide()
+                }) {
                 Text(stringResource(id = R.string.str_save))
             }
         }

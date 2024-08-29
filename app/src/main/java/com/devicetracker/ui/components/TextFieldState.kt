@@ -20,7 +20,7 @@ open class TextFieldState(
 
 
     open val isValid: Boolean
-        get() = validator(text)
+        get() = text.isNotBlank() && validator(text)
 
 
     fun onFocusChange(focused: Boolean) {
@@ -39,7 +39,7 @@ open class TextFieldState(
 
     open fun getError(): String? {
         return if(showError()) {
-            errorFor(text)
+            if (text.isBlank()) "Cannot be empty" else errorFor(text)
         } else null
     }
 }

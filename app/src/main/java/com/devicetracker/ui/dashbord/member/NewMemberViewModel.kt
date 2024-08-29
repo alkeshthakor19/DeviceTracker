@@ -9,22 +9,29 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.devicetracker.domain.models.Response
 import com.devicetracker.domain.repository.AddMemberResponse
+import com.devicetracker.domain.repository.GetMembersByIdResponse
 import com.devicetracker.domain.repository.GetMembersResponse
 import com.devicetracker.domain.repository.MemberRepository
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class NewMemberViewModel @Inject constructor(
     private val repo: MemberRepository
 ) :  ViewModel() {
-    private val _members = MutableLiveData<List<Member>>()
-    val members: LiveData<List<Member>> = _members
+    //private val _members = MutableLiveData<List<Member>>()
+    private val _member = MutableLiveData<Member>()
+    //var members: LiveData<List<Member>> = _members
+    val member: LiveData<Member> = _member
 
     var addedMemberResponse by mutableStateOf<AddMemberResponse>(Response.Success(false))
         private set
@@ -32,7 +39,10 @@ class NewMemberViewModel @Inject constructor(
     var isLoaderShowing by mutableStateOf<Boolean>(true)
         private set
 
-    var getMemberResponse by mutableStateOf<GetMembersResponse>(Response.Success(null))
+    /*var getMemberResponse by mutableStateOf<GetMembersResponse>(Response.Success(null))
+        private set
+*/
+    var getMembersByIdResponse by mutableStateOf<GetMembersByIdResponse>(Response.Success(null))
         private set
 
     fun addNewMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, isMemberWritablePermission: Boolean) = viewModelScope.launch {
@@ -54,10 +64,17 @@ class NewMemberViewModel @Inject constructor(
         addedMemberResponse = repo.uploadImageAndAddNewMemberToFirebase(imageUri, imageBitmap, employeeCode,memberName, emailAddress, isMemberWritablePermission, onNavUp)
     }
 
-    fun fetchMembers() = viewModelScope.launch {
+    var members = liveData(Dispatchers.IO) {
+        isLoaderShowing = true
+        val result = repo.getMembersFromFirebase()
+        isLoaderShowing = false
+        emit(result)
+    }
+
+    /*fun fetchMembers() = viewModelScope.launch {
         isLoaderShowing = true
         getMemberResponse = repo.getMembersFromFirebase()
-        if(getMemberResponse is Response.Success){
+        if(getMemberResponse is Response.Success) {
             try {
                 val querySnapshot = (getMemberResponse as Response.Success<QuerySnapshot?>).data
                 if (querySnapshot != null && !querySnapshot.isEmpty) {
@@ -66,8 +83,26 @@ class NewMemberViewModel @Inject constructor(
                         member.memberId = document.id
                         member
                     }
-                    _members.value = members
                     isLoaderShowing = false
+                    _members.value = members
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error data fetching : ${e.printStackTrace()}")
+            }
+        }
+    }*/
+
+    fun getMemberDetailById(memberId: String) = viewModelScope.launch {
+        isLoaderShowing = true
+        getMembersByIdResponse = repo.getMembersDetailById(memberId)
+        if(getMembersByIdResponse is Response.Success){
+            try {
+                val documentSnapshot = (getMembersByIdResponse as Response.Success<DocumentSnapshot?>).data
+                if (documentSnapshot != null) {
+                    val member = documentSnapshot.toObject(Member::class.java) ?: Member()
+                    member.memberId = documentSnapshot.id
+                    isLoaderShowing = false
+                    _member.value = member
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error data fetching : ${e.printStackTrace()}")

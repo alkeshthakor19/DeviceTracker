@@ -106,6 +106,18 @@ object DataHelper {
 
     }
 
+    fun getAssignAssetDummyList(): List<Device> {
+        val deviceList: MutableList<Device> = mutableListOf()
+        deviceList.add(Device(1,"Samsung Galaxy S6",DeviceType.TAB.ordinal))
+
+        deviceList.add(Device(2,"Trizon USB",DeviceType.USB.ordinal))
+        deviceList.add(Device(3,"TORSO one",DeviceType.PROB.ordinal))
+        deviceList.add(Device(4,"LEXSA",DeviceType.PROB.ordinal))
+
+        return deviceList
+
+    }
+
     fun getDeviceById(deviceId: Int): Device {
         return getDeviceDummyList().first { it.id == deviceId }
     }

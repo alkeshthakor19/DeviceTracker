@@ -155,7 +155,7 @@ fun DeviceContent(device: Device) {
                stringResource(id = R.string.str_device_type_other)
            }
            Row {
-              Text(text = stringResource(id = R.string.str_device_type), color = Color.Gray)
+              Text(text = stringResource(id = R.string.str_asset_type), color = Color.Gray)
               Text(text = deviceTypeName)
           }
     }

@@ -8,7 +8,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.devicetracker.fromJson
 import com.devicetracker.ui.Destinations.ASSETS
 import com.devicetracker.ui.Destinations.ASSET_DETAIL
 import com.devicetracker.ui.Destinations.HOME
@@ -52,17 +51,14 @@ fun DashboardNavHost(navigationController: NavHostController, drawerState: Drawe
 
         composable(
             MEMBER_DETAIL,
-            arguments = listOf(navArgument("memberString"){ type = NavType.StringType })
+            arguments = listOf(navArgument("memberId"){ type = NavType.StringType})
         ) {
-            it.arguments?.getString("memberString")?.let { jsonString ->
-                val member = jsonString.fromJson(Member::class.java)
-                MemberProfileScreen(
-                    memberData = member,
-                    onNavUp = {
-                        navigationController.navigateUp()
-                    }
-                )
-            }
+            MemberProfileScreen(
+                memberId = it.arguments?.getString("memberId")?:"",
+                onNavUp = {
+                    navigationController.navigateUp()
+                }
+            )
         }
 
         composable(

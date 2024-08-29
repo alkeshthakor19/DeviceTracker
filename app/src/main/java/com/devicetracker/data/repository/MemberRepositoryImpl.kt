@@ -8,8 +8,10 @@ import com.devicetracker.core.Constants.FIRE_STORAGE_IMAGES
 import com.devicetracker.domain.models.Response.Failure
 import com.devicetracker.domain.models.Response.Success
 import com.devicetracker.domain.repository.AddMemberResponse
+import com.devicetracker.domain.repository.GetMembersByIdResponse
 import com.devicetracker.domain.repository.GetMembersResponse
 import com.devicetracker.domain.repository.MemberRepository
+import com.devicetracker.ui.dashbord.member.Member
 import com.google.firebase.firestore.FieldValue.serverTimestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
@@ -71,15 +73,36 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
         val resultUri = imageRef.downloadUrl.await()
         addMember(employeeCode, memberName, emailAddress, resultUri.toString(), isWritablePermission)
         onNavUp()
+        Log.d("MemberRepositoryImpl", "nkp uploadImageAndAddNewMemberToFirebase()")
         Success(true)
     } catch (e: Exception) {
         e.printStackTrace()
         Failure(e)
     }
 
-    override suspend fun getMembersFromFirebase() : GetMembersResponse = try {
+    override suspend fun getMembersFromFirebase() : GetMembersResponse {
         val querySnapshot = db.collection(COLLECTION_MEMBERS).get().await()
-        Success(querySnapshot)
+        Log.d("MemberRepositoryImpl", "nkp getMembersFromFirebase()")
+        var members : List<Member> = emptyList()
+        try {
+            if (querySnapshot != null && !querySnapshot.isEmpty) {
+                members = querySnapshot.documents.map { document ->
+                    val member = document.toObject(Member::class.java) ?: Member()
+                    member.memberId = document.id
+                    member
+                }
+            }
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
+
+        return members
+    }
+
+    override suspend fun getMembersDetailById(memberId: String): GetMembersByIdResponse  = try {
+        val documentSnapshot = db.collection(COLLECTION_MEMBERS).document(memberId).get().await()
+        Log.d("MemberRepositoryImpl", "nkp getMembersDetailById()")
+        Success(documentSnapshot)
     } catch (e: Exception) {
         e.printStackTrace()
         Failure(e)
