@@ -29,8 +29,6 @@ import com.devicetracker.ui.Destinations.HOME
 import com.devicetracker.ui.Destinations.LOGOUT
 import com.devicetracker.ui.Destinations.MEMBERS
 import com.devicetracker.ui.dashbord.home.HomeScreenVM
-import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -115,6 +113,6 @@ fun DashboardRoute() {
                }
           },
      ){
-          DashboardNavHost(navigationController, drawerState)
+          DashboardNavHostContent(navigationController, drawerState)
      }
 }

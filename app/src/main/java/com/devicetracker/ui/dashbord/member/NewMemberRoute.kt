@@ -4,7 +4,9 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Observer
 import com.devicetracker.core.Utils.Companion.showMessage
 import com.devicetracker.domain.models.Response
 import com.devicetracker.ui.ProgressBar
@@ -30,6 +32,7 @@ fun LoaderShowHide(showErrorMessage: (errorMessage: String?) -> Unit) {
             val isAddedMember = addedMemberResponse.data
             if (isAddedMember) {
                 showMessage(context, "Added new member successfully!!")
+                newMemberViewModel.refreshMembers()
             }
             Unit
         }

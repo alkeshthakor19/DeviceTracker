@@ -1,6 +1,7 @@
 package com.devicetracker.ui
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun AuthState() {
         val isUserSignedOut = viewModel.getAuthState().collectAsState().value
+        Log.d("MainActivity", "nkp isUserSignedOut $isUserSignedOut")
         if (isUserSignedOut) {
             NavigateToSignInScreen()
         } else {

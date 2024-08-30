@@ -9,7 +9,7 @@ import com.devicetracker.ui.login.component.SignIn
 
 
 @Composable
-fun LoginRoute() {
+fun LoginRoute(onLoginSuccess: () -> Unit) {
     val context = LocalContext.current
     val loginViewModel: LoginViewModel = hiltViewModel()
     LoginScreen(
@@ -21,6 +21,7 @@ fun LoginRoute() {
     SignIn(
         showErrorMessage = { errorMessage ->
             showMessage(context, errorMessage)
-        }
+        },
+        onLoginSuccess = onLoginSuccess
     )
 }

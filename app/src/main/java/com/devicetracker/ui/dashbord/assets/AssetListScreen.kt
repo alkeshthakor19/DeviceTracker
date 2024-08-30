@@ -46,7 +46,7 @@ import com.devicetracker.ui.AppFloatingButton
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun DeviceListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
+fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
     val deviceList = DataHelper.getDeviceDummyList()
     Scaffold(
         topBar = {

@@ -22,14 +22,16 @@ object Destinations {
 }
 
 @Composable
-fun MainNavHost(
-    navHostController: NavHostController
-) {
+fun MainNavHost(navHostController: NavHostController) {
     NavHost(navController = navHostController, startDestination = LOGIN_ROUTE) {
         composable(LOGIN_ROUTE) {
-            LoginRoute()
+            LoginRoute {
+                navHostController.navigate(DASHBOARD_ROUTE) {
+                    // Clear the navigation stack
+                    popUpTo(LOGIN_ROUTE) { inclusive = true }
+                }
+            }
         }
-
         composable(DASHBOARD_ROUTE) {
             DashboardRoute()
         }

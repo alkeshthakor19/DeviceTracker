@@ -13,7 +13,8 @@ import com.devicetracker.ui.login.LoginViewModel
 @Composable
 fun SignIn(
     viewModel: LoginViewModel = hiltViewModel(),
-    showErrorMessage: (errorMessage: String?) -> Unit
+    showErrorMessage: (errorMessage: String?) -> Unit,
+    onLoginSuccess: () -> Unit
 ) {
     val context = LocalContext.current
     when(val signInResponse = viewModel.loginInResponse) {
@@ -23,6 +24,7 @@ fun SignIn(
             if (isSignedIn) {
                 showMessage(context, "Login successfully!!")
                 Log.d("SignIn", "nkp Login success")
+                onLoginSuccess()
             }
             Unit
         }

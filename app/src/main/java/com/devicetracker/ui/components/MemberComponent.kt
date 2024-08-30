@@ -41,7 +41,7 @@ fun EmailField(emailState: TextFieldState) {
         },
         modifier = Modifier.onFocusChanged {
             emailState.onFocusChange(it.isFocused)
-            if(!it.isFocused) {
+            if(it.isFocused) {
                 emailState.enableShowError()
             }
         },
@@ -86,7 +86,7 @@ fun EmployeeCodeField(employeeCode: TextFieldState) {
         modifier = Modifier
             .onFocusChanged {
             employeeCode.onFocusChange(it.isFocused)
-            if(!it.isFocused) {
+            if(it.isFocused) {
                 employeeCode.enableShowError()
             }
         },
@@ -111,7 +111,7 @@ fun MemberNameField(memberName: TextFieldState) {
         },
         modifier = Modifier.onFocusChanged {
             memberName.onFocusChange(it.isFocused)
-            if(!it.isFocused) {
+            if(it.isFocused) {
                 memberName.enableShowError()
             }
         },

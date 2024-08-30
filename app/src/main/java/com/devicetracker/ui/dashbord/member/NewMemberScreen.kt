@@ -42,6 +42,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -52,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberImagePainter
 import com.devicetracker.R
-import com.devicetracker.domain.models.Response
 import com.devicetracker.noRippleClickable
 import com.devicetracker.singleClick
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
@@ -114,7 +114,7 @@ fun AddMember(
     keyboardController: SoftwareKeyboardController?
 ) {
     val emailState = remember { EmailState() }
-    val employeeIdState = remember { EmployeeIdState() }
+    val employeeCodeState = remember { EmployeeIdState() }
     val memberNameState = remember { MemberNameState() }
     val memberWritablePermission = remember { CheckBoxState() }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
@@ -148,17 +148,29 @@ fun AddMember(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val onAddNewMemberInAction = {
-            if(!employeeIdState.isValid) {
-                employeeIdState.enableShowError()
+            if(!employeeCodeState.isValid) {
+                employeeCodeState.enableShowError()
             } else if(!memberNameState.isValid) {
                 memberNameState.enableShowError()
             } else if(!emailState.isValid) {
                 emailState.enableShowError()
             } else {
                 Log.d("NewMemberScreen", "nkp imageUri ${imageUri?.path}  ${imageUri}")
-                onMemberSaved(imageUri, imageBitmap, employeeIdState.text.toInt(), memberNameState.text, emailState.text,memberWritablePermission.isChecked)
+                onMemberSaved(imageUri, imageBitmap, employeeCodeState.text.toInt(), memberNameState.text, emailState.text,memberWritablePermission.isChecked)
             }
         }
+
+        /*val onAddNewMemberInAction = {
+            if(employeeCodeState.isValid && memberNameState.isValid && emailState.isValid) {
+                Log.d("NewMemberScreen", "nkp imageUri ${imageUri?.path}  ${imageUri}")
+                onMemberSaved(imageUri, imageBitmap, employeeCodeState.text.toInt(), memberNameState.text, emailState.text,memberWritablePermission.isChecked)
+                imageUri = null
+                imageBitmap = null
+                employeeCodeState.text = ""
+                emailState.text = ""
+                memberNameState.text = ""
+            }
+        }*/
         Box(
             modifier = Modifier
                 .size(120.dp)
@@ -172,18 +184,21 @@ fun AddMember(
                 Image(
                     bitmap = it.asImageBitmap(),
                     contentDescription = null,
-                    modifier = imageModifier
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop
                 )
             } ?: imageUri?.let {
                 Image(
                     painter = rememberImagePainter(it),
                     contentDescription = null,
-                    modifier = imageModifier
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop
                 )
             } ?: Image(
                 painter = painterResource(id = R.drawable.ic_person),
                 contentDescription = "Profile Picture",
-                modifier = imageModifier
+                modifier = imageModifier,
+                contentScale = ContentScale.Crop
             )
 
             FloatingActionButton(
@@ -199,7 +214,7 @@ fun AddMember(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        EmployeeCodeField(employeeIdState)
+        EmployeeCodeField(employeeCodeState)
         MemberNameField(memberNameState)
         EmailField(emailState)
         MemberTypeCheckBox(memberWritablePermission)

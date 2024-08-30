@@ -64,11 +64,26 @@ class NewMemberViewModel @Inject constructor(
         addedMemberResponse = repo.uploadImageAndAddNewMemberToFirebase(imageUri, imageBitmap, employeeCode,memberName, emailAddress, isMemberWritablePermission, onNavUp)
     }
 
-    var members = liveData(Dispatchers.IO) {
+    /*var members = liveData(Dispatchers.IO) {
         isLoaderShowing = true
         val result = repo.getMembersFromFirebase()
         isLoaderShowing = false
         emit(result)
+    }*/
+
+    val members = liveData(Dispatchers.IO) {
+        emit(fetchMembers())
+    }
+
+    private suspend fun fetchMembers(): GetMembersResponse {
+        isLoaderShowing = true
+        val result = repo.getMembersFromFirebase()
+        isLoaderShowing = false
+        return result
+    }
+
+    fun refreshMembers() = liveData(Dispatchers.IO) {
+        emit(fetchMembers())
     }
 
     /*fun fetchMembers() = viewModelScope.launch {

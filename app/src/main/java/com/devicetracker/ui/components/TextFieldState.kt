@@ -25,13 +25,10 @@ open class TextFieldState(
 
     fun onFocusChange(focused: Boolean) {
         isFocused = focused
-        if(focused) isFocusedDirty = true
     }
 
     fun enableShowError() {
-        if(isFocusedDirty) {
             displayError = true
-        }
     }
 
 
@@ -45,11 +42,11 @@ open class TextFieldState(
 }
 
 fun textFiledStateSaver(state: TextFieldState) = listSaver<TextFieldState, Any>(
-    save = { listOf(it.text, it.isFocusedDirty) },
+    save = { listOf(it.text, it.isFocused) },
     restore = {
         state.apply {
             text = it[0] as String
-            isFocusedDirty = it[1] as Boolean
+            isFocused = it[1] as Boolean
         }
     }
 )
