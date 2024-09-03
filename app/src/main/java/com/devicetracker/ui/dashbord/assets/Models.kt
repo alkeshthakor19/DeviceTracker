@@ -25,8 +25,6 @@ fun getModelsForAssetType(assetType: AssetType): List<String> {
             "TORSO",
             "Lexsa"
         )
-        AssetType.OTHER -> listOf(
-            "NA"
-        )
+        AssetType.OTHER -> emptyList()
     }
 }

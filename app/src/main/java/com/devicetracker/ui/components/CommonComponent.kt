@@ -17,3 +17,8 @@ fun LabelText(labelText: String){
 fun BodyText(bodyText: String){
     Text(text = bodyText,style = MaterialTheme.typography.bodyLarge, fontStyle = FontStyle.Italic, fontSize = 18.sp,  color = Color.Black)
 }
+
+@Composable
+fun BlackLabelText(labelText: String){
+    Text(text = labelText, fontSize = 18.sp, fontStyle = FontStyle.Normal, fontWeight = FontWeight.SemiBold, color = Color.Black)
+}

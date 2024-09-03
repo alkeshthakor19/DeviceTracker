@@ -27,4 +27,6 @@
 
     <string name="str_asset_name">Asset Name</string>
 
+    <string name="str_asset_owner">Asset Owner</string>
+    <string name="str_description_name">Description</string>
 </resources>

@@ -14,7 +14,7 @@ typealias GetAssetsResponse = List<Asset>
 typealias GetAssetsByIdResponse = Response<DocumentSnapshot?>
 
 interface AssetRepository {
-    suspend fun addAsset(assetName: String, assetType: String, model: String, imageUrl: String): AddAssetResponse
+    suspend fun addAsset(assetName: String, assetType: String, model: String, description: String ,selectedMember: Member, imageUrl: String): AddAssetResponse
 
     suspend fun uploadImageAndAddNewAssetToFirebase(
         imageUri: Uri?,
@@ -22,6 +22,8 @@ interface AssetRepository {
         assetName: String,
         assetType: String,
         model: String,
+        description: String,
+        selectedMember: Member,
         onNavUp: () -> Unit
     ) : AddAssetResponse
 

@@ -17,6 +17,7 @@ import com.devicetracker.domain.repository.AssetRepository
 import com.devicetracker.domain.repository.GetAssetsByIdResponse
 import com.devicetracker.domain.repository.GetAssetsResponse
 import com.devicetracker.domain.repository.GetMembersResponse
+import com.devicetracker.ui.dashbord.member.Member
 import com.google.firebase.firestore.DocumentSnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -39,9 +40,9 @@ class NewAssetViewModel @Inject constructor(
     var getAssetsByIdResponse by mutableStateOf<GetAssetsByIdResponse>(Response.Success(null))
         private set
 
-    fun addNewAsset(assetName: String, assetType: String, model: String, imageUrl: String) = viewModelScope.launch {
+    fun addNewAsset(assetName: String, assetType: String, model: String, description: String, selectedMember: Member, imageUrl: String) = viewModelScope.launch {
         addedAssetResponse = Response.Loading
-        addedAssetResponse = repo.addAsset(assetName, assetType, model, imageUrl)
+        addedAssetResponse = repo.addAsset(assetName, assetType, model, description, selectedMember, imageUrl)
     }
 
     fun uploadImageAndAddNewAssetToFirebase(
@@ -50,6 +51,8 @@ class NewAssetViewModel @Inject constructor(
         assetName: String,
         assetType: String,
         model: String,
+        description: String,
+        selectedMember: Member,
         onNavUp: () -> Unit
     ) = viewModelScope.launch {
         addedAssetResponse = Response.Loading
@@ -59,6 +62,8 @@ class NewAssetViewModel @Inject constructor(
             assetName,
             assetType,
             model,
+            description,
+            selectedMember,
             onNavUp
         )
     }

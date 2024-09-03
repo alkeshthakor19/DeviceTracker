@@ -58,6 +58,11 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
                 navigationController.navigateUp()
             }
         }
+        composable(NEW_ASSET){
+            AddAssetRoute {
+                navigationController.navigateUp()
+            }
+        }
         composable(
             MEMBER_DETAIL,
             arguments = listOf(navArgument("memberId") { type = NavType.StringType })

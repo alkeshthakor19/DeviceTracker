@@ -38,7 +38,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -47,8 +46,8 @@ import com.devicetracker.DataHelper
 import com.devicetracker.R
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
+import com.devicetracker.ui.components.BlackLabelText
 import com.devicetracker.ui.components.BodyText
-import com.devicetracker.ui.components.LabelText
 import com.devicetracker.ui.dashbord.member.Member
 import com.devicetracker.ui.dashbord.member.UserPicture
 
@@ -79,11 +78,9 @@ fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit) {
                 item {
                     AssetDetailSection(assetData)
                     Spacer(modifier = Modifier.height(25.dp))
-                    Text(
-                        text = "Currently Assigned Member",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontStyle = FontStyle.Italic
-                    )
+                    DescriptionSection(assetData?.description)
+                    Spacer(modifier = Modifier.height(25.dp))
+                    BlackLabelText("Currently Assigned Member: ")
                 }
                 assignMemberListSection()
                 assetHistorySection()
@@ -132,6 +129,16 @@ fun LazyListScope.assignMemberListSection() {
     items(memberList) {
         AssignedMemberRow(member = it) {
 
+        }
+    }
+}
+
+@Composable
+fun DescriptionSection(text: String?) {
+    if (!text.isNullOrBlank()) {
+        Row(Modifier.padding(top = 4.dp)) {
+            BlackLabelText("Description: ")
+            BodyText(text)
         }
     }
 }
