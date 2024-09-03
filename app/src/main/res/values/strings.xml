@@ -8,7 +8,7 @@
     <string name="str_password">Password</string>
     <string name="str_welcome_to_asset_tracker">Welcome to Asset Tracker</string>
     <string name="str_member">Members</string>
-    <string name="str_devices">Devices</string>
+    <string name="str_devices">Assets</string>
     <string name="str_home">Home</string>
     <string name="str_logout">Logout</string>
 
@@ -16,11 +16,15 @@
     <string name="str_email">Email: </string>
 
     <string name="str_asset_type">Asset Type: </string>
+    <string name="str_asset_model">Model: </string>
     <string name="str_asset_assign_date">Assign Date: </string>
     <string name="str_device_type_tab">TAB</string>
     <string name="str_device_type_storage">USB STORAGE</string>
     <string name="str_device_type_cable">CABLE</string>
+    <string name="str_device_type_probe">PROBE</string>
     <string name="str_device_type_other">OTHER</string>
     <string name="str_save">SAVE</string>
+
+    <string name="str_asset_name">Asset Name</string>
 
 </resources>

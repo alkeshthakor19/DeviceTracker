@@ -1,4 +1,4 @@
-package com.devicetracker.ui.dashbord.member
+package com.devicetracker.ui.dashbord.assets
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -9,9 +9,9 @@ import com.devicetracker.domain.models.Response
 import com.devicetracker.ui.ProgressBar
 
 @Composable
-fun AddMemberRoute(onNavUp: () -> Unit) {
+fun AddAssetRoute(onNavUp: () -> Unit) {
     val context = LocalContext.current
-    NewMemberScreen(onNavUp)
+    NewAssetScreen(onNavUp)
     LoaderShowHide(
         showErrorMessage = { errorMessage ->
             showMessage(context, errorMessage)
@@ -21,19 +21,19 @@ fun AddMemberRoute(onNavUp: () -> Unit) {
 
 @Composable
 fun LoaderShowHide(showErrorMessage: (errorMessage: String?) -> Unit) {
-    val newMemberViewModel: NewMemberViewModel = hiltViewModel()
+    val newAssetViewModel: NewAssetViewModel = hiltViewModel()
     val context = LocalContext.current
-    when(val addedMemberResponse = newMemberViewModel.addedMemberResponse) {
+    when(val addedAssetResponse = newAssetViewModel.addedAssetResponse) {
         is Response.Loading -> ProgressBar()
         is Response.Success -> {
-            val isAddedMember = addedMemberResponse.data
-            if (isAddedMember) {
-                showMessage(context, "Added new member successfully!!")
-                newMemberViewModel.refreshMembers()
+            val isAddedAsset = addedAssetResponse.data
+            if (isAddedAsset) {
+                showMessage(context, "Added new asset successfully!!")
+                newAssetViewModel.refreshAssets()
             }
             Unit
         }
-        is Response.Failure -> addedMemberResponse.apply {
+        is Response.Failure -> addedAssetResponse.apply {
             LaunchedEffect(e) {
                 print(e)
                 showErrorMessage(e.message)

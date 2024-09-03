@@ -3,7 +3,6 @@ package com.devicetracker.ui.dashbord.assets
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +28,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,18 +37,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.devicetracker.DataHelper
-import com.devicetracker.Device
-import com.devicetracker.DeviceType
 import com.devicetracker.R
+import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
+import com.devicetracker.ui.Destinations.NEW_ASSET
+import com.devicetracker.ui.ProgressBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
-    val deviceList = DataHelper.getDeviceDummyList()
+    val assetViewModel: NewAssetViewModel = hiltViewModel()
+    val assets by assetViewModel.assets.observeAsState(emptyList())
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -65,14 +69,18 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
         },
         floatingActionButton = {
             AppFloatingButton {
-
+                navHostController.navigate(NEW_ASSET)
             }
         }
     ) {
-        LazyColumn(modifier = Modifier.padding(top = it.calculateTopPadding())) {
-            items(deviceList) {
-                DeviceRow(device = it) {
-                    navHostController.navigate("assets_detail/$it")
+        if (assetViewModel.isLoaderShowing) {
+            ProgressBar()
+        } else {
+            LazyColumn(modifier = Modifier.padding(top = it.calculateTopPadding())) {
+                items(assets) {
+                    AssetRow(it) { assetId ->
+                        navHostController.navigate("asset_detail/${assetId}")
+                    }
                 }
             }
         }
@@ -80,36 +88,34 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
 }
 
 @Composable
-fun DeviceRow(device: Device, navigateDeviceDetailCallBack: (String)-> Unit) {
+fun AssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit) {
     ElevatedCard (
-        shape = CutCornerShape(topEnd = 24.dp),
+        shape = CutCornerShape(topEnd = 24.dp, bottomStart = 24.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         ),
         modifier = Modifier
             .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth()
-            .wrapContentHeight(align = Alignment.Top)
-            .clickable {
-                navigateDeviceDetailCallBack.invoke(device.id.toString())
-            },
+            .wrapContentHeight(align = Alignment.Top),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ){
         Row(
             modifier = Modifier
                 .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .noDoubleClick { navigateDeviceDetailCallBack.invoke(asset.assetId ?: "") },
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            horizontalArrangement = Arrangement.Start,
         ) {
-            DeviceTypePicture(device)
-            DeviceContent(device)
+            AssetTypePicture(asset)
+            AssetContent(asset)
         }
     }
 }
 
 @Composable
-fun DeviceTypePicture(device: Device) {
+fun AssetTypePicture(asset: Asset) {
     Card(
         shape = CircleShape,
         border = BorderStroke(
@@ -117,46 +123,44 @@ fun DeviceTypePicture(device: Device) {
             color = MaterialTheme.colorScheme.secondary
         )
     ) {
-        val resourceId = if(device.type == DeviceType.TAB.ordinal) {
-            R.drawable.ic_devices
-        } else if(device.type == DeviceType.CABLE.ordinal) {
-            R.drawable.ic_baseline_cable
-        } else {
-            R.drawable.ic_devices_other
+        val resourceId = when(asset.assetType) {
+            AssetType.TAB.name -> R.drawable.ic_devices
+            AssetType.CABLE.name -> R.drawable.ic_baseline_cable
+            else -> R.drawable.ic_devices_other
         }
         Image(
             painter = painterResource(id = resourceId),
             modifier = Modifier.size(76.dp),
-            contentDescription = stringResource(
-            id = R.string.app_name
-        ),
+            contentDescription = stringResource(id = R.string.app_name),
             contentScale = ContentScale.Inside)
     }
 }
 
 @Composable
-fun DeviceContent(device: Device) {
+fun AssetContent(asset: Asset) {
     Column(
         Modifier
             .padding(8.dp)
             .fillMaxWidth()
     ) {
          Text(
-             text = device.name,
+             text = asset.assetName,
              style = MaterialTheme.typography.titleLarge
              )
-           val deviceTypeName = if(device.type == DeviceType.TAB.ordinal) {
-               stringResource(id = R.string.str_device_type_tab)
-           } else if(device.type == DeviceType.USB.ordinal) {
-               stringResource(id = R.string.str_device_type_storage)
-           } else if(device.type == DeviceType.CABLE.ordinal) {
-               stringResource(id = R.string.str_device_type_cable)
-           } else {
-               stringResource(id = R.string.str_device_type_other)
+           val assetTypeName = when(asset.assetType) {
+               AssetType.TAB.name -> stringResource(id = R.string.str_device_type_tab)
+               AssetType.USB.name -> stringResource(id = R.string.str_device_type_storage)
+               AssetType.CABLE.name -> stringResource(id = R.string.str_device_type_cable)
+               AssetType.PROBE.name -> stringResource(id = R.string.str_device_type_probe)
+               else -> stringResource(id = R.string.str_device_type_other)
            }
            Row {
               Text(text = stringResource(id = R.string.str_asset_type), color = Color.Gray)
-              Text(text = deviceTypeName)
-          }
+              Text(text = assetTypeName)
+           }
+           Row {
+              Text(text = stringResource(id = R.string.str_asset_model), color = Color.Gray)
+              Text(text = asset.model.toString())
+           }
     }
 }

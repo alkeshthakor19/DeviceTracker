@@ -8,7 +8,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.QuerySnapshot
 
 typealias AddMemberResponse = Response<Boolean>
-typealias UploadImageResponse = Response<Uri?>
+//typealias UploadImageResponse = Response<Uri?>
 //typealias GetMembersResponse = Response<QuerySnapshot?>
 typealias GetMembersResponse = List<Member>
 typealias GetMembersByIdResponse = Response<DocumentSnapshot?>

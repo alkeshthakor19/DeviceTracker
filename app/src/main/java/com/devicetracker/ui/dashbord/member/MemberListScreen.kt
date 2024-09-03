@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -75,6 +76,11 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
                         Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
                     }
                 },
+                actions = {
+                    IconButton(onClick = {  }) {
+                        Icon(imageVector = Icons.Filled.Search, contentDescription = "Search")
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     titleContentColor = Color.Black,
@@ -119,7 +125,7 @@ fun UserRow(member: Member, navigateMemberProfileCallBack: (String)-> Unit) {
             modifier = Modifier
                 .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 .fillMaxWidth()
-                .noDoubleClick { navigateMemberProfileCallBack.invoke(member.memberId?:"") },
+                .noDoubleClick { navigateMemberProfileCallBack.invoke(member.memberId ?: "") },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {

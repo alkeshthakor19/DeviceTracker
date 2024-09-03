@@ -1,7 +1,9 @@
 package com.devicetracker.di
 
+import com.devicetracker.data.repository.AssetRepositoryImpl
 import com.devicetracker.data.repository.AuthRepositoryImpl
 import com.devicetracker.data.repository.MemberRepositoryImpl
+import com.devicetracker.domain.repository.AssetRepository
 import com.devicetracker.domain.repository.AuthRepository
 import com.devicetracker.domain.repository.MemberRepository
 import com.google.firebase.auth.ktx.auth
@@ -23,6 +25,12 @@ class AppModule {
 
     @Provides
     fun provideMemberRepository(): MemberRepository = MemberRepositoryImpl(
+        db = Firebase.firestore,
+        storageReference = FirebaseStorage.getInstance().reference
+    )
+
+    @Provides
+    fun provideAssetRepository(): AssetRepository = AssetRepositoryImpl(
         db = Firebase.firestore,
         storageReference = FirebaseStorage.getInstance().reference
     )

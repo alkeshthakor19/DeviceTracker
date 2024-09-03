@@ -2,7 +2,6 @@ package com.devicetracker.ui.dashbord.member
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,19 +13,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -34,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -51,14 +45,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.DataHelper
-import com.devicetracker.Device
-import com.devicetracker.DeviceType
 import com.devicetracker.R
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.BodyText
 import com.devicetracker.ui.components.LabelText
-import com.devicetracker.ui.dashbord.assets.DeviceTypePicture
+import com.devicetracker.ui.dashbord.assets.Asset
+import com.devicetracker.ui.dashbord.assets.AssetType
+import com.devicetracker.ui.dashbord.assets.AssetTypePicture
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -145,21 +139,21 @@ fun MemberFieldRow(labelText: String, bodyText: String){
 fun LazyListScope.assignAssetListSection() {
     val deviceList = DataHelper.getAssignAssetDummyList()
     items(deviceList) {
-        AssignedAssetRow(device = it) {
+        AssignedAssetRow(asset = it) {
 
         }
     }
 }
 
 @Composable
-fun AssignedAssetRow(device: Device, navigateDeviceDetailCallBack: (String)-> Unit) {
+fun AssignedAssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit) {
     Card(
         modifier = Modifier
             .padding(top = 8.dp, bottom = 8.dp)
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top)
             .clickable {
-                navigateDeviceDetailCallBack.invoke(device.id.toString())
+                navigateDeviceDetailCallBack.invoke(asset.assetId.toString())
             },
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.primaryContainer)
@@ -172,29 +166,31 @@ fun AssignedAssetRow(device: Device, navigateDeviceDetailCallBack: (String)-> Un
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            DeviceTypePicture(device)
-            AssignAssetContent(device)
+            AssetTypePicture(asset)
+            AssignAssetContent(asset)
         }
     }
 }
 
 @Composable
-fun AssignAssetContent(device: Device) {
+fun AssignAssetContent(asset: Asset) {
     Column(
         Modifier
             .padding(start = 8.dp, end = 8.dp)
             .fillMaxWidth()
     ) {
         Text(
-            text = device.name,
+            text = asset.assetName,
             style = MaterialTheme.typography.titleMedium,
         )
-        val deviceTypeName = if(device.type == DeviceType.TAB.ordinal) {
+        val deviceTypeName = if(asset.assetType == AssetType.TAB.name) {
             stringResource(id = R.string.str_device_type_tab)
-        } else if(device.type == DeviceType.USB.ordinal) {
+        } else if(asset.assetType == AssetType.USB.name) {
             stringResource(id = R.string.str_device_type_storage)
-        } else if(device.type == DeviceType.CABLE.ordinal) {
+        } else if(asset.assetType == AssetType.CABLE.name) {
             stringResource(id = R.string.str_device_type_cable)
+        } else if(asset.assetType == AssetType.PROBE.name) {
+            stringResource(id = R.string.str_device_type_probe)
         } else {
             stringResource(id = R.string.str_device_type_other)
         }

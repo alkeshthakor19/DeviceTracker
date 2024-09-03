@@ -14,7 +14,9 @@ import com.devicetracker.ui.Destinations.ASSET_DETAIL
 import com.devicetracker.ui.Destinations.HOME
 import com.devicetracker.ui.Destinations.MEMBERS
 import com.devicetracker.ui.Destinations.MEMBER_DETAIL
+import com.devicetracker.ui.Destinations.NEW_ASSET
 import com.devicetracker.ui.Destinations.NEW_MEMBER
+import com.devicetracker.ui.dashbord.assets.AddAssetRoute
 import com.devicetracker.ui.dashbord.assets.AssetDetailScreen
 import com.devicetracker.ui.dashbord.assets.AssetListScreen
 import com.devicetracker.ui.dashbord.home.HomeScreen
@@ -51,6 +53,11 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
                 navigationController.navigateUp()
             }
         }
+        composable(NEW_ASSET){
+            AddAssetRoute {
+                navigationController.navigateUp()
+            }
+        }
         composable(
             MEMBER_DETAIL,
             arguments = listOf(navArgument("memberId") { type = NavType.StringType })
@@ -63,11 +70,11 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
         }
         composable(
             ASSET_DETAIL,
-            arguments = listOf(navArgument("deviceId") { type = NavType.StringType })
+            arguments = listOf(navArgument("assetId") { type = NavType.StringType })
         ) {
             Log.d("DashNavHost", "nkp Navigating to Asset Detail")
             AssetDetailScreen(
-                deviceId = it.arguments?.getString("deviceId")?:"1",
+                assetId = it.arguments?.getString("assetId")?:"",
                 onNavUp = {
                     navigationController.navigateUp()
                 }
