@@ -97,12 +97,18 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
         return members
     }
 
-    override suspend fun getMembersDetailById(memberId: String): GetMembersByIdResponse  = try {
-        val documentSnapshot = db.collection(COLLECTION_MEMBERS).document(memberId).get().await()
+    override suspend fun getMembersDetailById(memberId: String): GetMembersByIdResponse {
+        val document = db.collection(COLLECTION_MEMBERS).document(memberId).get().await()
+        var member : Member? = null
+        try {
+            member = document.toObject(Member::class.java)
+            if (member != null) {
+                member.memberId = document.id
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         Log.d("MemberRepositoryImpl", "nkp getMembersDetailById()")
-        Success(documentSnapshot)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        Failure(e)
+        return member
     }
 }

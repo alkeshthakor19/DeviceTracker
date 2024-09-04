@@ -1,6 +1,7 @@
 package com.devicetracker.ui.dashbord.assets
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -42,14 +42,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.devicetracker.DataHelper
 import com.devicetracker.R
+import com.devicetracker.getDateStringFromTimestamp
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.BlackLabelText
 import com.devicetracker.ui.components.BodyText
-import com.devicetracker.ui.dashbord.member.Member
-import com.devicetracker.ui.dashbord.member.UserPicture
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -57,6 +55,7 @@ fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit) {
     val newAssetViewModel : NewAssetViewModel = hiltViewModel()
     newAssetViewModel.getAssetDetailById(assetId)
     val assetData by newAssetViewModel.asset.observeAsState()
+    val assignedHistories by newAssetViewModel.getAssetHistories(assetId).observeAsState(emptyList())
 
     Scaffold(
         topBar = {
@@ -80,10 +79,9 @@ fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit) {
                     Spacer(modifier = Modifier.height(25.dp))
                     DescriptionSection(assetData?.description)
                     Spacer(modifier = Modifier.height(25.dp))
-                    BlackLabelText("Currently Assigned Member: ")
+                    BlackLabelText("Assign History: ")
                 }
-                assignMemberListSection()
-                assetHistorySection()
+                assetHistorySection(assignedHistories)
             }
         }
     }
@@ -91,6 +89,11 @@ fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit) {
 
 @Composable
 fun AssetDetailSection(assetData: Asset?){
+    val assetOwner = if(assetData != null && !assetData.assetOwner.isNullOrEmpty()){
+        assetData.assetOwner
+    } else {
+        stringResource(id = R.string.str_un_assign)
+    }
     ElevatedCard (
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
@@ -106,7 +109,7 @@ fun AssetDetailSection(assetData: Asset?){
                 .fillMaxWidth()
                 .padding(top = 18.dp, bottom = 18.dp),
             horizontalAlignment = Alignment.CenterHorizontally) {
-                MemberPhoto(assetData?.imageUrl)
+                AssetPhoto(assetData?.imageUrl)
                 Row(Modifier.padding(top = 4.dp)) {
                     Text(text = "Asset Type: ")
                     Text(text = assetData?.assetType.toString(), color = Color.Black)
@@ -117,21 +120,12 @@ fun AssetDetailSection(assetData: Asset?){
                 }
                 Row(Modifier.padding(top = 4.dp)) {
                     Text(text = "Current Owner: ")
-                    Text(text = "Alkesh Thakor", color = Color.Black)
+                    Text(text = assetOwner, color = Color.Black)
                 }
         }
     }
 }
 
-
-fun LazyListScope.assignMemberListSection() {
-    val memberList = DataHelper.getAssignMemberDummyList()
-    items(memberList) {
-        AssignedMemberRow(member = it) {
-
-        }
-    }
-}
 
 @Composable
 fun DescriptionSection(text: String?) {
@@ -144,14 +138,14 @@ fun DescriptionSection(text: String?) {
 }
 
 @Composable
-fun AssignedMemberRow(member: Member, navigateDeviceDetailCallBack: (String)-> Unit) {
+fun AssignHistoryRow(assetHistory: AssetHistory, navigateDeviceDetailCallBack: (String)-> Unit) {
     Card (
         modifier = Modifier
             .padding(top = 8.dp, bottom = 8.dp)
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top)
             .clickable {
-                navigateDeviceDetailCallBack.invoke(member.memberId.toString())
+                assetHistory.id?.let { navigateDeviceDetailCallBack.invoke(it) }
             },
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.primaryContainer)
@@ -164,41 +158,43 @@ fun AssignedMemberRow(member: Member, navigateDeviceDetailCallBack: (String)-> U
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            UserPicture(member)
-            AssignMemberContent(member)
+            AssignHistoryContent(assetHistory)
         }
     }
 }
 
 @Composable
-fun AssignMemberContent(member: Member) {
+fun AssignHistoryContent(assetHistory: AssetHistory) {
     Column(
         Modifier
             .padding(start = 8.dp, end = 8.dp)
             .fillMaxWidth()
     ) {
         Text(
-            text = member.memberName,
+            text = assetHistory.assetOwnerName?:"",
             style = MaterialTheme.typography.titleMedium
         )
         Row {
+            Text(text = stringResource(id = R.string.str_admin_name), color = Color.Gray)
+            Text(text = assetHistory.adminEmail?:"")
+        }
+        Row {
             Text(text = stringResource(id = R.string.str_asset_assign_date), color = Color.Gray)
-            Text(text = "29 Aug 2024")
+            Text(text = getDateStringFromTimestamp(assetHistory.createdAt))
         }
     }
 }
 
-fun LazyListScope.assetHistorySection() {
-    item {
-        Text(text = "History 1")
-        Text(text = "History 2")
-        Text(text = "History 3")
-        Text(text = "History 4")
+fun LazyListScope.assetHistorySection(assignedHistories: List<AssetHistory>) {
+    Log.d("AssetDetailScreen", "nkp previousHistories ${assignedHistories.size}")
+    items(assignedHistories.size) { index ->
+        AssignHistoryRow(assetHistory = assignedHistories[index]) {
+        }
     }
 }
 
 @Composable
-fun MemberPhoto(imageUrl : String?){
+fun AssetPhoto(imageUrl : String?){
     Card(
         shape = CircleShape,
         border = BorderStroke(

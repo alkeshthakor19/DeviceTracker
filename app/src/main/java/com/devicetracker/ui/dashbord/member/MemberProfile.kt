@@ -59,8 +59,7 @@ import com.devicetracker.ui.dashbord.assets.AssetTypePicture
 @Composable
 fun MemberProfileScreen(memberId: String, onNavUp: () -> Unit) {
     val newMemberViewModel : NewMemberViewModel = hiltViewModel()
-    newMemberViewModel.getMemberDetailById(memberId)
-    val memberData by newMemberViewModel.member.observeAsState()
+    val memberData by newMemberViewModel.fetchMember(memberId).observeAsState()
     val mTag = "MemberProfileScreen"
     Scaffold(
         topBar = {

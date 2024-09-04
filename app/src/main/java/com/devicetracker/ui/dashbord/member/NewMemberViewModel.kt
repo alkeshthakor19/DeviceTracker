@@ -16,12 +16,9 @@ import com.devicetracker.domain.repository.AddMemberResponse
 import com.devicetracker.domain.repository.GetMembersByIdResponse
 import com.devicetracker.domain.repository.GetMembersResponse
 import com.devicetracker.domain.repository.MemberRepository
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,12 +34,6 @@ class NewMemberViewModel @Inject constructor(
         private set
 
     var isLoaderShowing by mutableStateOf<Boolean>(true)
-        private set
-
-    /*var getMemberResponse by mutableStateOf<GetMembersResponse>(Response.Success(null))
-        private set
-*/
-    var getMembersByIdResponse by mutableStateOf<GetMembersByIdResponse>(Response.Success(null))
         private set
 
     fun addNewMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, isMemberWritablePermission: Boolean) = viewModelScope.launch {
@@ -64,13 +55,6 @@ class NewMemberViewModel @Inject constructor(
         addedMemberResponse = repo.uploadImageAndAddNewMemberToFirebase(imageUri, imageBitmap, employeeCode,memberName, emailAddress, isMemberWritablePermission, onNavUp)
     }
 
-    /*var members = liveData(Dispatchers.IO) {
-        isLoaderShowing = true
-        val result = repo.getMembersFromFirebase()
-        isLoaderShowing = false
-        emit(result)
-    }*/
-
     val members = liveData(Dispatchers.IO) {
         emit(fetchMembers())
     }
@@ -86,43 +70,15 @@ class NewMemberViewModel @Inject constructor(
         emit(fetchMembers())
     }
 
-    /*fun fetchMembers() = viewModelScope.launch {
-        isLoaderShowing = true
-        getMemberResponse = repo.getMembersFromFirebase()
-        if(getMemberResponse is Response.Success) {
-            try {
-                val querySnapshot = (getMemberResponse as Response.Success<QuerySnapshot?>).data
-                if (querySnapshot != null && !querySnapshot.isEmpty) {
-                    val members = querySnapshot.documents.map { document ->
-                        val member = document.toObject(Member::class.java) ?: Member()
-                        member.memberId = document.id
-                        member
-                    }
-                    isLoaderShowing = false
-                    _members.value = members
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error data fetching : ${e.printStackTrace()}")
-            }
-        }
-    }*/
+    fun fetchMember(memberId: String) = liveData(Dispatchers.IO) {
+        emit(getMemberDetailById(memberId))
+    }
 
-    fun getMemberDetailById(memberId: String) = viewModelScope.launch {
+    private suspend fun getMemberDetailById(memberId: String) : GetMembersByIdResponse {
         isLoaderShowing = true
-        getMembersByIdResponse = repo.getMembersDetailById(memberId)
-        if(getMembersByIdResponse is Response.Success){
-            try {
-                val documentSnapshot = (getMembersByIdResponse as Response.Success<DocumentSnapshot?>).data
-                if (documentSnapshot != null) {
-                    val member = documentSnapshot.toObject(Member::class.java) ?: Member()
-                    member.memberId = documentSnapshot.id
-                    isLoaderShowing = false
-                    _member.value = member
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error data fetching : ${e.printStackTrace()}")
-            }
-        }
+        val result = repo.getMembersDetailById(memberId)
+        isLoaderShowing = false
+        return result
     }
 
     companion object {

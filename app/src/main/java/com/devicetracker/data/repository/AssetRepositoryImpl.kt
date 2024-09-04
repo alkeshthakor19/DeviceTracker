@@ -2,21 +2,19 @@ package com.devicetracker.data.repository
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import com.devicetracker.core.Constants.COLLECTION_ASSETS
 import com.devicetracker.core.Constants.COLLECTION_ASSETS_HISTORY
-import com.devicetracker.core.Constants.COLLECTION_MEMBERS
 import com.devicetracker.core.Constants.EMPTY_STR
 import com.devicetracker.core.Constants.FIRE_STORAGE_IMAGES
 import com.devicetracker.domain.models.Response.Failure
 import com.devicetracker.domain.models.Response.Success
 import com.devicetracker.domain.repository.AddAssetResponse
-import com.devicetracker.domain.repository.AddMemberResponse
 import com.devicetracker.domain.repository.AssetRepository
 import com.devicetracker.domain.repository.GetAssetsByIdResponse
 import com.devicetracker.domain.repository.GetAssetsResponse
-import com.devicetracker.domain.repository.GetMembersByIdResponse
+import com.devicetracker.domain.repository.GetAssignHistoriesResponse
 import com.devicetracker.ui.dashbord.assets.Asset
+import com.devicetracker.ui.dashbord.assets.AssetHistory
 import com.devicetracker.ui.dashbord.member.Member
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue.serverTimestamp
@@ -117,12 +115,30 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             e.printStackTrace()
         }
         return assets
-        }
+    }
     override suspend fun getAssetsDetailById(assetId: String): GetAssetsByIdResponse = try {
         val documentSnapshot = db.collection(COLLECTION_ASSETS).document(assetId).get().await()
         Success(documentSnapshot)
     } catch (e: Exception) {
         e.printStackTrace()
         Failure(e)
+    }
+
+    override suspend fun getPreviousAssignHistoriesByAssetId(assetId: String): GetAssignHistoriesResponse {
+        val collectionRef = db.collection(COLLECTION_ASSETS_HISTORY)
+        val query = collectionRef.whereEqualTo("assetId", assetId)
+        val querySnapshot = query.get().await()
+        val assetHistories = mutableListOf<AssetHistory>()
+        try {
+            for (document in querySnapshot.documents) {
+                val assetHistory = document.toObject(AssetHistory::class.java)
+                if (assetHistory != null) {
+                    assetHistories.add(assetHistory)
+                }
+            }
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
+        return assetHistories
     }
 }

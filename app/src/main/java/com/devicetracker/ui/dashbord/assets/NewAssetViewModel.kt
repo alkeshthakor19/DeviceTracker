@@ -16,7 +16,7 @@ import com.devicetracker.domain.repository.AddAssetResponse
 import com.devicetracker.domain.repository.AssetRepository
 import com.devicetracker.domain.repository.GetAssetsByIdResponse
 import com.devicetracker.domain.repository.GetAssetsResponse
-import com.devicetracker.domain.repository.GetMembersResponse
+import com.devicetracker.domain.repository.GetAssignHistoriesResponse
 import com.devicetracker.ui.dashbord.member.Member
 import com.google.firebase.firestore.DocumentSnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -72,7 +72,7 @@ class NewAssetViewModel @Inject constructor(
         emit(fetchAssets())
     }
 
-    suspend fun fetchAssets(): GetAssetsResponse {
+    private suspend fun fetchAssets(): GetAssetsResponse {
         isLoaderShowing = true
         val result = repo.getAssetsFromFirebase()
         isLoaderShowing = false
@@ -83,28 +83,6 @@ class NewAssetViewModel @Inject constructor(
         emit(fetchAssets())
     }
 
-/*
-    fun fetchAssets() = viewModelScope.launch {
-        isLoaderShowing = true
-        getAssetResponse = repo.getAssetsFromFirebase()
-        if(getAssetResponse is Response.Success){
-            try {
-                val querySnapshot = (getAssetResponse as Response.Success<QuerySnapshot?>).data
-                if (querySnapshot != null && !querySnapshot.isEmpty) {
-                    val assets = querySnapshot.documents.map { document ->
-                        val asset = document.toObject(Asset::class.java) ?: Asset()
-                        asset.assetId = document.id
-                        asset
-                    }
-                    _assets.value = assets
-                    isLoaderShowing = false
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error data fetching : ${e.printStackTrace()}")
-            }
-        }
-    }
-*/
     fun getAssetDetailById(assetId: String) = viewModelScope.launch {
         isLoaderShowing = true
         getAssetsByIdResponse = repo.getAssetsDetailById(assetId)
@@ -121,6 +99,17 @@ class NewAssetViewModel @Inject constructor(
                 Log.e("Asset", "Error data fetching : ${e.printStackTrace()}")
             }
         }
+    }
+
+    fun getAssetHistories(assetId: String) = liveData(Dispatchers.IO) {
+        emit(fetchAssetHistories(assetId))
+    }
+
+    private suspend fun fetchAssetHistories(assetId: String): GetAssignHistoriesResponse {
+        isLoaderShowing = true
+        val result = repo.getPreviousAssignHistoriesByAssetId(assetId)
+        isLoaderShowing = false
+        return result
     }
 
     companion object {
