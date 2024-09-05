@@ -21,7 +21,7 @@ fun AddAssetRoute(onNavUp: () -> Unit) {
 
 @Composable
 fun LoaderShowHide(showErrorMessage: (errorMessage: String?) -> Unit) {
-    val newAssetViewModel: NewAssetViewModel = hiltViewModel()
+    val newAssetViewModel: AssetViewModel = hiltViewModel()
     val context = LocalContext.current
     when(val addedAssetResponse = newAssetViewModel.addedAssetResponse) {
         is Response.Loading -> ProgressBar()
@@ -29,7 +29,6 @@ fun LoaderShowHide(showErrorMessage: (errorMessage: String?) -> Unit) {
             val isAddedAsset = addedAssetResponse.data
             if (isAddedAsset) {
                 showMessage(context, "Added new asset successfully!!")
-                newAssetViewModel.refreshAssets()
             }
             Unit
         }

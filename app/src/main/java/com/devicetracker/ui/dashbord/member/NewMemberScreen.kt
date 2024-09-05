@@ -87,10 +87,10 @@ fun NewMemberScreen(onNavUp: () -> Unit) {
                     }
                 },
         ) {
-            val newMemberViewModel: NewMemberViewModel = hiltViewModel()
+            val memberViewModel: MemberViewModel = hiltViewModel()
             AddMember(
                 onMemberSaved = { imageUri, imageBitmap, employeeId, memberName, memberEmail, isMemberWritablePermission ->
-                    newMemberViewModel.uploadImageAndAddNewMemberToFirebase(
+                    memberViewModel.uploadImageAndAddNewMemberToFirebase(
                         imageUri,
                         imageBitmap,
                         employeeId,
@@ -159,18 +159,6 @@ fun AddMember(
                 onMemberSaved(imageUri, imageBitmap, employeeCodeState.text.toInt(), memberNameState.text, emailState.text,memberWritablePermission.isChecked)
             }
         }
-
-        /*val onAddNewMemberInAction = {
-            if(employeeCodeState.isValid && memberNameState.isValid && emailState.isValid) {
-                Log.d("NewMemberScreen", "nkp imageUri ${imageUri?.path}  ${imageUri}")
-                onMemberSaved(imageUri, imageBitmap, employeeCodeState.text.toInt(), memberNameState.text, emailState.text,memberWritablePermission.isChecked)
-                imageUri = null
-                imageBitmap = null
-                employeeCodeState.text = ""
-                emailState.text = ""
-                memberNameState.text = ""
-            }
-        }*/
         Box(
             modifier = Modifier
                 .size(120.dp)

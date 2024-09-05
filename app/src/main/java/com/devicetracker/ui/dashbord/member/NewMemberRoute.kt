@@ -1,12 +1,16 @@
 package com.devicetracker.ui.dashbord.member
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.devicetracker.core.Utils.Companion.showMessage
 import com.devicetracker.domain.models.Response
 import com.devicetracker.ui.ProgressBar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
 fun AddMemberRoute(onNavUp: () -> Unit) {
@@ -19,17 +23,19 @@ fun AddMemberRoute(onNavUp: () -> Unit) {
     )
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun LoaderShowHide(showErrorMessage: (errorMessage: String?) -> Unit) {
-    val newMemberViewModel: NewMemberViewModel = hiltViewModel()
+    val memberViewModel: MemberViewModel = hiltViewModel()
     val context = LocalContext.current
-    when(val addedMemberResponse = newMemberViewModel.addedMemberResponse) {
+    val coroutineScope = rememberCoroutineScope()
+    when(val addedMemberResponse = memberViewModel.addedMemberResponse) {
         is Response.Loading -> ProgressBar()
         is Response.Success -> {
             val isAddedMember = addedMemberResponse.data
             if (isAddedMember) {
                 showMessage(context, "Added new member successfully!!")
-                newMemberViewModel.refreshMembers()
+                coroutineScope.launch(Dispatchers.IO) { memberViewModel.fetchMembers() }
             }
             Unit
         }

@@ -1,11 +1,12 @@
 package com.devicetracker.ui.dashbord.assets
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,30 +28,47 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
 import com.devicetracker.ui.Destinations.NEW_ASSET
-import com.devicetracker.ui.ProgressBar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
-    val assetViewModel: NewAssetViewModel = hiltViewModel()
-    val assets by assetViewModel.assets.observeAsState(emptyList())
+    val assetViewModel: AssetViewModel = hiltViewModel()
+    var assets = emptyList<Asset>()
+    val coroutineScope = rememberCoroutineScope()
+    assetViewModel.assets.observe(LocalLifecycleOwner.current,{
+        assets = it
+    })
+    val state = rememberPullToRefreshState()
+    val onRefreshAsset: () -> Unit = {
+        Log.d("MemberList", "nkp onRefresh call")
+        coroutineScope.launch(Dispatchers.IO) {
+            assets = assetViewModel.fetchAssets()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -73,10 +91,14 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
             }
         }
     ) {
-        if (assetViewModel.isLoaderShowing) {
-            ProgressBar()
-        } else {
-            LazyColumn(modifier = Modifier.padding(top = it.calculateTopPadding())) {
+        PullToRefreshBox(
+            modifier = Modifier.padding(it).fillMaxWidth(),
+            isRefreshing = assetViewModel.isLoaderShowing,
+            onRefresh = onRefreshAsset,
+            state = state,
+            contentAlignment = Alignment.TopCenter
+        ) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(assets) {
                     AssetRow(it) { assetId ->
                         navHostController.navigate("asset_detail/${assetId}")
@@ -128,11 +150,16 @@ fun AssetTypePicture(asset: Asset) {
             AssetType.CABLE.name -> R.drawable.ic_baseline_cable
             else -> R.drawable.ic_devices_other
         }
-        Image(
-            painter = painterResource(id = resourceId),
-            modifier = Modifier.size(76.dp),
-            contentDescription = stringResource(id = R.string.app_name),
-            contentScale = ContentScale.Inside)
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(asset.imageUrl)
+                .crossfade(true)
+                .build(),
+            placeholder = painterResource(resourceId),
+            contentDescription = stringResource(R.string.app_name),
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(72.dp)
+        )
     }
 }
 

@@ -52,7 +52,7 @@ import com.devicetracker.ui.components.BodyText
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit) {
-    val newAssetViewModel : NewAssetViewModel = hiltViewModel()
+    val newAssetViewModel : AssetViewModel = hiltViewModel()
     newAssetViewModel.getAssetDetailById(assetId)
     val assetData by newAssetViewModel.asset.observeAsState()
     val assignedHistories by newAssetViewModel.getAssetHistories(assetId).observeAsState(emptyList())

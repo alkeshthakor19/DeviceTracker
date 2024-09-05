@@ -64,7 +64,7 @@ import com.devicetracker.ui.components.AssetTypeField
 import com.devicetracker.ui.components.ModelDropdown
 import com.devicetracker.ui.components.OwnerSpinner
 import com.devicetracker.ui.dashbord.member.Member
-import com.devicetracker.ui.dashbord.member.NewMemberViewModel
+import com.devicetracker.ui.dashbord.member.MemberViewModel
 
 @Composable
 fun NewAssetScreen(onNavUp: () -> Unit) {
@@ -87,7 +87,7 @@ fun NewAssetScreen(onNavUp: () -> Unit) {
                     }
                 },
         ) {
-            val newAssetViewModel: NewAssetViewModel = hiltViewModel()
+            val newAssetViewModel: AssetViewModel = hiltViewModel()
             AddAsset(
                 onAssetSaved = { imageUri, imageBitmap, assetName, assetType, model, description, selectedMember->
                     newAssetViewModel.uploadImageAndAddNewAssetToFirebase(
@@ -115,7 +115,7 @@ fun AddAsset(
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?
 ) {
-    val memberViewModel : NewMemberViewModel = hiltViewModel()
+    val memberViewModel : MemberViewModel = hiltViewModel()
     val members by memberViewModel.members.observeAsState(emptyList())
     val memberList = mutableListOf<Member>()
     val noOwnerMember = Member(memberId = "unassign", memberName = "No Owner")

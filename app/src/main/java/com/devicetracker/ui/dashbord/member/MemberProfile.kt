@@ -58,8 +58,8 @@ import com.devicetracker.ui.dashbord.assets.AssetTypePicture
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MemberProfileScreen(memberId: String, onNavUp: () -> Unit) {
-    val newMemberViewModel : NewMemberViewModel = hiltViewModel()
-    val memberData by newMemberViewModel.fetchMember(memberId).observeAsState()
+    val memberViewModel : MemberViewModel = hiltViewModel()
+    val memberData by memberViewModel.fetchMember(memberId).observeAsState()
     val mTag = "MemberProfileScreen"
     Scaffold(
         topBar = {
@@ -71,7 +71,7 @@ fun MemberProfileScreen(memberId: String, onNavUp: () -> Unit) {
             }
         }
     ) {
-        if(newMemberViewModel.isLoaderShowing){
+        if(memberViewModel.isLoaderShowing){
             ProgressBar()
         } else {
             LazyColumn(

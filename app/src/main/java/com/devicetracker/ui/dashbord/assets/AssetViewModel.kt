@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class NewAssetViewModel @Inject constructor(
+class AssetViewModel @Inject constructor(
     private val repo: AssetRepository
 ) :  ViewModel() {
     private val _asset = MutableLiveData<Asset>()
@@ -72,15 +72,11 @@ class NewAssetViewModel @Inject constructor(
         emit(fetchAssets())
     }
 
-    private suspend fun fetchAssets(): GetAssetsResponse {
+    suspend fun fetchAssets(): GetAssetsResponse {
         isLoaderShowing = true
         val result = repo.getAssetsFromFirebase()
         isLoaderShowing = false
         return result
-    }
-
-    fun refreshAssets() = liveData(Dispatchers.IO) {
-        emit(fetchAssets())
     }
 
     fun getAssetDetailById(assetId: String) = viewModelScope.launch {

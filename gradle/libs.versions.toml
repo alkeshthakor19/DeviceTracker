@@ -1,6 +1,6 @@
 [versions]
 agp = "8.3.2"
-androidxComposeMaterial3Material3 = "1.2.0"
+androidxComposeMaterial3Material3 = "1.3.0"
 coilComposeVersion = "2.4.0"
 firebaseBom = "33.1.2"
 gson = "2.11.0"
@@ -18,15 +18,14 @@ runtimeLivedata = "1.6.8"
 ksp = "2.0.0-1.0.23"
 hilt = "2.51"
 androidx-hilt-navigation-compose = "1.2.0"
-material3Version = "1.0.0"
 materialIconsExtended = "1.6.8"
 ucropVersion = "2.2.6"
 uiToolingPreview = "1.5.0"
 volley = "1.2.1"
 firebaseStorageKtx = "21.0.0"
+ui-version = "1.7.0"
 
 [libraries]
-androidx-compose-material3-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3Version" }
 androidx-compose-material3-material3-v120 = { module = "androidx.compose.material3:material3", version.ref = "androidxComposeMaterial3Material3" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
@@ -43,7 +42,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-androidx-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui-version" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }

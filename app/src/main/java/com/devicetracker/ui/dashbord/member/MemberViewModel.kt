@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class NewMemberViewModel @Inject constructor(
+class MemberViewModel @Inject constructor(
     private val repo: MemberRepository
 ) :  ViewModel() {
     //private val _members = MutableLiveData<List<Member>>()
@@ -59,15 +59,12 @@ class NewMemberViewModel @Inject constructor(
         emit(fetchMembers())
     }
 
-    private suspend fun fetchMembers(): GetMembersResponse {
+    suspend fun fetchMembers(): GetMembersResponse {
+        Log.d("MemberViewModel", "nkp call fetchMembers()")
         isLoaderShowing = true
         val result = repo.getMembersFromFirebase()
         isLoaderShowing = false
         return result
-    }
-
-    fun refreshMembers() = liveData(Dispatchers.IO) {
-        emit(fetchMembers())
     }
 
     fun fetchMember(memberId: String) = liveData(Dispatchers.IO) {

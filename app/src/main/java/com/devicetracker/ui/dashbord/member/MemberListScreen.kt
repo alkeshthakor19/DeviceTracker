@@ -2,12 +2,11 @@ package com.devicetracker.ui.dashbord.member
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,13 +29,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,11 +44,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -56,17 +56,29 @@ import com.devicetracker.R
 import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
 import com.devicetracker.ui.Destinations.NEW_MEMBER
-import com.devicetracker.ui.ProgressBar
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
-    val memberViewModel: NewMemberViewModel = hiltViewModel()
-    //memberViewModel.fetchMembers()
-    val members by memberViewModel.members.observeAsState(emptyList())
+    val memberViewModel: MemberViewModel = hiltViewModel()
+    var members = emptyList<Member>()
+    val coroutineScope = rememberCoroutineScope()
+    memberViewModel.members.observe(LocalLifecycleOwner.current,{
+        members = it
+    })
+    val state = rememberPullToRefreshState()
+    val onRefresh: () -> Unit = {
+        Log.d("MemberList", "nkp onRefresh call")
+        coroutineScope.launch(Dispatchers.IO) {
+            members = memberViewModel.fetchMembers()
+        }
+    }
+    var isSearchVisible by remember { mutableStateOf(false) }
+    var searchTextState by remember { mutableStateOf("") }
 
-    val context = LocalContext.current
     Scaffold (
         topBar = {
             TopAppBar(
@@ -93,14 +105,22 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
             }
         }
     ) {
-        if(memberViewModel.isLoaderShowing){
-            ProgressBar()
-        } else {
-            LazyColumn(modifier = Modifier.padding(top = it.calculateTopPadding())) {
-                items(members) {
-                    UserRow(it) { memberId ->
-                        Log.d("MemberListScreen", "nkp itemClick $memberId")
-                        navHostController.navigate("member_detail/$memberId")
+        PullToRefreshBox(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxWidth(),
+            state = state,
+            isRefreshing = memberViewModel.isLoaderShowing,
+            onRefresh = onRefresh,
+            contentAlignment = Alignment.TopCenter
+        ) {
+            if (!memberViewModel.isLoaderShowing) {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    items(members) {
+                        UserRow(it) { memberId ->
+                            Log.d("MemberListScreen", "nkp itemClick $memberId")
+                            navHostController.navigate("member_detail/$memberId")
+                        }
                     }
                 }
             }
@@ -123,7 +143,7 @@ fun UserRow(member: Member, navigateMemberProfileCallBack: (String)-> Unit) {
     ){
         Row(
             modifier = Modifier
-                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                .padding(start = 10.dp, top = 8.dp, bottom = 8.dp)
                 .fillMaxWidth()
                 .noDoubleClick { navigateMemberProfileCallBack.invoke(member.memberId ?: "") },
             verticalAlignment = Alignment.CenterVertically,
@@ -161,21 +181,23 @@ fun UserPicture(member: Member) {
 fun UserContent(member: Member) {
     Column(
         Modifier
-            .padding(8.dp)
+            .padding(6.dp)
             .fillMaxWidth()
     ) {
         Text(
             text = member.memberName,
             style = MaterialTheme.typography.titleLarge
         )
-        Row {
-            Text(text = stringResource(id = R.string.str_emp_code), color = Color.Gray)
-            Text(text = member.employeeCode.toString())
-        }
-        Row {
-            Text(text = stringResource(id = R.string.str_email), color = Color.Gray)
-            Text(text = member.emailAddress)
-        }
+        MemberRowSection(labelText = stringResource(id = R.string.str_emp_code), valueText = member.employeeCode.toString())
+        MemberRowSection(labelText = stringResource(id = R.string.str_email), valueText = member.emailAddress)
+    }
+}
+
+@Composable
+fun MemberRowSection(labelText: String, valueText: String) {
+    Row {
+        Text(text = labelText, color = Color.Gray, fontSize = 15.sp)
+        Text(text = valueText, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
