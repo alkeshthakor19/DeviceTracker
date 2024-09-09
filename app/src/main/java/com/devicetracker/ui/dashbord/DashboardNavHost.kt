@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.devicetracker.ui.Destinations.ASSETS
 import com.devicetracker.ui.Destinations.ASSET_DETAIL
+import com.devicetracker.ui.Destinations.EDIT_ASSET
 import com.devicetracker.ui.Destinations.HOME
 import com.devicetracker.ui.Destinations.MEMBERS
 import com.devicetracker.ui.Destinations.MEMBER_DETAIL
@@ -19,6 +20,7 @@ import com.devicetracker.ui.Destinations.NEW_MEMBER
 import com.devicetracker.ui.dashbord.assets.AddAssetRoute
 import com.devicetracker.ui.dashbord.assets.AssetDetailScreen
 import com.devicetracker.ui.dashbord.assets.AssetListScreen
+import com.devicetracker.ui.dashbord.assets.AssetEditScreen
 import com.devicetracker.ui.dashbord.home.HomeScreen
 import com.devicetracker.ui.dashbord.member.AddMemberRoute
 import com.devicetracker.ui.dashbord.member.MemberListScreen
@@ -74,6 +76,19 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
         ) {
             Log.d("DashNavHost", "nkp Navigating to Asset Detail")
             AssetDetailScreen(
+                assetId = it.arguments?.getString("assetId")?:"",
+                onNavUp = {
+                    navigationController.navigateUp()
+                },
+                navigationController
+            )
+        }
+        composable(
+            EDIT_ASSET,
+            arguments = listOf(navArgument("assetId") { type = NavType.StringType })
+        ) {
+            Log.d("DashNavHost", "nkp Navigating to Edit Asset")
+            AssetEditScreen(
                 assetId = it.arguments?.getString("assetId")?:"",
                 onNavUp = {
                     navigationController.navigateUp()

@@ -1,10 +1,8 @@
 package com.devicetracker.data.repository
 
-import android.util.Log
-import com.devicetracker.domain.models.Response.Success
 import com.devicetracker.domain.models.Response.Failure
+import com.devicetracker.domain.models.Response.Success
 import com.devicetracker.domain.repository.AuthRepository
-import com.devicetracker.ui.login.LoginRoute
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose

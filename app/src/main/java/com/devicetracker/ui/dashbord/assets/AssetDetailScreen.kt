@@ -40,10 +40,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.getDateStringFromTimestamp
+import com.devicetracker.singleClick
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.BlackLabelText
@@ -51,23 +53,26 @@ import com.devicetracker.ui.components.BodyText
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit) {
-    val newAssetViewModel : AssetViewModel = hiltViewModel()
-    newAssetViewModel.getAssetDetailById(assetId)
-    val assetData by newAssetViewModel.asset.observeAsState()
-    val assignedHistories by newAssetViewModel.getAssetHistories(assetId).observeAsState(emptyList())
-
+fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit, navHostController: NavHostController) {
+    val assetViewModel : AssetViewModel = hiltViewModel()
+    val assetData by assetViewModel.fetchAssetDetailById(assetId).observeAsState()
+    val assignedHistories by assetViewModel.getAssetHistories(assetId).observeAsState(emptyList())
     Scaffold(
         topBar = {
             TopBarWithTitleAndBackNavigation(titleText = assetData?.assetName ?: "NA", onNavUp)
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { }, modifier = Modifier.padding(bottom = 24.dp) ) {
+            FloatingActionButton(
+                onClick = singleClick{
+                    navHostController.navigate("edit_asset/${assetId}")
+                },
+                modifier = Modifier.padding(bottom = 24.dp)
+            ) {
                 Icon(Icons.Filled.Edit, contentDescription ="Edit Asset Detail" )
             }
         }
     ) {
-        if(newAssetViewModel.isLoaderShowing){
+        if(assetViewModel.isLoaderShowing){
             ProgressBar()
         } else {
             LazyColumn(
@@ -89,8 +94,8 @@ fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit) {
 
 @Composable
 fun AssetDetailSection(assetData: Asset?){
-    val assetOwner = if(assetData != null && !assetData.assetOwner.isNullOrEmpty()){
-        assetData.assetOwner
+    val assetOwner = if(assetData != null && !assetData.assetOwnerName.isNullOrEmpty()){
+        assetData.assetOwnerName
     } else {
         stringResource(id = R.string.str_un_assign)
     }
@@ -116,7 +121,7 @@ fun AssetDetailSection(assetData: Asset?){
                 }
                 Row(Modifier.padding(top = 4.dp)) {
                     Text(text = "Model: ")
-                    Text(text = assetData?.model.toString(), color = Color.Black)
+                    Text(text = assetData?.assetModelName.toString(), color = Color.Black)
                 }
                 Row(Modifier.padding(top = 4.dp)) {
                     Text(text = "Current Owner: ")

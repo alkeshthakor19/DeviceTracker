@@ -2,6 +2,7 @@ package com.devicetracker.ui.dashbord.assets
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -21,15 +22,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -48,13 +47,13 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
+import com.devicetracker.core.Constants
 import com.devicetracker.noRippleClickable
-import com.devicetracker.singleClick
+import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetDescriptionField
 import com.devicetracker.ui.components.AssetDescriptionState
@@ -67,74 +66,109 @@ import com.devicetracker.ui.dashbord.member.Member
 import com.devicetracker.ui.dashbord.member.MemberViewModel
 
 @Composable
-fun NewAssetScreen(onNavUp: () -> Unit) {
+fun AssetEditScreen(assetId: String, onNavUp: () -> Unit) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-
+    val assetViewModel: AssetViewModel = hiltViewModel()
+    val assetData by assetViewModel.fetchAssetDetailById(assetId).observeAsState()
     Scaffold(
-        topBar = {
-            TopBarWithTitleAndBackNavigation(titleText = "New Asset", onNavUp = onNavUp )
-        },
-    ) { paddingValues: PaddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .pointerInput(Unit) {
-                    detectTransformGestures { _, pan, zoom, rotation ->
-                        focusManager.clearFocus()
-                        keyboardController?.hide()
+            topBar = {
+                TopBarWithTitleAndBackNavigation(titleText = "Edit Asset", onNavUp = onNavUp)
+            }
+        ) { paddingValues: PaddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, _, _, _ ->
+                            focusManager.clearFocus()
+                            keyboardController?.hide()
+                        }
                     }
-                },
-        ) {
-            val newAssetViewModel: AssetViewModel = hiltViewModel()
-            UpdateAsset(
-                onAssetSaved = { imageUri, imageBitmap, assetName, assetType, model, description, selectedMember->
-                    newAssetViewModel.uploadImageAndAddNewAssetToFirebase(
-                        imageUri,
-                        imageBitmap,
-                        assetName,
-                        assetType,
-                        model,
-                        description,
-                        selectedMember,
-                        onNavUp
+            ) {
+                if(assetViewModel.isLoaderShowing){
+                    ProgressBar()
+                } else{
+                    UpdateAsset(
+                        onAssetSaved = { isNeedToUpdateImageUrl, imageUri, imageBitmap, assetName, assetType, assetModelName, description, selectedOwner ->
+                            assetViewModel.uploadImageAndUpdateAsset(
+                                assetId,
+                                isNeedToUpdateImageUrl,
+                                imageUri,
+                                imageBitmap,
+                                assetName,
+                                assetType,
+                                assetModelName,
+                                description,
+                                selectedOwner,
+                                onNavUp
+                            )
+                        },
+                        focusManager = focusManager,
+                        keyboardController = keyboardController,
+                        initialAssetData = assetData
                     )
-                },
-                focusManager = focusManager,
-                keyboardController = keyboardController
-            )
+                }
+            }
         }
-    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UpdateAsset(
-    onAssetSaved: (imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, model: String, description: String, memberViewModel : Member) -> Unit,
+    onAssetSaved: (isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, model: String, description: String, selectedOwner: Member?) -> Unit,
     focusManager: FocusManager,
-    keyboardController: SoftwareKeyboardController?
+    keyboardController: SoftwareKeyboardController?,
+    initialAssetData: Asset?
 ) {
-    val memberViewModel : MemberViewModel = hiltViewModel()
+    val selectedModelName = if(initialAssetData?.assetModelName != null){
+        initialAssetData.assetModelName
+    } else {
+        Constants.EMPTY_STR
+    }
+    val assetType = if(initialAssetData?.assetType != null){
+        initialAssetData.assetType
+    } else {
+        AssetType.TAB.name
+    }
+    val memberViewModel: MemberViewModel = hiltViewModel()
     val members by memberViewModel.members.observeAsState(emptyList())
     val memberList = mutableListOf<Member>()
     val noOwnerMember = Member(memberId = "unassign", memberName = "No Owner")
     memberList.add(noOwnerMember)
     memberList.addAll(members)
+    val initOwner = if(initialAssetData?.assetOwnerId != null && memberList.isNotEmpty()){
+        memberList.find { it.memberId == initialAssetData.assetOwnerId }
+    } else {
+        memberList.first()
+    }
+    val selectedOwner = remember { mutableStateOf<Member?>(initOwner)}
 
+    Log.d("AssetEditScreen","nkp asset name: $initialAssetData")
     val assetNameState = remember { AssetNameState() }
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    assetNameState.text = initialAssetData?.assetName ?: Constants.EMPTY_STR
+    val initImageUri = if(initialAssetData?.imageUrl != null) {
+        Uri.parse(initialAssetData.imageUrl)
+    } else{
+        null
+    }
+    var isNeedToUpdateImageUrl by remember { mutableStateOf(false) }
+    var imageUri by remember { mutableStateOf<Uri?>(initImageUri) }
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var showMenu by remember { mutableStateOf(false) }
-    var selectedAssetType by remember { mutableStateOf(AssetType.TAB) }
-    var selectedModel by remember { mutableStateOf("") }
+
+    val selectedAssetType = remember { mutableStateOf(assetType) }
+
+    val selectedModel = remember { mutableStateOf(selectedModelName) }
+
     val description = remember { AssetDescriptionState() }
-    var selectedOwner by remember { mutableStateOf(memberList.first()) }
+    description.text = initialAssetData?.description ?: Constants.EMPTY_STR
 
     val galleryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
             imageUri = uri
+            isNeedToUpdateImageUrl = true
             imageBitmap = null
         }
     )
@@ -143,6 +177,7 @@ fun UpdateAsset(
         contract = ActivityResultContracts.TakePicturePreview(),
         onResult = { bitmap ->
             imageBitmap = bitmap
+            isNeedToUpdateImageUrl = true
             imageUri = null
         }
     )
@@ -160,10 +195,12 @@ fun UpdateAsset(
         val onAddNewAssetInAction = {
             if (!assetNameState.isValid) {
                 assetNameState.enableShowError()
-            } else if (selectedModel.isEmpty()) {
+            } else if (selectedModel.value.isEmpty()) {
                 // Show error or handle model not selected
             } else {
-                onAssetSaved(imageUri, imageBitmap, assetNameState.text, selectedAssetType.name, selectedModel, description.text, selectedOwner)
+                onAssetSaved(isNeedToUpdateImageUrl, imageUri, imageBitmap, assetNameState.text,
+                    selectedAssetType.value, selectedModel.value, description.text, selectedOwner.value
+                )
             }
         }
 
@@ -185,7 +222,7 @@ fun UpdateAsset(
                 )
             } ?: imageUri?.let {
                 Image(
-                    painter = rememberImagePainter(it),
+                    painter = rememberAsyncImagePainter(it),
                     contentDescription = null,
                     modifier = imageModifier,
                     contentScale = ContentScale.Crop
@@ -205,36 +242,35 @@ fun UpdateAsset(
                     .size(32.dp),
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Image")
+                Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit Image")
             }
         }
-
         Spacer(modifier = Modifier.height(2.dp))
         AssetNameField(assetName = assetNameState)
 
-        AssetTypeField(selectedAssetType = selectedAssetType.toString(), onAssetTypeSelected = { assetType ->
-            selectedAssetType = assetType
-            selectedModel = ""
+        AssetTypeField(selectedAssetType = selectedAssetType.value, onAssetTypeSelected = { assetType ->
+            Log.d("AssetEditScreen", "nkp1 call when change the assetType")
+            selectedAssetType.value = assetType.name
+            selectedModel.value = ""
         })
-
         ModelDropdown(
-            selectedAssetType = selectedAssetType.toString(),
-            selectedModel = selectedModel,
-            onModelSelected = { selectedModel = it }
+            selectedAssetType = selectedAssetType.value,
+            selectedModel = selectedModel.value,
+            onModelSelected = { selectedModel.value = it }
         )
-        OwnerSpinner(memberList = memberList, selectedOwner = selectedOwner) {
-            selectedOwner = it
+
+        OwnerSpinner(memberList = memberList, selectedOwner = selectedOwner.value) {
+            Log.d("AssetEdit", "nkp selected click name ${it.memberName}")
+            selectedOwner.value = it
         }
-        AssetDescriptionField(
-            description = description
-        )
+
+        AssetDescriptionField(description = description)
+
         Spacer(modifier = Modifier.height(8.dp))
 
         if (showMenu) {
             ImagePickDialog(
-                {
-                    showMenu = false
-                },
+                onDismissRequest = { showMenu = false },
                 onCamera = {
                     cameraPicker.launch(null)
                     showMenu = false
@@ -243,64 +279,19 @@ fun UpdateAsset(
                     galleryPicker.launch("image/*")
                     showMenu = false
                 },
-                "Choose Image",
-                "Please select image from Gallery or Camera"
+                dialogTitle = "Choose Image",
+                dialogText = "Please select image from Gallery or Camera"
             )
         }
-
 
         // Save Button
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Button(onClick = singleClick {
-                onAddNewAssetInAction()
-                keyboardController?.hide()
-            }) {
-                Text(stringResource(id = R.string.str_save))
+            Button(onClick = onAddNewAssetInAction) {
+                Text(text = "Update")
             }
         }
     }
 }
-
-@Composable
-fun ImagePickDialog(
-    onDismissRequest: () -> Unit,
-    onCamera: () -> Unit,
-    onGallery: () -> Unit,
-    dialogTitle: String,
-    dialogText: String
-) {
-    AlertDialog(
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onCamera()
-                }
-            ) {
-                Text("Camera")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onGallery()
-                }
-            ) {
-                Text("Gallery")
-            }
-        }
-    )
-}
-
-

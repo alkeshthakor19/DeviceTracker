@@ -20,6 +20,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.devicetracker.R
+import com.devicetracker.core.Constants
 import com.devicetracker.ui.dashbord.member.Member
 
 
@@ -52,7 +53,7 @@ fun AssetNameField(assetName: TextFieldState) {
 @Composable
 fun OwnerSpinner(
     memberList:List<Member>,
-    selectedOwner: Member,
+    selectedOwner: Member?,
     onOwnerSelected: (Member) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -61,7 +62,7 @@ fun OwnerSpinner(
         onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
-            value = selectedOwner.memberName,
+            value = selectedOwner?.memberName?:Constants.EMPTY_STR,
             onValueChange = {},
             readOnly = true,
             label = { Text(text = stringResource(id = R.string.str_asset_owner)) },

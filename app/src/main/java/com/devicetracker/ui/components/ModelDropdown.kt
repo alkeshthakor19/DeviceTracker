@@ -14,14 +14,14 @@ import com.devicetracker.ui.dashbord.assets.getModelsForAssetType
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ModelDropdown(
-    selectedAssetType: AssetType,
+    selectedAssetType: String,
     selectedModel: String,
     onModelSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     val models = getModelsForAssetType(selectedAssetType)
 
-    if (selectedAssetType == AssetType.OTHER) {
+    if (selectedAssetType == AssetType.OTHER.name) {
         OutlinedTextField(
             value = selectedModel,
             onValueChange = onModelSelected,

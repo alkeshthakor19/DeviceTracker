@@ -14,7 +14,7 @@ import com.devicetracker.ui.dashbord.assets.AssetType
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssetTypeField(
-    selectedAssetType: AssetType,
+    selectedAssetType: String,
     onAssetTypeSelected: (AssetType) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -24,7 +24,7 @@ fun AssetTypeField(
         onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
-            value = selectedAssetType.name,
+            value = selectedAssetType,
             onValueChange = {},
             readOnly = true,
             label = { Text(text = "Asset Type") },
@@ -38,7 +38,7 @@ fun AssetTypeField(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            AssetType.values().forEach { assetType ->
+            AssetType.entries.forEach { assetType ->
                 DropdownMenuItem(
                     text = { Text(assetType.name) },
                     onClick = {

@@ -59,9 +59,9 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
     val assetViewModel: AssetViewModel = hiltViewModel()
     var assets = emptyList<Asset>()
     val coroutineScope = rememberCoroutineScope()
-    assetViewModel.assets.observe(LocalLifecycleOwner.current,{
+    assetViewModel.assets.observe(LocalLifecycleOwner.current) {
         assets = it
-    })
+    }
     val state = rememberPullToRefreshState()
     val onRefreshAsset: () -> Unit = {
         Log.d("MemberList", "nkp onRefresh call")
@@ -92,16 +92,29 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
         }
     ) {
         PullToRefreshBox(
-            modifier = Modifier.padding(it).fillMaxWidth(),
+            modifier = Modifier
+                .padding(it)
+                .fillMaxWidth(),
             isRefreshing = assetViewModel.isLoaderShowing,
             onRefresh = onRefreshAsset,
             state = state,
             contentAlignment = Alignment.TopCenter
         ) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(assets) {
-                    AssetRow(it) { assetId ->
-                        navHostController.navigate("asset_detail/${assetId}")
+                if(assets.isEmpty()){
+                    item {
+                        Column(
+                            modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp).fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ){
+                            Text(text = "No Data!!", style = MaterialTheme.typography.titleLarge)
+                        }
+                    }
+                } else{
+                    items(assets) { asset ->
+                        AssetRow(asset) { assetId ->
+                            navHostController.navigate("asset_detail/${assetId}")
+                        }
                     }
                 }
             }
@@ -187,7 +200,7 @@ fun AssetContent(asset: Asset) {
            }
            Row {
               Text(text = stringResource(id = R.string.str_asset_model), color = Color.Gray)
-              Text(text = asset.model.toString())
+              Text(text = asset.assetModelName.toString())
            }
     }
 }

@@ -2,7 +2,6 @@ package com.devicetracker.ui.dashbord.assets
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,7 +17,6 @@ import com.devicetracker.domain.repository.GetAssetsByIdResponse
 import com.devicetracker.domain.repository.GetAssetsResponse
 import com.devicetracker.domain.repository.GetAssignHistoriesResponse
 import com.devicetracker.ui.dashbord.member.Member
-import com.google.firebase.firestore.DocumentSnapshot
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,7 +35,7 @@ class AssetViewModel @Inject constructor(
     var isLoaderShowing by mutableStateOf<Boolean>(true)
         private set
 
-    var getAssetsByIdResponse by mutableStateOf<GetAssetsByIdResponse>(Response.Success(null))
+    private var updateAssetResponse by mutableStateOf<AddAssetResponse>(Response.Success(false))
         private set
 
     fun addNewAsset(assetName: String, assetType: String, model: String, description: String, selectedMember: Member, imageUrl: String) = viewModelScope.launch {
@@ -79,7 +77,18 @@ class AssetViewModel @Inject constructor(
         return result
     }
 
-    fun getAssetDetailById(assetId: String) = viewModelScope.launch {
+    fun fetchAssetDetailById(assetId: String) = liveData(Dispatchers.IO) {
+        emit(getAssetDetailById(assetId))
+    }
+
+    private suspend fun getAssetDetailById(assetId: String) : GetAssetsByIdResponse {
+        isLoaderShowing = true
+        val result = repo.getAssetsDetailById(assetId)
+        isLoaderShowing = false
+        return result
+    }
+
+    /*fun getAssetDetailById(assetId: String) = viewModelScope.launch {
         isLoaderShowing = true
         getAssetsByIdResponse = repo.getAssetsDetailById(assetId)
         if(getAssetsByIdResponse is Response.Success){
@@ -95,7 +104,7 @@ class AssetViewModel @Inject constructor(
                 Log.e("Asset", "Error data fetching : ${e.printStackTrace()}")
             }
         }
-    }
+    }*/
 
     fun getAssetHistories(assetId: String) = liveData(Dispatchers.IO) {
         emit(fetchAssetHistories(assetId))
@@ -106,6 +115,29 @@ class AssetViewModel @Inject constructor(
         val result = repo.getPreviousAssignHistoriesByAssetId(assetId)
         isLoaderShowing = false
         return result
+    }
+
+    // Function to update an asset
+    fun updateAsset(assetId: String, assetName: String, assetType: String, model: String, description: String, selectedOwner: Member, imageUrl: String?) = viewModelScope.launch {
+        updateAssetResponse = Response.Loading
+        updateAssetResponse = repo.updateAsset(assetId, assetName, assetType, model, description, selectedOwner,  imageUrl)
+    }
+
+    // Function to upload image and update the asset in Firebase
+    fun uploadImageAndUpdateAsset(assetId: String, isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, assetModelName: String, description: String, selectedOwner: Member?, onNavUp: () -> Unit) = viewModelScope.launch {
+        updateAssetResponse = Response.Loading
+        updateAssetResponse = repo.uploadImageAndUpdateAsset(
+            assetId,
+            isNeedToUpdateImageUrl,
+            imageUri,
+            imageBitmap,
+            assetName,
+            assetType,
+            assetModelName,
+            description,
+            selectedOwner,
+            onNavUp
+        )
     }
 
     companion object {

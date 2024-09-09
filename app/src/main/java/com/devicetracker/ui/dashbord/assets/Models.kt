@@ -1,8 +1,8 @@
 package com.devicetracker.ui.dashbord.assets
 
-fun getModelsForAssetType(assetType: AssetType): List<String> {
+fun getModelsForAssetType(assetType: String): List<String> {
     return when (assetType) {
-        AssetType.TAB -> listOf(
+        AssetType.TAB.name -> listOf(
             "Samsung Galaxy S6",
             "Samsung Galaxy Active TAB3",
             "Samsung Galaxy S8",
@@ -14,17 +14,18 @@ fun getModelsForAssetType(assetType: AssetType): List<String> {
             "Lenovo 12",
             "Lenovo Yoga 13"
         )
-        AssetType.CABLE -> listOf(
+        AssetType.CABLE.name -> listOf(
             "Type-C"
         )
-        AssetType.USB -> listOf(
+        AssetType.USB.name -> listOf(
             "Trizon USB"
         )
-        AssetType.PROBE -> listOf(
+        AssetType.PROBE.name -> listOf(
             "TORSO one",
             "TORSO",
             "Lexsa"
         )
-        AssetType.OTHER -> emptyList()
+        AssetType.OTHER.name -> emptyList()
+        else -> {emptyList()}
     }
 }

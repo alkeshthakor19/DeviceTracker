@@ -19,6 +19,7 @@ object Destinations {
     const val ASSETS = "assets"
     const val NEW_ASSET = "new_asset"
     const val ASSET_DETAIL = "asset_detail/{assetId}"
+    const val EDIT_ASSET = "edit_asset/{assetId}"
     const val LOGOUT = "logout"
 }
 
