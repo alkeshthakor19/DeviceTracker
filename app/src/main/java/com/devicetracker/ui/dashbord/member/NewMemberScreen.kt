@@ -51,6 +51,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.rememberAsyncImagePainter
 import coil.compose.rememberImagePainter
 import com.devicetracker.R
 import com.devicetracker.noRippleClickable
@@ -177,7 +178,7 @@ fun AddMember(
                 )
             } ?: imageUri?.let {
                 Image(
-                    painter = rememberImagePainter(it),
+                    painter = rememberAsyncImagePainter(it),
                     contentDescription = null,
                     modifier = imageModifier,
                     contentScale = ContentScale.Crop

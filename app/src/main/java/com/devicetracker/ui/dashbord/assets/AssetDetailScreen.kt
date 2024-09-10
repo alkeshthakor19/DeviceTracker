@@ -116,15 +116,15 @@ fun AssetDetailSection(assetData: Asset?){
             horizontalAlignment = Alignment.CenterHorizontally) {
                 AssetPhoto(assetData?.imageUrl)
                 Row(Modifier.padding(top = 4.dp)) {
-                    Text(text = "Asset Type: ")
+                    Text(text = stringResource(id = R.string.str_asset_type))
                     Text(text = assetData?.assetType.toString(), color = Color.Black)
                 }
                 Row(Modifier.padding(top = 4.dp)) {
-                    Text(text = "Model: ")
-                    Text(text = assetData?.assetModelName.toString(), color = Color.Black)
+                    Text(text = stringResource(id = R.string.str_label_asset_model_name))
+                    Text(text = assetData?.modelName.toString(), color = Color.Black)
                 }
                 Row(Modifier.padding(top = 4.dp)) {
-                    Text(text = "Current Owner: ")
+                    Text(text = stringResource(id = R.string.str_current_owner))
                     Text(text = assetOwner, color = Color.Black)
                 }
         }

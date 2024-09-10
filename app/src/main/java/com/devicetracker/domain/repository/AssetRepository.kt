@@ -15,14 +15,15 @@ typealias GetAssignHistoriesResponse = List<AssetHistory>
 typealias UpdateAssetResponse = Response<Boolean>
 
 interface AssetRepository {
-    suspend fun addAsset(assetName: String, assetType: String, model: String, description: String ,selectedMember: Member, imageUrl: String): AddAssetResponse
+    suspend fun addAsset(assetName: String, assetType: String, modelName: String, serialNumber: String, description: String ,selectedMember: Member, imageUrl: String): AddAssetResponse
 
     suspend fun uploadImageAndAddNewAssetToFirebase(
         imageUri: Uri?,
         imageBitmap: Bitmap?,
         assetName: String,
         assetType: String,
-        model: String,
+        modelName: String,
+        serialNumber: String,
         description: String,
         selectedMember: Member,
         onNavUp: () -> Unit
@@ -38,7 +39,8 @@ interface AssetRepository {
         assetId: String,
         assetName: String,
         assetType: String,
-        assetModelName: String,
+        modelName: String,
+        serialNumber: String,
         description: String,
         selectedOwner: Member?,
         imageUrl: String?
@@ -51,9 +53,12 @@ interface AssetRepository {
         imageBitmap: Bitmap?,
         assetName: String,
         assetType: String,
-        assetModelName: String,
+        modelName: String,
+        serialNumber: String,
         description: String,
         selectedOwner: Member?,
         onNavUp: () -> Unit
     ): UpdateAssetResponse
+
+    suspend fun getAssetListByMemberId(memberId: String) : List<Asset>
 }

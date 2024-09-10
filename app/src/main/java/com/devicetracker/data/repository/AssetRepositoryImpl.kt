@@ -11,6 +11,7 @@ import com.devicetracker.core.Constants.ASSET_MODEL_NAME
 import com.devicetracker.core.Constants.ASSET_NAME
 import com.devicetracker.core.Constants.ASSET_OWNER_ID
 import com.devicetracker.core.Constants.ASSET_OWNER_NAME
+import com.devicetracker.core.Constants.ASSET_SERIAL_NUMBER
 import com.devicetracker.core.Constants.ASSET_TYPE
 import com.devicetracker.core.Constants.COLLECTION_ASSETS
 import com.devicetracker.core.Constants.COLLECTION_ASSETS_HISTORY
@@ -45,7 +46,8 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
     override suspend fun addAsset(
         assetName: String,
         assetType: String,
-        model: String,
+        modelName: String,
+        serialNumber: String,
         description: String,
         selectedMember: Member,
         imageUrl: String,
@@ -58,12 +60,14 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         val asset = hashMapOf(
             ASSET_NAME to assetName,
             ASSET_TYPE to assetType,
-            ASSET_MODEL_NAME to model,
+            ASSET_MODEL_NAME to modelName,
+            ASSET_SERIAL_NUMBER to serialNumber,
             ASSET_DESCRIPTION to description,
             ASSET_OWNER_ID to selectedMember.memberId,
             ASSET_OWNER_NAME to assetOwnerName,
             IMAGE_URL to imageUrl,
-            CREATED_AT to serverTimestamp()
+            CREATED_AT to serverTimestamp(),
+            UPDATED_AT to serverTimestamp()
         )
         val result = db.collection(COLLECTION_ASSETS).add(asset).await()
         if(assetOwnerName.isNotEmpty()) {
@@ -87,7 +91,8 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         imageBitmap: Bitmap?,
         assetName: String,
         assetType: String,
-        model: String,
+        modelName: String,
+        serialNumber: String,
         description: String,
         selectedMember: Member,
         onNavUp: () -> Unit
@@ -106,7 +111,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
 
         uploadTask.await()
         val resultUri = imageRef.downloadUrl.await()
-        addAsset(assetName, assetType,model, description, selectedMember, resultUri.toString())
+        addAsset(assetName, assetType,modelName, serialNumber, description, selectedMember, resultUri.toString())
         onNavUp()
         Success(true)
     } catch (e: Exception) {
@@ -166,7 +171,8 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         assetId: String,
         assetName: String,
         assetType: String,
-        assetModelName: String,
+        modelName: String,
+        serialNumber: String,
         description: String,
         selectedOwner: Member?,
         imageUrl: String?
@@ -181,7 +187,8 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             val assetData = hashMapOf(
                 ASSET_NAME to assetName,
                 ASSET_TYPE to assetType,
-                ASSET_MODEL_NAME to assetModelName,
+                ASSET_MODEL_NAME to modelName,
+                ASSET_SERIAL_NUMBER to serialNumber,
                 ASSET_DESCRIPTION to description,
                 ASSET_OWNER_ID to assetOwnerId,
                 ASSET_OWNER_NAME to assetOwnerName,
@@ -215,7 +222,8 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         imageBitmap: Bitmap?,
         assetName: String,
         assetType: String,
-        assetModelName: String,
+        modelName: String,
+        serialNumber: String,
         description: String,
         selectedOwner: Member?,
         onNavUp: () -> Unit
@@ -245,7 +253,8 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
                 assetId,
                 assetName,
                 assetType,
-                assetModelName,
+                modelName,
+                serialNumber,
                 description,
                 selectedOwner,
                 resultUri
@@ -258,5 +267,23 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             e.printStackTrace()
             Failure(e)
         }
+    }
+
+    override suspend fun getAssetListByMemberId(memberId: String): List<Asset> {
+        val collectionRef = db.collection(COLLECTION_ASSETS)
+        val query = collectionRef.whereEqualTo(ASSET_OWNER_ID, memberId)
+        val querySnapshot = query.orderBy(UPDATED_AT, Query.Direction.DESCENDING).get().await()
+        val assetList = mutableListOf<Asset>()
+        try {
+            for (document in querySnapshot.documents) {
+                val asset = document.toObject(Asset::class.java)
+                if (asset != null) {
+                    assetList.add(asset)
+                }
+            }
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
+        return assetList
     }
 }

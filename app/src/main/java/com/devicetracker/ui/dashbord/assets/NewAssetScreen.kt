@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -51,7 +50,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.rememberImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
 import com.devicetracker.noRippleClickable
 import com.devicetracker.singleClick
@@ -60,6 +59,8 @@ import com.devicetracker.ui.components.AssetDescriptionField
 import com.devicetracker.ui.components.AssetDescriptionState
 import com.devicetracker.ui.components.AssetNameField
 import com.devicetracker.ui.components.AssetNameState
+import com.devicetracker.ui.components.AssetSerialNumberField
+import com.devicetracker.ui.components.AssetSerialNumberState
 import com.devicetracker.ui.components.AssetTypeField
 import com.devicetracker.ui.components.ModelDropdown
 import com.devicetracker.ui.components.OwnerSpinner
@@ -88,14 +89,15 @@ fun NewAssetScreen(onNavUp: () -> Unit) {
                 },
         ) {
             val newAssetViewModel: AssetViewModel = hiltViewModel()
-            UpdateAsset(
-                onAssetSaved = { imageUri, imageBitmap, assetName, assetType, model, description, selectedMember->
+            AddAsset(
+                onAssetSaved = { imageUri, imageBitmap, assetName, assetType, model, serialNumber, description, selectedMember->
                     newAssetViewModel.uploadImageAndAddNewAssetToFirebase(
                         imageUri,
                         imageBitmap,
                         assetName,
                         assetType,
                         model,
+                        serialNumber,
                         description,
                         selectedMember,
                         onNavUp
@@ -108,10 +110,9 @@ fun NewAssetScreen(onNavUp: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UpdateAsset(
-    onAssetSaved: (imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, model: String, description: String, memberViewModel : Member) -> Unit,
+fun AddAsset(
+    onAssetSaved: (imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber : String, description: String, memberViewModel : Member) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?
 ) {
@@ -129,6 +130,7 @@ fun UpdateAsset(
     var selectedAssetType by remember { mutableStateOf(AssetType.TAB) }
     var selectedModel by remember { mutableStateOf("") }
     val description = remember { AssetDescriptionState() }
+    val serialNumberState = remember { AssetSerialNumberState() }
     var selectedOwner by remember { mutableStateOf(memberList.first()) }
 
     val galleryPicker = rememberLauncherForActivityResult(
@@ -163,7 +165,7 @@ fun UpdateAsset(
             } else if (selectedModel.isEmpty()) {
                 // Show error or handle model not selected
             } else {
-                onAssetSaved(imageUri, imageBitmap, assetNameState.text, selectedAssetType.name, selectedModel, description.text, selectedOwner)
+                onAssetSaved(imageUri, imageBitmap, assetNameState.text, selectedAssetType.name, selectedModel, serialNumberState.text, description.text, selectedOwner)
             }
         }
 
@@ -185,7 +187,7 @@ fun UpdateAsset(
                 )
             } ?: imageUri?.let {
                 Image(
-                    painter = rememberImagePainter(it),
+                    painter = rememberAsyncImagePainter(it),
                     contentDescription = null,
                     modifier = imageModifier,
                     contentScale = ContentScale.Crop
@@ -222,6 +224,7 @@ fun UpdateAsset(
             selectedModel = selectedModel,
             onModelSelected = { selectedModel = it }
         )
+        AssetSerialNumberField(assetSerialNumber = serialNumberState)
         OwnerSpinner(memberList = memberList, selectedOwner = selectedOwner) {
             selectedOwner = it
         }

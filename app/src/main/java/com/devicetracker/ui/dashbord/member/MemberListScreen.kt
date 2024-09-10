@@ -62,9 +62,9 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
     val memberViewModel: MemberViewModel = hiltViewModel()
     var members = emptyList<Member>()
     val coroutineScope = rememberCoroutineScope()
-    memberViewModel.members.observe(LocalLifecycleOwner.current,{
+    memberViewModel.members.observe(LocalLifecycleOwner.current) {
         members = it
-    })
+    }
     val state = rememberPullToRefreshState()
     val onRefresh: () -> Unit = {
         Log.d("MemberList", "nkp onRefresh call")

@@ -117,3 +117,25 @@ fun AssetDescriptionField(description: TextFieldState) {
     }
 }
 
+@Composable
+fun AssetSerialNumberField(assetSerialNumber: TextFieldState) {
+    OutlinedTextField(
+        value = assetSerialNumber.text,
+        onValueChange = {
+            assetSerialNumber.text = it
+        },
+        label = {
+            Text(text = stringResource(R.string.str_asset_serial_number))
+        },
+        modifier = Modifier.onFocusChanged {
+            assetSerialNumber.onFocusChange(it.isFocused)
+        },
+        isError = assetSerialNumber.showError(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+        singleLine = true
+    )
+    assetSerialNumber.getError()?.let {error ->
+        TextFieldError(textError = error )
+    }
+}
+

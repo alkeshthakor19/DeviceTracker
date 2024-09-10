@@ -49,6 +49,7 @@ import com.devicetracker.R
 import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
 import com.devicetracker.ui.Destinations.NEW_ASSET
+import com.devicetracker.ui.components.NoDataMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -103,12 +104,7 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 if(assets.isEmpty()){
                     item {
-                        Column(
-                            modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp).fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ){
-                            Text(text = "No Data!!", style = MaterialTheme.typography.titleLarge)
-                        }
+                        NoDataMessage()
                     }
                 } else{
                     items(assets) { asset ->
@@ -143,14 +139,14 @@ fun AssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            AssetTypePicture(asset)
+            AssetPicture(asset)
             AssetContent(asset)
         }
     }
 }
 
 @Composable
-fun AssetTypePicture(asset: Asset) {
+fun AssetPicture(asset: Asset) {
     Card(
         shape = CircleShape,
         border = BorderStroke(
@@ -199,8 +195,8 @@ fun AssetContent(asset: Asset) {
               Text(text = assetTypeName)
            }
            Row {
-              Text(text = stringResource(id = R.string.str_asset_model), color = Color.Gray)
-              Text(text = asset.assetModelName.toString())
+              Text(text = stringResource(id = R.string.str_label_asset_model_name), color = Color.Gray)
+              Text(text = asset.modelName.toString())
            }
     }
 }

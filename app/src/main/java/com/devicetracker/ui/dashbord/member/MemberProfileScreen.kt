@@ -1,6 +1,7 @@
 package com.devicetracker.ui.dashbord.member
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -20,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -31,6 +34,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,25 +50,43 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.devicetracker.DataHelper
 import com.devicetracker.R
+import com.devicetracker.getDateStringFromTimestamp
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.BodyText
 import com.devicetracker.ui.components.LabelText
+import com.devicetracker.ui.components.NoDataMessage
 import com.devicetracker.ui.dashbord.assets.Asset
 import com.devicetracker.ui.dashbord.assets.AssetType
-import com.devicetracker.ui.dashbord.assets.AssetTypePicture
+import com.devicetracker.ui.dashbord.assets.AssetPicture
+import com.devicetracker.ui.dashbord.assets.AssetViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MemberProfileScreen(memberId: String, onNavUp: () -> Unit) {
+    val mTag = "MemberProfileScreen"
     val memberViewModel : MemberViewModel = hiltViewModel()
     val memberData by memberViewModel.fetchMember(memberId).observeAsState()
-    val mTag = "MemberProfileScreen"
+
+    val assetViewModel: AssetViewModel = hiltViewModel()
+    val assetListByMemberId = remember { mutableStateOf<List<Asset>>(emptyList()) }
+    assetViewModel.getAssetListByMemberId(memberId).observe(LocalLifecycleOwner.current) {
+        assetListByMemberId.value = it
+    }
+    val coroutineScope = rememberCoroutineScope()
+    val onRefreshAssetList: () -> Unit = {
+        coroutineScope.launch(Dispatchers.IO) {
+            assetListByMemberId.value = assetViewModel.fetchAssetListByMemberId(memberId)
+            Log.d("MemberProfileScreen", "nkp assetListByMemberId1 size ${assetListByMemberId.value.size}")
+        }
+    }
     Scaffold(
         topBar = {
             TopBarWithTitleAndBackNavigation(titleText = memberData?.memberName?: "NA", onNavUp)
@@ -81,13 +107,27 @@ fun MemberProfileScreen(memberId: String, onNavUp: () -> Unit) {
                 item {
                     ProfileDetailSection(memberData)
                     Spacer(modifier = Modifier.height(25.dp))
-                    Text(
-                        text = "Currently Assigned Assets",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontStyle = FontStyle.Italic
-                    )
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(
+                            text = "Currently Assigned Assets",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontStyle = FontStyle.Italic
+                        )
+                        Spacer(modifier = Modifier.width(50.dp))
+                        Text(text = "Refresh List", modifier = Modifier.padding(bottom = 2.dp).clickable { onRefreshAssetList() } )
+                    }
                 }
-                assignAssetListSection()
+                if(assetViewModel.isLoaderShowing){
+                    item { ProgressBar() }
+                } else {
+                    if(assetListByMemberId.value.isEmpty()){
+                        item {
+                            NoDataMessage()
+                        }
+                    } else {
+                        assignAssetListSection(assetListByMemberId.value)
+                    }
+                }
             }
         }
     }
@@ -135,9 +175,9 @@ fun MemberFieldRow(labelText: String, bodyText: String){
     }
 }
 
-fun LazyListScope.assignAssetListSection() {
-    val deviceList = DataHelper.getAssignAssetDummyList()
-    items(deviceList) {
+fun LazyListScope.assignAssetListSection(assetListByMemberId: List<Asset>) {
+    Log.d("MemberProfileScreen", "nkp list assetListByMemberId size ${assetListByMemberId.size}")
+    items(assetListByMemberId) {
         AssignedAssetRow(asset = it) {
 
         }
@@ -165,7 +205,7 @@ fun AssignedAssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            AssetTypePicture(asset)
+            AssetPicture(asset)
             AssignAssetContent(asset)
         }
     }
@@ -182,24 +222,17 @@ fun AssignAssetContent(asset: Asset) {
             text = asset.assetName,
             style = MaterialTheme.typography.titleMedium,
         )
-        val deviceTypeName = if(asset.assetType == AssetType.TAB.name) {
-            stringResource(id = R.string.str_device_type_tab)
-        } else if(asset.assetType == AssetType.USB.name) {
-            stringResource(id = R.string.str_device_type_storage)
-        } else if(asset.assetType == AssetType.CABLE.name) {
-            stringResource(id = R.string.str_device_type_cable)
-        } else if(asset.assetType == AssetType.PROBE.name) {
-            stringResource(id = R.string.str_device_type_probe)
-        } else {
-            stringResource(id = R.string.str_device_type_other)
-        }
         Row {
             Text(text = stringResource(id = R.string.str_asset_type), color = Color.Gray)
-            Text(text = deviceTypeName)
+            Text(text = asset.assetType?:"")
+        }
+        Row {
+            Text(text = stringResource(id = R.string.str_label_asset_model_name), color = Color.Gray)
+            Text(text = asset.modelName?:"")
         }
         Row {
             Text(text = stringResource(id = R.string.str_asset_assign_date), color = Color.Gray)
-            Text(text = "29 Aug 2024")
+            Text(text = getDateStringFromTimestamp(asset.createdAt))
         }
     }
 }

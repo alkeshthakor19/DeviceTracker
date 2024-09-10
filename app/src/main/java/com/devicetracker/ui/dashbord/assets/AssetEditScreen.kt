@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
@@ -59,6 +58,8 @@ import com.devicetracker.ui.components.AssetDescriptionField
 import com.devicetracker.ui.components.AssetDescriptionState
 import com.devicetracker.ui.components.AssetNameField
 import com.devicetracker.ui.components.AssetNameState
+import com.devicetracker.ui.components.AssetSerialNumberField
+import com.devicetracker.ui.components.AssetSerialNumberState
 import com.devicetracker.ui.components.AssetTypeField
 import com.devicetracker.ui.components.ModelDropdown
 import com.devicetracker.ui.components.OwnerSpinner
@@ -91,7 +92,7 @@ fun AssetEditScreen(assetId: String, onNavUp: () -> Unit) {
                     ProgressBar()
                 } else{
                     UpdateAsset(
-                        onAssetSaved = { isNeedToUpdateImageUrl, imageUri, imageBitmap, assetName, assetType, assetModelName, description, selectedOwner ->
+                        onAssetSaved = { isNeedToUpdateImageUrl, imageUri, imageBitmap, assetName, assetType, assetModelName, serialNumber, description, selectedOwner ->
                             assetViewModel.uploadImageAndUpdateAsset(
                                 assetId,
                                 isNeedToUpdateImageUrl,
@@ -100,6 +101,7 @@ fun AssetEditScreen(assetId: String, onNavUp: () -> Unit) {
                                 assetName,
                                 assetType,
                                 assetModelName,
+                                serialNumber,
                                 description,
                                 selectedOwner,
                                 onNavUp
@@ -116,13 +118,13 @@ fun AssetEditScreen(assetId: String, onNavUp: () -> Unit) {
 
 @Composable
 fun UpdateAsset(
-    onAssetSaved: (isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, model: String, description: String, selectedOwner: Member?) -> Unit,
+    onAssetSaved: (isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber: String, description: String, selectedOwner: Member?) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?,
     initialAssetData: Asset?
 ) {
-    val selectedModelName = if(initialAssetData?.assetModelName != null){
-        initialAssetData.assetModelName
+    val selectedModelName = if(initialAssetData?.modelName != null){
+        initialAssetData.modelName
     } else {
         Constants.EMPTY_STR
     }
@@ -142,7 +144,7 @@ fun UpdateAsset(
     } else {
         memberList.first()
     }
-    val selectedOwner = remember { mutableStateOf<Member?>(initOwner)}
+    val selectedOwner = remember { mutableStateOf(initOwner)}
 
     Log.d("AssetEditScreen","nkp asset name: $initialAssetData")
     val assetNameState = remember { AssetNameState() }
@@ -153,13 +155,14 @@ fun UpdateAsset(
         null
     }
     var isNeedToUpdateImageUrl by remember { mutableStateOf(false) }
-    var imageUri by remember { mutableStateOf<Uri?>(initImageUri) }
+    var imageUri by remember { mutableStateOf(initImageUri) }
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var showMenu by remember { mutableStateOf(false) }
 
     val selectedAssetType = remember { mutableStateOf(assetType) }
-
     val selectedModel = remember { mutableStateOf(selectedModelName) }
+    val serialNumberState = remember { AssetSerialNumberState() }
+    serialNumberState.text = initialAssetData?.serialNumber?:Constants.EMPTY_STR
 
     val description = remember { AssetDescriptionState() }
     description.text = initialAssetData?.description ?: Constants.EMPTY_STR
@@ -199,7 +202,7 @@ fun UpdateAsset(
                 // Show error or handle model not selected
             } else {
                 onAssetSaved(isNeedToUpdateImageUrl, imageUri, imageBitmap, assetNameState.text,
-                    selectedAssetType.value, selectedModel.value, description.text, selectedOwner.value
+                    selectedAssetType.value, selectedModel.value, serialNumberState.text, description.text, selectedOwner.value
                 )
             }
         }
@@ -258,6 +261,8 @@ fun UpdateAsset(
             selectedModel = selectedModel.value,
             onModelSelected = { selectedModel.value = it }
         )
+
+        AssetSerialNumberField(assetSerialNumber = serialNumberState)
 
         OwnerSpinner(memberList = memberList, selectedOwner = selectedOwner.value) {
             Log.d("AssetEdit", "nkp selected click name ${it.memberName}")

@@ -32,23 +32,18 @@ class AssetViewModel @Inject constructor(
     var addedAssetResponse by mutableStateOf<AddAssetResponse>(Response.Success(false))
         private set
 
-    var isLoaderShowing by mutableStateOf<Boolean>(true)
+    var isLoaderShowing by mutableStateOf(true)
         private set
 
     private var updateAssetResponse by mutableStateOf<AddAssetResponse>(Response.Success(false))
-        private set
-
-    fun addNewAsset(assetName: String, assetType: String, model: String, description: String, selectedMember: Member, imageUrl: String) = viewModelScope.launch {
-        addedAssetResponse = Response.Loading
-        addedAssetResponse = repo.addAsset(assetName, assetType, model, description, selectedMember, imageUrl)
-    }
 
     fun uploadImageAndAddNewAssetToFirebase(
         imageUri: Uri?,
         imageBitmap: Bitmap?,
         assetName: String,
         assetType: String,
-        model: String,
+        modelName: String,
+        serialNumber: String,
         description: String,
         selectedMember: Member,
         onNavUp: () -> Unit
@@ -59,7 +54,8 @@ class AssetViewModel @Inject constructor(
             imageBitmap,
             assetName,
             assetType,
-            model,
+            modelName,
+            serialNumber,
             description,
             selectedMember,
             onNavUp
@@ -88,24 +84,6 @@ class AssetViewModel @Inject constructor(
         return result
     }
 
-    /*fun getAssetDetailById(assetId: String) = viewModelScope.launch {
-        isLoaderShowing = true
-        getAssetsByIdResponse = repo.getAssetsDetailById(assetId)
-        if(getAssetsByIdResponse is Response.Success){
-            try {
-                val documentSnapshot = (getAssetsByIdResponse as Response.Success<DocumentSnapshot?>).data
-                if (documentSnapshot != null) {
-                    val asset = documentSnapshot.toObject(Asset::class.java) ?: Asset()
-                    asset.assetId = documentSnapshot.id
-                    isLoaderShowing = false
-                    _asset.value = asset
-                }
-            } catch (e: Exception) {
-                Log.e("Asset", "Error data fetching : ${e.printStackTrace()}")
-            }
-        }
-    }*/
-
     fun getAssetHistories(assetId: String) = liveData(Dispatchers.IO) {
         emit(fetchAssetHistories(assetId))
     }
@@ -117,14 +95,20 @@ class AssetViewModel @Inject constructor(
         return result
     }
 
-    // Function to update an asset
-    fun updateAsset(assetId: String, assetName: String, assetType: String, model: String, description: String, selectedOwner: Member, imageUrl: String?) = viewModelScope.launch {
-        updateAssetResponse = Response.Loading
-        updateAssetResponse = repo.updateAsset(assetId, assetName, assetType, model, description, selectedOwner,  imageUrl)
+    // Get all asset list by particular asset owner
+    fun getAssetListByMemberId(memberId: String) = liveData(Dispatchers.IO) {
+        emit(fetchAssetListByMemberId(memberId))
+    }
+
+    suspend fun fetchAssetListByMemberId(memberId: String): List<Asset> {
+        isLoaderShowing = true
+        val result = repo.getAssetListByMemberId(memberId)
+        isLoaderShowing = false
+        return result
     }
 
     // Function to upload image and update the asset in Firebase
-    fun uploadImageAndUpdateAsset(assetId: String, isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, assetModelName: String, description: String, selectedOwner: Member?, onNavUp: () -> Unit) = viewModelScope.launch {
+    fun uploadImageAndUpdateAsset(assetId: String, isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, assetModelName: String, serialNumber: String, description: String, selectedOwner: Member?, onNavUp: () -> Unit) = viewModelScope.launch {
         updateAssetResponse = Response.Loading
         updateAssetResponse = repo.uploadImageAndUpdateAsset(
             assetId,
@@ -134,6 +118,7 @@ class AssetViewModel @Inject constructor(
             assetName,
             assetType,
             assetModelName,
+            serialNumber,
             description,
             selectedOwner,
             onNavUp
