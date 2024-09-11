@@ -51,6 +51,7 @@ import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
+import com.devicetracker.ui.Destinations.MEMBER_SEARCH
 import com.devicetracker.ui.Destinations.NEW_MEMBER
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -83,7 +84,7 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
                     }
                 },
                 actions = {
-                    IconButton(onClick = {  }) {
+                    IconButton(onClick = { navHostController.navigate(MEMBER_SEARCH) }) {
                         Icon(imageVector = Icons.Filled.Search, contentDescription = "Search")
                     }
                 },

@@ -17,17 +17,19 @@ import com.devicetracker.ui.Destinations.EDIT_ASSET
 import com.devicetracker.ui.Destinations.HOME
 import com.devicetracker.ui.Destinations.MEMBERS
 import com.devicetracker.ui.Destinations.MEMBER_DETAIL
+import com.devicetracker.ui.Destinations.MEMBER_SEARCH
 import com.devicetracker.ui.Destinations.NEW_ASSET
 import com.devicetracker.ui.Destinations.NEW_MEMBER
 import com.devicetracker.ui.dashbord.assets.AddAssetRoute
 import com.devicetracker.ui.dashbord.assets.AssetDetailScreen
-import com.devicetracker.ui.dashbord.assets.AssetListScreen
 import com.devicetracker.ui.dashbord.assets.AssetEditScreen
+import com.devicetracker.ui.dashbord.assets.AssetListScreen
 import com.devicetracker.ui.dashbord.assets.AssetModelRoute
 import com.devicetracker.ui.dashbord.home.HomeScreen
 import com.devicetracker.ui.dashbord.member.AddMemberRoute
 import com.devicetracker.ui.dashbord.member.MemberListScreen
 import com.devicetracker.ui.dashbord.member.MemberProfileScreen
+import com.devicetracker.ui.dashbord.member.MemberSearchScreen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -105,6 +107,11 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
                     navigationController.navigateUp()
                 }
             )
+        }
+        composable(MEMBER_SEARCH){
+            MemberSearchScreen(navigationController){
+                navigationController.navigateUp()
+            }
         }
     }
 }

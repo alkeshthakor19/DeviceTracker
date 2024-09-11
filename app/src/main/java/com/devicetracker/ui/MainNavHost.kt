@@ -21,6 +21,7 @@ object Destinations {
     const val ASSET_DETAIL = "asset_detail/{assetId}"
     const val EDIT_ASSET = "edit_asset/{assetId}"
     const val ASSET_MODEL = "asset_model"
+    const val MEMBER_SEARCH = "member-search"
     const val LOGOUT = "logout"
 }
 

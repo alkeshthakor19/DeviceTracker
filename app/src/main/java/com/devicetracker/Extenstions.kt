@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.semantics.Role
+import com.devicetracker.core.Constants
 import com.google.firebase.Timestamp
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -56,7 +57,7 @@ fun singleClick(onClick: () -> Unit): () -> Unit {
 
 @SuppressLint("SimpleDateFormat")
 fun getDateStringFromTimestamp(timestamp: Timestamp?): String {
-    var stringDate = ""
+    var stringDate = Constants.EMPTY_STR
     if(timestamp != null){
         val milliseconds = timestamp.seconds * 1000 + timestamp.nanoseconds / 1000000
         val sdf = SimpleDateFormat("dd/MM/yyyy hh:mm:ss aa")
