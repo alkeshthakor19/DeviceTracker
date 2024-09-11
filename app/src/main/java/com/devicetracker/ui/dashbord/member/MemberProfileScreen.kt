@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -34,11 +33,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
@@ -61,7 +59,6 @@ import com.devicetracker.ui.components.BodyText
 import com.devicetracker.ui.components.LabelText
 import com.devicetracker.ui.components.NoDataMessage
 import com.devicetracker.ui.dashbord.assets.Asset
-import com.devicetracker.ui.dashbord.assets.AssetType
 import com.devicetracker.ui.dashbord.assets.AssetPicture
 import com.devicetracker.ui.dashbord.assets.AssetViewModel
 import kotlinx.coroutines.Dispatchers
@@ -70,7 +67,11 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MemberProfileScreen(memberId: String, onNavUp: () -> Unit) {
+fun MemberProfileScreen(
+    memberId: String,
+    onNavUp: () -> Unit,
+    navHostController: NavHostController
+) {
     val mTag = "MemberProfileScreen"
     val memberViewModel : MemberViewModel = hiltViewModel()
     val memberData by memberViewModel.fetchMember(memberId).observeAsState()
@@ -125,7 +126,7 @@ fun MemberProfileScreen(memberId: String, onNavUp: () -> Unit) {
                             NoDataMessage()
                         }
                     } else {
-                        assignAssetListSection(assetListByMemberId.value)
+                        assignAssetListSection(assetListByMemberId.value, navHostController)
                     }
                 }
             }
@@ -175,11 +176,15 @@ fun MemberFieldRow(labelText: String, bodyText: String){
     }
 }
 
-fun LazyListScope.assignAssetListSection(assetListByMemberId: List<Asset>) {
+fun LazyListScope.assignAssetListSection(
+    assetListByMemberId: List<Asset>,
+    navHostController: NavHostController
+) {
     Log.d("MemberProfileScreen", "nkp list assetListByMemberId size ${assetListByMemberId.size}")
     items(assetListByMemberId) {
-        AssignedAssetRow(asset = it) {
-
+        AssignedAssetRow(asset = it) { assetId ->
+            Log.d("MemberProfile", "nkp assetId: ${assetId}")
+            navHostController.navigate("asset_detail/${assetId}")
         }
     }
 }
@@ -224,12 +229,16 @@ fun AssignAssetContent(asset: Asset) {
         )
         Row {
             Text(text = stringResource(id = R.string.str_asset_type), color = Color.Gray)
-            Text(text = asset.assetType?:"")
+            Text(text = asset.assetType.toString())
         }
         Row {
             Text(text = stringResource(id = R.string.str_label_asset_model_name), color = Color.Gray)
-            Text(text = asset.modelName?:"")
+            Text(text = asset.modelName.toString())
         }
+        /*Row {
+            Text(text = stringResource(id = R.string.str_label_asset_serial_number), color = Color.Gray)
+            Text(text = asset.serialNumber.toString())
+        }*/
         Row {
             Text(text = stringResource(id = R.string.str_asset_assign_date), color = Color.Gray)
             Text(text = getDateStringFromTimestamp(asset.createdAt))

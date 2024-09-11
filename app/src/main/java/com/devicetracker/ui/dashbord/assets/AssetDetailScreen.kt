@@ -111,22 +111,27 @@ fun AssetDetailSection(assetData: Asset?){
     ){
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 18.dp, bottom = 18.dp),
-            horizontalAlignment = Alignment.CenterHorizontally) {
-                AssetPhoto(assetData?.imageUrl)
-                Row(Modifier.padding(top = 4.dp)) {
-                    Text(text = stringResource(id = R.string.str_asset_type))
-                    Text(text = assetData?.assetType.toString(), color = Color.Black)
-                }
-                Row(Modifier.padding(top = 4.dp)) {
-                    Text(text = stringResource(id = R.string.str_label_asset_model_name))
-                    Text(text = assetData?.modelName.toString(), color = Color.Black)
-                }
-                Row(Modifier.padding(top = 4.dp)) {
-                    Text(text = stringResource(id = R.string.str_current_owner))
-                    Text(text = assetOwner, color = Color.Black)
-                }
+            .fillMaxWidth()
+            .padding(top = 18.dp, bottom = 18.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            AssetPhoto(assetData?.imageUrl)
+            Row(Modifier.padding(top = 4.dp)) {
+                Text(text = stringResource(id = R.string.str_asset_type))
+                Text(text = assetData?.assetType.toString(), color = Color.Black)
+            }
+            Row(Modifier.padding(top = 4.dp)) {
+                Text(text = stringResource(id = R.string.str_label_asset_model_name))
+                Text(text = assetData?.modelName.toString(), color = Color.Black)
+            }
+            Row(Modifier.padding(top = 4.dp)) {
+                Text(text = stringResource(id = R.string.str_label_asset_serial_number))
+                Text(text = assetData?.serialNumber.toString(), color = Color.Black)
+            }
+            Row(Modifier.padding(top = 4.dp)) {
+                Text(text = stringResource(id = R.string.str_current_owner))
+                Text(text = assetOwner, color = Color.Black)
+            }
         }
     }
 }

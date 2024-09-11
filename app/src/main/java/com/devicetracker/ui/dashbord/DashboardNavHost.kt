@@ -67,7 +67,8 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
             Log.d("DashNavHost", "nkp Navigating to Member Detail")
             MemberProfileScreen(
                 memberId = it.arguments?.getString("memberId") ?: "",
-                onNavUp = { navigationController.navigateUp() }
+                onNavUp = { navigationController.navigateUp() },
+                navHostController = navigationController
             )
         }
         composable(

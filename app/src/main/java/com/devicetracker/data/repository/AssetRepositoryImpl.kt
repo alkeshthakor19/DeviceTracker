@@ -159,6 +159,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             for (document in querySnapshot.documents) {
                 val assetHistory = document.toObject(AssetHistory::class.java)
                 if (assetHistory != null) {
+                    assetHistory.id = document.id
                     assetHistories.add(assetHistory)
                 }
             }
@@ -278,6 +279,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             for (document in querySnapshot.documents) {
                 val asset = document.toObject(Asset::class.java)
                 if (asset != null) {
+                    asset.assetId = document.id
                     assetList.add(asset)
                 }
             }

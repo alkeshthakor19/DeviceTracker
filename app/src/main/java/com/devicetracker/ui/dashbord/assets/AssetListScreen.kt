@@ -174,29 +174,34 @@ fun AssetPicture(asset: Asset) {
 
 @Composable
 fun AssetContent(asset: Asset) {
+    val assetTypeName = when(asset.assetType) {
+        AssetType.TAB.name -> stringResource(id = R.string.str_device_type_tab)
+        AssetType.USB.name -> stringResource(id = R.string.str_device_type_storage)
+        AssetType.CABLE.name -> stringResource(id = R.string.str_device_type_cable)
+        AssetType.PROBE.name -> stringResource(id = R.string.str_device_type_probe)
+        else -> stringResource(id = R.string.str_device_type_other)
+    }
     Column(
         Modifier
             .padding(8.dp)
             .fillMaxWidth()
     ) {
-         Text(
-             text = asset.assetName,
-             style = MaterialTheme.typography.titleLarge
-             )
-           val assetTypeName = when(asset.assetType) {
-               AssetType.TAB.name -> stringResource(id = R.string.str_device_type_tab)
-               AssetType.USB.name -> stringResource(id = R.string.str_device_type_storage)
-               AssetType.CABLE.name -> stringResource(id = R.string.str_device_type_cable)
-               AssetType.PROBE.name -> stringResource(id = R.string.str_device_type_probe)
-               else -> stringResource(id = R.string.str_device_type_other)
-           }
-           Row {
-              Text(text = stringResource(id = R.string.str_asset_type), color = Color.Gray)
-              Text(text = assetTypeName)
-           }
-           Row {
-              Text(text = stringResource(id = R.string.str_label_asset_model_name), color = Color.Gray)
-              Text(text = asset.modelName.toString())
-           }
+        Text(
+         text = asset.assetName,
+         style = MaterialTheme.typography.titleLarge
+        )
+
+        Row {
+          Text(text = stringResource(id = R.string.str_asset_type), color = Color.Gray)
+          Text(text = assetTypeName)
+        }
+        Row {
+          Text(text = stringResource(id = R.string.str_label_asset_model_name), color = Color.Gray)
+          Text(text = asset.modelName.toString())
+        }
+        /*Row {
+            Text(text = stringResource(id = R.string.str_label_asset_serial_number), color = Color.Gray)
+            Text(text = asset.serialNumber.toString())
+        }*/
     }
 }

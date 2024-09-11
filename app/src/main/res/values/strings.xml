@@ -17,6 +17,7 @@
 
     <string name="str_asset_type">Asset Type: </string>
     <string name="str_asset_serial_number">Serial No.</string>
+    <string name="str_label_asset_serial_number">Serial No.:</string>
     <string name="str_label_asset_model_name">Model Name: </string>
     <string name="str_asset_assign_date">Assign Date: </string>
     <string name="str_device_type_tab">TAB</string>
