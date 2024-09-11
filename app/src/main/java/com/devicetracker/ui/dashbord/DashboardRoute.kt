@@ -25,6 +25,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.devicetracker.R
 import com.devicetracker.ui.Destinations.ASSETS
+import com.devicetracker.ui.Destinations.ASSET_MODEL
 import com.devicetracker.ui.Destinations.HOME
 import com.devicetracker.ui.Destinations.LOGOUT
 import com.devicetracker.ui.Destinations.MEMBERS
@@ -56,6 +57,12 @@ fun DashboardRoute() {
                selectedIcon = R.drawable.ic_baseline_users,
                unselectedIcon = R.drawable.ic_baseline_users_white,
                route = MEMBERS
+          ),
+          NavigationItems(
+               title = stringResource(id = R.string.str_asset_models),
+               selectedIcon = R.drawable.ic_devices_other,
+               unselectedIcon = R.drawable.ic_devices_other_white,
+               route = ASSET_MODEL
           ),
           NavigationItems(
                title = stringResource(id = R.string.str_logout),

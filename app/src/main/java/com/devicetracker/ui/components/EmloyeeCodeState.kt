@@ -1,5 +1,7 @@
 package com.devicetracker.ui.components
 
+import com.devicetracker.core.Constants
+
 class EmployeeIdState : TextFieldState(validator = ::isEmployeeIdValid, errorFor = ::employeeIdValidationError)
 private fun isEmployeeIdValid(employeeCode: String): Boolean {
     return employeeCode.isNotEmpty() && (employeeCode.length == 6)
@@ -11,6 +13,6 @@ private fun employeeIdValidationError(employeeCode: String): String {
     } else if(employeeCode.length != 6){
         "Please enter 6 digit employee code."
     } else {
-        ""
+        Constants.EMPTY_STR
     }
 }

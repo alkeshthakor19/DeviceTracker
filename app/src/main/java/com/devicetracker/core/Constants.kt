@@ -9,6 +9,7 @@ object Constants {
     //Database
     const val COLLECTION_MEMBERS = "members"
     const val COLLECTION_ASSETS = "assets"
+    const val COLLECTION_ASSETS_MODELS = "assetModels"
     const val COLLECTION_ASSETS_HISTORY = "assetsHistory"
     const val FIRE_STORAGE_IMAGES = "images"
 

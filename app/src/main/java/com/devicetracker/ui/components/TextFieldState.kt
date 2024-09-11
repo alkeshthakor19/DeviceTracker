@@ -4,13 +4,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
+import com.devicetracker.core.Constants
 
 open class TextFieldState(
     private val validator: (String) -> Boolean = {true},
-    private val errorFor:(String) -> String = {""}
+    private val errorFor:(String) -> String = { Constants.EMPTY_STR }
 ) {
 
-    var text: String by mutableStateOf("")
+    var text: String by mutableStateOf(Constants.EMPTY_STR)
 
     var isFocused: Boolean by mutableStateOf(false)
 

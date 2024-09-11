@@ -9,8 +9,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.devicetracker.core.Constants
 import com.devicetracker.ui.Destinations.ASSETS
 import com.devicetracker.ui.Destinations.ASSET_DETAIL
+import com.devicetracker.ui.Destinations.ASSET_MODEL
 import com.devicetracker.ui.Destinations.EDIT_ASSET
 import com.devicetracker.ui.Destinations.HOME
 import com.devicetracker.ui.Destinations.MEMBERS
@@ -21,6 +23,7 @@ import com.devicetracker.ui.dashbord.assets.AddAssetRoute
 import com.devicetracker.ui.dashbord.assets.AssetDetailScreen
 import com.devicetracker.ui.dashbord.assets.AssetListScreen
 import com.devicetracker.ui.dashbord.assets.AssetEditScreen
+import com.devicetracker.ui.dashbord.assets.AssetModelRoute
 import com.devicetracker.ui.dashbord.home.HomeScreen
 import com.devicetracker.ui.dashbord.member.AddMemberRoute
 import com.devicetracker.ui.dashbord.member.MemberListScreen
@@ -49,6 +52,13 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
                 { coroutineScope.launch { drawerState.open() } }, navigationController
             )
         }
+        composable(ASSET_MODEL) {
+            Log.d("DashNavHost", "nkp Navigating to Assets")
+            AssetModelRoute {
+                coroutineScope.launch { drawerState.open() }
+            }
+
+        }
         composable(NEW_MEMBER) {
             Log.d("DashNavHost", "nkp Navigating to New Member")
             AddMemberRoute {
@@ -66,7 +76,7 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
         ) {
             Log.d("DashNavHost", "nkp Navigating to Member Detail")
             MemberProfileScreen(
-                memberId = it.arguments?.getString("memberId") ?: "",
+                memberId = it.arguments?.getString("memberId") ?: Constants.EMPTY_STR,
                 onNavUp = { navigationController.navigateUp() },
                 navHostController = navigationController
             )
@@ -77,7 +87,7 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
         ) {
             Log.d("DashNavHost", "nkp Navigating to Asset Detail")
             AssetDetailScreen(
-                assetId = it.arguments?.getString("assetId")?:"",
+                assetId = it.arguments?.getString("assetId")?:Constants.EMPTY_STR,
                 onNavUp = {
                     navigationController.navigateUp()
                 },
@@ -90,7 +100,7 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
         ) {
             Log.d("DashNavHost", "nkp Navigating to Edit Asset")
             AssetEditScreen(
-                assetId = it.arguments?.getString("assetId")?:"",
+                assetId = it.arguments?.getString("assetId").toString(),
                 onNavUp = {
                     navigationController.navigateUp()
                 }

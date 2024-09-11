@@ -13,9 +13,10 @@ import com.devicetracker.ui.dashbord.assets.AssetType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AssetTypeField(
+fun AssetTypeSpinner(
     selectedAssetType: String,
-    onAssetTypeSelected: (AssetType) -> Unit
+    onAssetTypeSelected: (AssetType) -> Unit,
+    excludeOther: Boolean = false
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -38,7 +39,13 @@ fun AssetTypeField(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            AssetType.entries.forEach { assetType ->
+            val assetTypes = if (excludeOther) {
+                AssetType.entries.dropLast(1)
+            } else {
+                AssetType.entries
+            }
+
+            assetTypes.forEach { assetType ->
                 DropdownMenuItem(
                     text = { Text(assetType.name) },
                     onClick = {

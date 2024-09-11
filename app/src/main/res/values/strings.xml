@@ -9,6 +9,7 @@
     <string name="str_welcome_to_asset_tracker">Welcome to Asset Tracker</string>
     <string name="str_member">Members</string>
     <string name="str_devices">Assets</string>
+    <string name="str_asset_models">Asset Models</string>
     <string name="str_home">Home</string>
     <string name="str_logout">Logout</string>
 
@@ -19,6 +20,7 @@
     <string name="str_asset_serial_number">Serial No.</string>
     <string name="str_label_asset_serial_number">Serial No.:</string>
     <string name="str_label_asset_model_name">Model Name: </string>
+    <string name="str_asset_model_name">Model Name </string>
     <string name="str_asset_assign_date">Assign Date: </string>
     <string name="str_device_type_tab">TAB</string>
     <string name="str_device_type_storage">USB STORAGE</string>

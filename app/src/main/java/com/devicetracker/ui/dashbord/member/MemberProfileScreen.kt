@@ -140,7 +140,6 @@ fun ProfileDetailSection(memberData: Member?){
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         ),
-        //CutCornerShape(topStart = 18.dp, bottomEnd = 18.dp),
         modifier = Modifier
             .padding(top = 60.dp, bottom = 8.dp)
             .fillMaxWidth()
@@ -183,7 +182,6 @@ fun LazyListScope.assignAssetListSection(
     Log.d("MemberProfileScreen", "nkp list assetListByMemberId size ${assetListByMemberId.size}")
     items(assetListByMemberId) {
         AssignedAssetRow(asset = it) { assetId ->
-            Log.d("MemberProfile", "nkp assetId: ${assetId}")
             navHostController.navigate("asset_detail/${assetId}")
         }
     }

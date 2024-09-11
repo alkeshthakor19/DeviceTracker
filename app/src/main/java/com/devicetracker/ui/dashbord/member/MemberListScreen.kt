@@ -139,7 +139,7 @@ fun UserRow(member: Member, navigateMemberProfileCallBack: (String)-> Unit) {
             modifier = Modifier
                 .padding(start = 10.dp, top = 8.dp, bottom = 8.dp)
                 .fillMaxWidth()
-                .noDoubleClick { navigateMemberProfileCallBack.invoke(member.memberId ?: "") },
+                .noDoubleClick { navigateMemberProfileCallBack.invoke(member.memberId.toString()) },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {

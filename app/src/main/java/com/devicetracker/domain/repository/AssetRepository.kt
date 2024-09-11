@@ -13,6 +13,7 @@ typealias GetAssetsResponse = List<Asset>
 typealias GetAssetsByIdResponse = Asset?
 typealias GetAssignHistoriesResponse = List<AssetHistory>
 typealias UpdateAssetResponse = Response<Boolean>
+typealias AddModelResponse = Response<Boolean>
 
 interface AssetRepository {
     suspend fun addAsset(assetName: String, assetType: String, modelName: String, serialNumber: String, description: String ,selectedMember: Member, imageUrl: String): AddAssetResponse
@@ -61,4 +62,8 @@ interface AssetRepository {
     ): UpdateAssetResponse
 
     suspend fun getAssetListByMemberId(memberId: String) : List<Asset>
+
+    suspend fun addModel(assetType: String, model: String): AddModelResponse
+
+    suspend fun getModelsForAssetType(assetType: String): List<String>
 }

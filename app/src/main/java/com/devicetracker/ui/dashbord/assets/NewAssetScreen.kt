@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
+import com.devicetracker.core.Constants
 import com.devicetracker.noRippleClickable
 import com.devicetracker.singleClick
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
@@ -61,7 +62,7 @@ import com.devicetracker.ui.components.AssetNameField
 import com.devicetracker.ui.components.AssetNameState
 import com.devicetracker.ui.components.AssetSerialNumberField
 import com.devicetracker.ui.components.AssetSerialNumberState
-import com.devicetracker.ui.components.AssetTypeField
+import com.devicetracker.ui.components.AssetTypeSpinner
 import com.devicetracker.ui.components.ModelDropdown
 import com.devicetracker.ui.components.OwnerSpinner
 import com.devicetracker.ui.dashbord.member.Member
@@ -128,7 +129,7 @@ fun AddAsset(
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var showMenu by remember { mutableStateOf(false) }
     var selectedAssetType by remember { mutableStateOf(AssetType.TAB) }
-    var selectedModel by remember { mutableStateOf("") }
+    var selectedModel by remember { mutableStateOf(Constants.EMPTY_STR) }
     val description = remember { AssetDescriptionState() }
     val serialNumberState = remember { AssetSerialNumberState() }
     var selectedOwner by remember { mutableStateOf(memberList.first()) }
@@ -214,9 +215,9 @@ fun AddAsset(
         Spacer(modifier = Modifier.height(2.dp))
         AssetNameField(assetName = assetNameState)
 
-        AssetTypeField(selectedAssetType = selectedAssetType.toString(), onAssetTypeSelected = { assetType ->
+        AssetTypeSpinner(selectedAssetType = selectedAssetType.toString(), onAssetTypeSelected = { assetType ->
             selectedAssetType = assetType
-            selectedModel = ""
+            selectedModel = Constants.EMPTY_STR
         })
 
         ModelDropdown(

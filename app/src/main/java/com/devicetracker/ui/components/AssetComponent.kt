@@ -118,6 +118,31 @@ fun AssetDescriptionField(description: TextFieldState) {
 }
 
 @Composable
+fun AssetModelField(model: TextFieldState) {
+    OutlinedTextField(
+        value = model.text,
+        onValueChange = {
+            model.text = it
+        },
+        label = {
+            Text(text = stringResource(R.string.str_asset_model_name))
+        },
+        modifier = Modifier.onFocusChanged {
+                model.onFocusChange(it.isFocused)
+//            if(!it.isFocused) {
+//                assetName.enableShowError()  //TODO
+//            }
+            },
+        isError = model.showError(),
+        //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Go),
+        singleLine = true
+    )
+    model.getError()?.let {error ->
+        TextFieldError(textError = error )
+    }
+}
+
+@Composable
 fun AssetSerialNumberField(assetSerialNumber: TextFieldState) {
     OutlinedTextField(
         value = assetSerialNumber.text,

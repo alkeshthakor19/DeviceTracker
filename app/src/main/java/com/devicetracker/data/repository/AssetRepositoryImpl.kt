@@ -15,6 +15,7 @@ import com.devicetracker.core.Constants.ASSET_SERIAL_NUMBER
 import com.devicetracker.core.Constants.ASSET_TYPE
 import com.devicetracker.core.Constants.COLLECTION_ASSETS
 import com.devicetracker.core.Constants.COLLECTION_ASSETS_HISTORY
+import com.devicetracker.core.Constants.COLLECTION_ASSETS_MODELS
 import com.devicetracker.core.Constants.CREATED_AT
 import com.devicetracker.core.Constants.EMPTY_STR
 import com.devicetracker.core.Constants.FIRE_STORAGE_IMAGES
@@ -22,6 +23,7 @@ import com.devicetracker.core.Constants.UPDATED_AT
 import com.devicetracker.domain.models.Response.Failure
 import com.devicetracker.domain.models.Response.Success
 import com.devicetracker.domain.repository.AddAssetResponse
+import com.devicetracker.domain.repository.AddModelResponse
 import com.devicetracker.domain.repository.AssetRepository
 import com.devicetracker.domain.repository.GetAssetsByIdResponse
 import com.devicetracker.domain.repository.GetAssetsResponse
@@ -80,6 +82,22 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             )
             db.collection(COLLECTION_ASSETS_HISTORY).add(assetHistory).await()
         }
+        Success(true)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Failure(e)
+    }
+
+    override suspend fun addModel(
+        assetType: String,
+        model: String
+    ): AddModelResponse = try {
+        val asset = hashMapOf(
+            ASSET_TYPE to assetType,
+            ASSET_MODEL_NAME to model,
+            CREATED_AT to serverTimestamp()
+        )
+        db.collection(COLLECTION_ASSETS_MODELS).add(asset).await()
         Success(true)
     } catch (e: Exception) {
         e.printStackTrace()
@@ -288,4 +306,19 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         }
         return assetList
     }
+
+    override suspend fun getModelsForAssetType(assetType: String): List<String> = try {
+        val querySnapshot = db.collection(COLLECTION_ASSETS_MODELS)
+            .whereEqualTo(ASSET_TYPE, assetType)
+            .get()
+            .await()
+
+        querySnapshot.documents.mapNotNull { document ->
+            document.getString(ASSET_MODEL_NAME)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        emptyList()
+    }
+
 }

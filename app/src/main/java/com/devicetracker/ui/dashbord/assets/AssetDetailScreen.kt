@@ -181,12 +181,12 @@ fun AssignHistoryContent(assetHistory: AssetHistory) {
             .fillMaxWidth()
     ) {
         Text(
-            text = assetHistory.assetOwnerName?:"",
+            text = assetHistory.assetOwnerName.toString(),
             style = MaterialTheme.typography.titleMedium
         )
         Row {
             Text(text = stringResource(id = R.string.str_admin_name), color = Color.Gray)
-            Text(text = assetHistory.adminEmail?:"")
+            Text(text = assetHistory.adminEmail.toString())
         }
         Row {
             Text(text = stringResource(id = R.string.str_asset_assign_date), color = Color.Gray)

@@ -135,7 +135,7 @@ fun AssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit) {
             modifier = Modifier
                 .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 .fillMaxWidth()
-                .noDoubleClick { navigateDeviceDetailCallBack.invoke(asset.assetId ?: "") },
+                .noDoubleClick { navigateDeviceDetailCallBack.invoke(asset.assetId.toString()) },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {

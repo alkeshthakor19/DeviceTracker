@@ -60,7 +60,7 @@ import com.devicetracker.ui.components.AssetNameField
 import com.devicetracker.ui.components.AssetNameState
 import com.devicetracker.ui.components.AssetSerialNumberField
 import com.devicetracker.ui.components.AssetSerialNumberState
-import com.devicetracker.ui.components.AssetTypeField
+import com.devicetracker.ui.components.AssetTypeSpinner
 import com.devicetracker.ui.components.ModelDropdown
 import com.devicetracker.ui.components.OwnerSpinner
 import com.devicetracker.ui.dashbord.member.Member
@@ -251,10 +251,10 @@ fun UpdateAsset(
         Spacer(modifier = Modifier.height(2.dp))
         AssetNameField(assetName = assetNameState)
 
-        AssetTypeField(selectedAssetType = selectedAssetType.value, onAssetTypeSelected = { assetType ->
+        AssetTypeSpinner(selectedAssetType = selectedAssetType.value, onAssetTypeSelected = { assetType ->
             Log.d("AssetEditScreen", "nkp1 call when change the assetType")
             selectedAssetType.value = assetType.name
-            selectedModel.value = ""
+            selectedModel.value = Constants.EMPTY_STR
         })
         ModelDropdown(
             selectedAssetType = selectedAssetType.value,

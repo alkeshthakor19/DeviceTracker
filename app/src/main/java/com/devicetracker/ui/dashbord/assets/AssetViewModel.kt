@@ -12,6 +12,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.devicetracker.domain.models.Response
 import com.devicetracker.domain.repository.AddAssetResponse
+import com.devicetracker.domain.repository.AddModelResponse
 import com.devicetracker.domain.repository.AssetRepository
 import com.devicetracker.domain.repository.GetAssetsByIdResponse
 import com.devicetracker.domain.repository.GetAssetsResponse
@@ -29,7 +30,13 @@ class AssetViewModel @Inject constructor(
     private val _asset = MutableLiveData<Asset>()
     val asset: LiveData<Asset> = _asset
 
+    private val _models = MutableLiveData<List<String>>()
+    val models: LiveData<List<String>> = _models
+
     var addedAssetResponse by mutableStateOf<AddAssetResponse>(Response.Success(false))
+        private set
+
+    var addedAssetModelResponse by mutableStateOf<AddModelResponse>(Response.Success(false))
         private set
 
     var isLoaderShowing by mutableStateOf(true)
@@ -60,6 +67,15 @@ class AssetViewModel @Inject constructor(
             selectedMember,
             onNavUp
         )
+    }
+
+    fun addAssetModelToFirebase(assetType: String, model: String) = viewModelScope.launch {
+        addedAssetModelResponse = Response.Loading
+        addedAssetModelResponse = repo.addModel(assetType,model)
+    }
+
+    fun fetchModels(assetType: String) = viewModelScope.launch {
+        _models.value = repo.getModelsForAssetType(assetType)
     }
 
     val assets = liveData(Dispatchers.IO) {
