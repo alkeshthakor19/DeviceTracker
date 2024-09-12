@@ -19,6 +19,7 @@ import com.devicetracker.core.Constants.COLLECTION_ASSETS_MODELS
 import com.devicetracker.core.Constants.CREATED_AT
 import com.devicetracker.core.Constants.EMPTY_STR
 import com.devicetracker.core.Constants.FIRE_STORAGE_IMAGES
+import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UPDATED_AT
 import com.devicetracker.domain.models.Response.Failure
 import com.devicetracker.domain.models.Response.Success
@@ -54,7 +55,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         selectedMember: Member,
         imageUrl: String,
     ): AddAssetResponse = try {
-        val assetOwnerName = if(selectedMember.memberId == "unassign") {
+        val assetOwnerName = if(selectedMember.memberId == UNASSIGN_ID) {
             EMPTY_STR
         } else {
             selectedMember.memberName
@@ -196,7 +197,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         selectedOwner: Member?,
         imageUrl: String?
     ): UpdateAssetResponse {
-        val assetOwnerName = if(selectedOwner != null && selectedOwner.memberId != "unassign") {
+        val assetOwnerName = if(selectedOwner != null && selectedOwner.memberId != UNASSIGN_ID) {
             selectedOwner.memberName
         } else {
             EMPTY_STR
@@ -319,6 +320,25 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
     } catch (e: Exception) {
         e.printStackTrace()
         emptyList()
+    }
+
+    override suspend fun getAssetsByAssetType(assetType: String): List<Asset> {
+        val collectionRef = db.collection(COLLECTION_ASSETS)
+        val query = collectionRef.whereEqualTo(ASSET_TYPE, assetType)
+        val querySnapshot = query.get().await()
+        val assetList = mutableListOf<Asset>()
+        try {
+            for (document in querySnapshot.documents) {
+                val asset = document.toObject(Asset::class.java)
+                if (asset != null) {
+                    asset.assetId = document.id
+                    assetList.add(asset)
+                }
+            }
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
+        return assetList
     }
 
 }

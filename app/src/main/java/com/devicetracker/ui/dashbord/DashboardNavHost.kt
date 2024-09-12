@@ -13,6 +13,7 @@ import com.devicetracker.core.Constants
 import com.devicetracker.ui.Destinations.ASSETS
 import com.devicetracker.ui.Destinations.ASSET_DETAIL
 import com.devicetracker.ui.Destinations.ASSET_MODEL
+import com.devicetracker.ui.Destinations.ASSET_SEARCH
 import com.devicetracker.ui.Destinations.EDIT_ASSET
 import com.devicetracker.ui.Destinations.HOME
 import com.devicetracker.ui.Destinations.MEMBERS
@@ -25,6 +26,7 @@ import com.devicetracker.ui.dashbord.assets.AssetDetailScreen
 import com.devicetracker.ui.dashbord.assets.AssetEditScreen
 import com.devicetracker.ui.dashbord.assets.AssetListScreen
 import com.devicetracker.ui.dashbord.assets.AssetModelRoute
+import com.devicetracker.ui.dashbord.assets.AssetSearchScreen
 import com.devicetracker.ui.dashbord.home.HomeScreen
 import com.devicetracker.ui.dashbord.member.AddMemberRoute
 import com.devicetracker.ui.dashbord.member.MemberListScreen
@@ -110,6 +112,11 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
         }
         composable(MEMBER_SEARCH){
             MemberSearchScreen(navigationController){
+                navigationController.navigateUp()
+            }
+        }
+        composable(ASSET_SEARCH){
+            AssetSearchScreen(navigationController){
                 navigationController.navigateUp()
             }
         }

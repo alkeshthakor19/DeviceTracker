@@ -28,4 +28,7 @@ object Constants {
     const val CREATED_AT = "createdAt"
     const val UPDATED_AT = "updatedAt"
     const val ADMIN_EMAIL = "adminEmail"
+
+    const val UNASSIGN_NAME = "Un Assign"
+    const val UNASSIGN_ID = "unassign"
 }

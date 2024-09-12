@@ -39,7 +39,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.devicetracker.R
 import com.devicetracker.noRippleClickable
 import com.devicetracker.singleClick
-import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetDescriptionState
 import com.devicetracker.ui.components.AssetModelField
 import com.devicetracker.ui.components.AssetTypeSpinner

@@ -1,6 +1,6 @@
 package com.devicetracker.ui.components
 
-import android.util.Log
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -50,7 +50,7 @@ fun ModelDropdown(
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 },
-                modifier = Modifier
+                modifier = Modifier.fillMaxWidth(0.95f)
                     .menuAnchor()
             )
             ExposedDropdownMenu(

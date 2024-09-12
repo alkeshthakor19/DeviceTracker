@@ -1,4 +1,4 @@
-package com.devicetracker.ui.dashbord.member
+package com.devicetracker.ui.dashbord.assets
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -15,7 +15,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -33,13 +33,13 @@ import com.devicetracker.ui.components.CustomSearchTextField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MemberSearchScreen(navHostController: NavHostController, onNavUp: () -> Unit){
-    val memberViewModel: MemberViewModel = hiltViewModel()
+fun AssetSearchScreen(navHostController: NavHostController, onNavUp: () -> Unit){
+    val assetViewModel: AssetViewModel = hiltViewModel()
     var text by rememberSaveable { mutableStateOf(Constants.EMPTY_STR) }
-    var members = emptyList<Member>()
-    var membersFilter: List<Member>
-    memberViewModel.members.observe(LocalLifecycleOwner.current) {
-        members = it
+    var assets = emptyList<Asset>()
+    var assetsFilter: List<Asset>
+    assetViewModel.assets.observe(LocalLifecycleOwner.current) {
+        assets = it
     }
     Scaffold (
         topBar = {
@@ -70,14 +70,14 @@ fun MemberSearchScreen(navHostController: NavHostController, onNavUp: () -> Unit
             }
         }
     ) {
-        membersFilter = members
-        membersFilter = members.filter { it.memberName.lowercase().contains(text, ignoreCase = true) || it.employeeCode.toString().lowercase().contains(text, ignoreCase = true) || it.emailAddress.lowercase().contains(text, ignoreCase = true)}
+        assetsFilter = assets
+        assetsFilter = assets.filter { it.assetName.lowercase().contains(text, ignoreCase = true) || it.assetType.toString().lowercase().contains(text, ignoreCase = true) || it.modelName.toString().lowercase().contains(text, ignoreCase = true)  || it.serialNumber.toString().lowercase().contains(text, ignoreCase = true) }
         LazyColumn(modifier = Modifier
             .padding(it)
             .fillMaxSize()) {
-            items(membersFilter) {
-                UserRow(it) { memberId ->
-                    navHostController.navigate("member_detail/$memberId")
+            items(assetsFilter) {
+                AssetRow(it) { assetId ->
+                    navHostController.navigate("asset_detail/$assetId")
                 }
             }
         }

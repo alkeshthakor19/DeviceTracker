@@ -66,4 +66,6 @@ interface AssetRepository {
     suspend fun addModel(assetType: String, model: String): AddModelResponse
 
     suspend fun getModelsForAssetType(assetType: String): List<String>
+
+    suspend fun getAssetsByAssetType(assetType: String) : List<Asset>
 }

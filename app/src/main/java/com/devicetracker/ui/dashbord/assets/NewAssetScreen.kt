@@ -18,7 +18,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
@@ -53,6 +55,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
 import com.devicetracker.core.Constants
+import com.devicetracker.core.Constants.UNASSIGN_ID
+import com.devicetracker.core.Constants.UNASSIGN_NAME
 import com.devicetracker.noRippleClickable
 import com.devicetracker.singleClick
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
@@ -120,7 +124,7 @@ fun AddAsset(
     val memberViewModel : MemberViewModel = hiltViewModel()
     val members by memberViewModel.members.observeAsState(emptyList())
     val memberList = mutableListOf<Member>()
-    val noOwnerMember = Member(memberId = "unassign", memberName = "No Owner")
+    val noOwnerMember = Member(memberId = UNASSIGN_ID, memberName = UNASSIGN_NAME)
     memberList.add(noOwnerMember)
     memberList.addAll(members)
 
@@ -150,13 +154,16 @@ fun AddAsset(
         }
     )
 
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .noRippleClickable {
                 focusManager.clearFocus()
                 keyboardController?.hide()
             }
-            .padding(16.dp),
+            .padding(16.dp)
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

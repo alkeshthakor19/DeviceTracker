@@ -2,6 +2,7 @@ package com.devicetracker.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -39,7 +40,8 @@ fun EmailField(emailState: TextFieldState) {
         label = {
             Text(text = stringResource(R.string.str_email_address))
         },
-        modifier = Modifier.onFocusChanged {
+        modifier = Modifier.fillMaxWidth(0.95f)
+            .onFocusChanged {
             emailState.onFocusChange(it.isFocused)
             if(it.isFocused) {
                 emailState.enableShowError()
@@ -60,6 +62,7 @@ fun PasswordTextField(
 ) {
     OutlinedTextField(
         value = passwordState.text,
+        modifier = Modifier.fillMaxWidth(0.95f),
         onValueChange = {
             passwordState.text = it
         },
@@ -84,6 +87,7 @@ fun EmployeeCodeField(employeeCode: TextFieldState) {
             Text(text = stringResource(R.string.str_employee_code))
         },
         modifier = Modifier
+            .fillMaxWidth(0.95f)
             .onFocusChanged {
             employeeCode.onFocusChange(it.isFocused)
             if(it.isFocused) {
@@ -109,7 +113,8 @@ fun MemberNameField(memberName: TextFieldState) {
         label = {
             Text(text = stringResource(R.string.str_member_name))
         },
-        modifier = Modifier.onFocusChanged {
+        modifier = Modifier.fillMaxWidth(0.95f)
+            .onFocusChanged {
             memberName.onFocusChange(it.isFocused)
             if(it.isFocused) {
                 memberName.enableShowError()
@@ -128,7 +133,8 @@ fun MemberNameField(memberName: TextFieldState) {
 fun MemberTypeCheckBox(memberWritablePermission: BooleanFieldState){
     Row(
         horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth(0.95f)
     ) {
         Checkbox(
             checked = memberWritablePermission.isChecked,

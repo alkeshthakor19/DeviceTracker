@@ -45,7 +45,7 @@ fun SignInContent(onSignInButtonCLick: (email: String, password: String) -> Unit
     Column (
         Modifier
             .fillMaxSize()
-            .absolutePadding(16.dp, 64.dp, 16.dp, 16.dp),
+            .absolutePadding(36.dp, 84.dp, 36.dp, 16.dp),
         horizontalAlignment =  Alignment.CenterHorizontally) {
 
         val onSignInAction = {
@@ -62,7 +62,7 @@ fun SignInContent(onSignInButtonCLick: (email: String, password: String) -> Unit
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold)
 
-        Spacer(modifier = Modifier.height(160.dp))
+        Spacer(modifier = Modifier.height(80.dp))
         EmailField(emailState)
         Spacer(modifier = Modifier.height(16.dp))
         PasswordTextField(passwordState)

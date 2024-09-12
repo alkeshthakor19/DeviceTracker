@@ -51,6 +51,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
 import com.devicetracker.core.Constants
+import com.devicetracker.core.Constants.UNASSIGN_ID
+import com.devicetracker.core.Constants.UNASSIGN_NAME
 import com.devicetracker.noRippleClickable
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
@@ -136,7 +138,7 @@ fun UpdateAsset(
     val memberViewModel: MemberViewModel = hiltViewModel()
     val members by memberViewModel.members.observeAsState(emptyList())
     val memberList = mutableListOf<Member>()
-    val noOwnerMember = Member(memberId = "unassign", memberName = "No Owner")
+    val noOwnerMember = Member(memberId = UNASSIGN_ID, memberName = UNASSIGN_NAME)
     memberList.add(noOwnerMember)
     memberList.addAll(members)
     val initOwner = if(initialAssetData?.assetOwnerId != null && memberList.isNotEmpty()){

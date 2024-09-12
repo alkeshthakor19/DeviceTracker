@@ -1,5 +1,6 @@
 package com.devicetracker.ui.components
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenuItem
@@ -34,11 +35,9 @@ fun AssetNameField(assetName: TextFieldState) {
         label = {
             Text(text = stringResource(R.string.str_asset_name))
         },
-        modifier = Modifier.onFocusChanged {
+        modifier = Modifier.fillMaxWidth(0.95f)
+            .onFocusChanged {
             assetName.onFocusChange(it.isFocused)
-//            if(!it.isFocused) {
-//                assetName.enableShowError()  //TODO
-//            }
         },
         isError = assetName.showError(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
@@ -69,7 +68,7 @@ fun OwnerSpinner(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
-            modifier = Modifier
+            modifier = Modifier.fillMaxWidth(0.95f)
                 .menuAnchor()
         )
         ExposedDropdownMenu(
@@ -101,11 +100,9 @@ fun AssetDescriptionField(description: TextFieldState) {
         },
         modifier = Modifier
             .height(100.dp)
+            .fillMaxWidth(0.95f)
             .onFocusChanged {
                 description.onFocusChange(it.isFocused)
-//            if(!it.isFocused) {
-//                assetName.enableShowError()  //TODO
-//            }
             },
         isError = description.showError(),
         //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Go),
@@ -127,11 +124,9 @@ fun AssetModelField(model: TextFieldState) {
         label = {
             Text(text = stringResource(R.string.str_asset_model_name))
         },
-        modifier = Modifier.onFocusChanged {
+        modifier = Modifier.fillMaxWidth(0.95f)
+            .onFocusChanged {
                 model.onFocusChange(it.isFocused)
-//            if(!it.isFocused) {
-//                assetName.enableShowError()  //TODO
-//            }
             },
         isError = model.showError(),
         //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Go),
@@ -145,15 +140,15 @@ fun AssetModelField(model: TextFieldState) {
 @Composable
 fun AssetSerialNumberField(assetSerialNumber: TextFieldState) {
     OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(0.95f).onFocusChanged {
+            assetSerialNumber.onFocusChange(it.isFocused)
+        },
         value = assetSerialNumber.text,
         onValueChange = {
             assetSerialNumber.text = it
         },
         label = {
             Text(text = stringResource(R.string.str_asset_serial_number))
-        },
-        modifier = Modifier.onFocusChanged {
-            assetSerialNumber.onFocusChange(it.isFocused)
         },
         isError = assetSerialNumber.showError(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),

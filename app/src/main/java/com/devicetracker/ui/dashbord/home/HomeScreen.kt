@@ -1,5 +1,6 @@
 package com.devicetracker.ui.dashbord.home
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
@@ -22,6 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,12 +35,24 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.devicetracker.DataHelper
+import com.devicetracker.core.Constants.UNASSIGN_ID
+import com.devicetracker.ui.ProgressBar
+import com.devicetracker.ui.dashbord.assets.Asset
 import com.devicetracker.ui.dashbord.assets.AssetType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(openDrawer: () -> Unit) {
+    val homeScreenVM: HomeScreenVM = hiltViewModel()
+
+    @Composable
+    fun getAssetByType(assetType:String): List<Asset> {
+        val assetList by homeScreenVM.fetchAssetsByAssetType(assetType).observeAsState(emptyList())
+        return  assetList
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         // TopAppBar has slots for a title, navigation icon,
         // and actions. Also known as the action bar.
@@ -51,10 +69,12 @@ fun HomeScreen(openDrawer: () -> Unit) {
             ),
         )
         Surface(modifier = Modifier.weight(1f)) {
+            val differentTypeAssetList = mutableMapOf<String, List<Asset>?>()
+            AssetType.entries.forEach { assetType ->
+                differentTypeAssetList[assetType.name] = getAssetByType(assetType.name)
+            }
+            Log.d("HomeScreen", "nkp size differentTypeAssetList ${differentTypeAssetList.size}")
             val list = DataHelper.getDeviceDummyList()
-            val tabCount = list.filter { it.assetType == AssetType.TAB.name }.size
-            val usbCount = list.filter { it.assetType == AssetType.USB.name }.size
-            val probeCount = list.filter { it.assetType == AssetType.PROBE.name }.size
 
             LazyColumn(
                 // content padding
@@ -63,15 +83,20 @@ fun HomeScreen(openDrawer: () -> Unit) {
                     top = 16.dp,
                     end = 12.dp,
                     bottom = 16.dp
-                ),
-                content = {
-                    item{
-                        AssetShortInfo("Tab", tabCount, 0)
-                        AssetShortInfo("Prob", probeCount, 2)
-                        AssetShortInfo("USB", usbCount, 4)
+                )
+            ){
+                if (homeScreenVM.isLoaderShowing) {
+                    item {
+                        ProgressBar()
+                    }
+                } else {
+                    items(differentTypeAssetList.entries.toList()){
+                        val assignCount = it.value?.filter { it.assetOwnerId != UNASSIGN_ID }?.size?:0
+                        val unAssignCount = it.value?.filter { it.assetOwnerId == UNASSIGN_ID }?.size?:0
+                        AssetShortInfo(it.key, assignCount, unAssignCount)
                     }
                 }
-            )
+            }
         }
     }
 }
@@ -86,7 +111,9 @@ fun AssetShortInfo(assetType: String, assignedAsset: Int, unAssignedAsset: Int){
         border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Column(
-            modifier = Modifier.padding(top = 4.dp, bottom = 8.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(top = 4.dp, bottom = 8.dp)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(

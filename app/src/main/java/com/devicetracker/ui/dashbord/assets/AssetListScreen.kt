@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -48,6 +49,7 @@ import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
+import com.devicetracker.ui.Destinations.ASSET_SEARCH
 import com.devicetracker.ui.Destinations.NEW_ASSET
 import com.devicetracker.ui.components.NoDataMessage
 import kotlinx.coroutines.Dispatchers
@@ -78,6 +80,11 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
                         Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { navHostController.navigate(ASSET_SEARCH) }) {
+                        Icon(imageVector = Icons.Filled.Search, contentDescription = "Search")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
