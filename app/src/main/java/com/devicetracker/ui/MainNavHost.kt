@@ -1,6 +1,9 @@
 package com.devicetracker.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,18 +30,21 @@ object Destinations {
 }
 
 @Composable
-fun MainNavHost(navHostController: NavHostController) {
-    NavHost(navController = navHostController, startDestination = LOGIN_ROUTE) {
+fun MainNavHost(mainNavHostController: NavHostController) {
+    val authViewModel: AuthViewModel = hiltViewModel()
+    val isAuthenticated by authViewModel.isAuthenticated.collectAsState()
+    val startDestinationRoute = if(isAuthenticated) DASHBOARD_ROUTE else LOGIN_ROUTE
+    NavHost( navController = mainNavHostController, startDestination = startDestinationRoute ) {
         composable(LOGIN_ROUTE) {
             LoginRoute {
-                navHostController.navigate(DASHBOARD_ROUTE) {
+                mainNavHostController.navigate(DASHBOARD_ROUTE) {
                     // Clear the navigation stack
                     popUpTo(LOGIN_ROUTE) { inclusive = true }
                 }
             }
         }
         composable(DASHBOARD_ROUTE) {
-            DashboardRoute()
+            DashboardRoute(mainNavHostController)
         }
     }
 }

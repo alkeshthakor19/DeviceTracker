@@ -1,5 +1,6 @@
 package com.devicetracker.ui.dashbord
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,6 +13,8 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -22,21 +25,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.devicetracker.R
 import com.devicetracker.ui.Destinations.ASSETS
 import com.devicetracker.ui.Destinations.ASSET_MODEL
 import com.devicetracker.ui.Destinations.HOME
+import com.devicetracker.ui.Destinations.LOGIN_ROUTE
 import com.devicetracker.ui.Destinations.LOGOUT
 import com.devicetracker.ui.Destinations.MEMBERS
-import com.devicetracker.ui.dashbord.home.HomeScreenVM
+import com.devicetracker.ui.AuthViewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun DashboardRoute() {
+fun DashboardRoute(mainNavHostController: NavHostController) {
      val navigationController = rememberNavController()
-     val homeScreenVM: HomeScreenVM = hiltViewModel()
+     val authViewModel: AuthViewModel = hiltViewModel()
+     val isAuthenticated by authViewModel.isAuthenticated.collectAsState()
 
      ///List of Navigation Items that will be clicked
      val items = listOf(
@@ -95,10 +101,10 @@ fun DashboardRoute() {
                                         drawerState.close()
                                    }
                                    if (item.route == LOGOUT){
-                                        homeScreenVM.signOut()
+                                        authViewModel.logout()
                                    } else {
-                                        navigationController.navigate(item.route) {
-                                             popUpTo(0)
+                                        navigationController.navigate(items[selectedItemIndex].route) {
+                                             popUpTo(navigationController.graph.id)
                                         }
                                    }
                               },
@@ -120,6 +126,16 @@ fun DashboardRoute() {
                }
           },
      ){
+          if (!isAuthenticated) {
+               LaunchedEffect(Unit) {
+                    mainNavHostController.navigate(LOGIN_ROUTE) {
+                         popUpTo(mainNavHostController.graph.id) { inclusive = true }
+                    }
+               }
+          }
+          Log.d("DashRoute", "nkp DashboardNavHostContent call")
           DashboardNavHostContent(navigationController, drawerState)
+
+
      }
 }

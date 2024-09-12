@@ -73,9 +73,6 @@ fun HomeScreen(openDrawer: () -> Unit) {
             AssetType.entries.forEach { assetType ->
                 differentTypeAssetList[assetType.name] = getAssetByType(assetType.name)
             }
-            Log.d("HomeScreen", "nkp size differentTypeAssetList ${differentTypeAssetList.size}")
-            val list = DataHelper.getDeviceDummyList()
-
             LazyColumn(
                 // content padding
                 contentPadding = PaddingValues(

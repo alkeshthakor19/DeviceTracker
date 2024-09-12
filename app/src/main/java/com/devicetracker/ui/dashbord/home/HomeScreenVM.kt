@@ -13,11 +13,9 @@ import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeScreenVM @Inject constructor(private val authRepo: AuthRepository, private val assetRepo: AssetRepository): ViewModel() {
+class HomeScreenVM @Inject constructor(private val assetRepo: AssetRepository): ViewModel() {
     var isLoaderShowing by mutableStateOf(false)
         private set
-
-    fun signOut() = authRepo.signOut()
 
     fun fetchAssetsByAssetType(assetType: String) = liveData(Dispatchers.IO) {
         emit(getAssetsByAssetType(assetType))
