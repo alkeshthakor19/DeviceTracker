@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.devicetracker.R
+import com.devicetracker.ui.theme.AssetTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +33,7 @@ fun TopBarWithTitleAndBackNavigation(
     onNavUp: () -> Unit
 ) {
     TopAppBar(
-        title = { Text(text = titleText, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground) },
+        title = { Text(text = titleText, style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
         navigationIcon = {
             IconButton(onClick = onNavUp) {
                 Icon(

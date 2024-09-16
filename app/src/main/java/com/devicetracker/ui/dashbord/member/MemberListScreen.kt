@@ -53,6 +53,7 @@ import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
 import com.devicetracker.ui.Destinations.MEMBER_SEARCH
 import com.devicetracker.ui.Destinations.NEW_MEMBER
+import com.devicetracker.ui.theme.AssetTrackerTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -77,7 +78,7 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
     Scaffold (
         topBar = {
             TopAppBar(
-                title = { Text("Member List",  style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground) },
+                title = { Text("Member List",  style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
                         Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
@@ -134,7 +135,7 @@ fun UserRow(member: Member, navigateMemberProfileCallBack: (String)-> Unit) {
             .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary)
+        colors = CardDefaults.cardColors(containerColor = AssetTrackerTheme.colors.cardBackgroundColor)
     ){
         Row(
             modifier = Modifier

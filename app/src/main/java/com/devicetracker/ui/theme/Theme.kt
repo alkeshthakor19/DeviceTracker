@@ -9,6 +9,8 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -44,6 +46,16 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Color(0xFF1C1B1F),
 )
 
+private val LightCustomColors = CustomColors(
+    textColor = LightTextColor,
+    cardBackgroundColor = LightBgCardColor
+)
+
+private val DarkCustomColors = CustomColors(
+    textColor = DarkTextColor,
+    cardBackgroundColor = DarkBgCardColor
+)
+
 @Composable
 fun AssetTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -69,9 +81,21 @@ fun AssetTrackerTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    val customColors = if (darkTheme) DarkCustomColors else LightCustomColors
+
+    CompositionLocalProvider(LocalCustomColors provides customColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
+}
+
+object AssetTrackerTheme {
+    val colors: CustomColors
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalCustomColors.current
+
 }

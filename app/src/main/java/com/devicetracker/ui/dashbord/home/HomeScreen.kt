@@ -39,6 +39,7 @@ import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.dashbord.assets.Asset
 import com.devicetracker.ui.dashbord.assets.AssetType
+import com.devicetracker.ui.theme.AssetTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +60,7 @@ fun HomeScreen(openDrawer: () -> Unit) {
                 Text(
                     text = stringResource(id = R.string.str_home),
                     style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = AssetTrackerTheme.colors.textColor
                 )
             },
             navigationIcon = {
@@ -147,7 +148,7 @@ fun AssetShortInfo(assetType: String, assignedAsset: Int, unAssignedAsset: Int){
                 )
                 Text(text = assignedAsset.toString(),
                     fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = AssetTrackerTheme.colors.textColor,
                 )
             }
             Row(
@@ -161,7 +162,7 @@ fun AssetShortInfo(assetType: String, assignedAsset: Int, unAssignedAsset: Int){
                 )
                 Text(text = unAssignedAsset.toString(),
                     fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = AssetTrackerTheme.colors.textColor,
                 )
             }
         }

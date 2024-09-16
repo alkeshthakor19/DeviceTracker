@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.devicetracker.ui.theme.AssetTrackerTheme
 
 @Composable
 fun CustomSearchTextField(
@@ -31,9 +32,9 @@ fun CustomSearchTextField(
         singleLine = true,
         shape = RoundedCornerShape(15.dp),
         colors = TextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.onSecondary,
-            unfocusedContainerColor = MaterialTheme.colorScheme.onSecondary,
-            disabledContainerColor = MaterialTheme.colorScheme.onSecondary,
+            focusedContainerColor = AssetTrackerTheme.colors.cardBackgroundColor,
+            unfocusedContainerColor = AssetTrackerTheme.colors.cardBackgroundColor,
+            disabledContainerColor = AssetTrackerTheme.colors.cardBackgroundColor,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         ),

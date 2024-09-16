@@ -42,6 +42,7 @@ import com.devicetracker.singleClick
 import com.devicetracker.ui.components.AssetDescriptionState
 import com.devicetracker.ui.components.AssetModelField
 import com.devicetracker.ui.components.AssetTypeSpinner
+import com.devicetracker.ui.theme.AssetTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +53,7 @@ fun AssetModelScreen(openDrawer: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Asset Model",  style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground) },
+                title = { Text("Asset Model",  style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
                         Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")

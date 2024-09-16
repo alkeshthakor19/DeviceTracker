@@ -52,6 +52,7 @@ import com.devicetracker.ui.AppFloatingButton
 import com.devicetracker.ui.Destinations.ASSET_SEARCH
 import com.devicetracker.ui.Destinations.NEW_ASSET
 import com.devicetracker.ui.components.NoDataMessage
+import com.devicetracker.ui.theme.AssetTrackerTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -76,7 +77,7 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Asset List",  style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground) },
+                title = { Text("Asset List",  style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
                         Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
@@ -136,7 +137,7 @@ fun AssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit) {
             .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary)
+        colors = CardDefaults.cardColors(containerColor = AssetTrackerTheme.colors.cardBackgroundColor)
     ){
         Row(
             modifier = Modifier

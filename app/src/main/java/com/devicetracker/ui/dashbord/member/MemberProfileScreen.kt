@@ -61,6 +61,7 @@ import com.devicetracker.ui.components.NoDataMessage
 import com.devicetracker.ui.dashbord.assets.Asset
 import com.devicetracker.ui.dashbord.assets.AssetPicture
 import com.devicetracker.ui.dashbord.assets.AssetViewModel
+import com.devicetracker.ui.theme.AssetTrackerTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -144,7 +145,7 @@ fun ProfileDetailSection(memberData: Member?){
             .padding(top = 60.dp, bottom = 8.dp)
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary)
+        colors = CardDefaults.cardColors(containerColor = AssetTrackerTheme.colors.cardBackgroundColor)
     ){
         Column(
             modifier = Modifier

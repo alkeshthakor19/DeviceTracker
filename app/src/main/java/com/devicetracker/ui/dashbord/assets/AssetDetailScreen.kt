@@ -50,6 +50,7 @@ import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.BlackLabelText
 import com.devicetracker.ui.components.BodyText
+import com.devicetracker.ui.theme.AssetTrackerTheme
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -107,7 +108,7 @@ fun AssetDetailSection(assetData: Asset?){
             .padding(top = 60.dp, bottom = 8.dp)
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary)
+        colors = CardDefaults.cardColors(containerColor = AssetTrackerTheme.colors.cardBackgroundColor)
     ){
         Column(
             modifier = Modifier
