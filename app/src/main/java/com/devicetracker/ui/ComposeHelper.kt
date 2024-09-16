@@ -32,7 +32,7 @@ fun TopBarWithTitleAndBackNavigation(
     onNavUp: () -> Unit
 ) {
     TopAppBar(
-        title = { Text(text = titleText, style = MaterialTheme.typography.headlineMedium) },
+        title = { Text(text = titleText, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground) },
         navigationIcon = {
             IconButton(onClick = onNavUp) {
                 Icon(

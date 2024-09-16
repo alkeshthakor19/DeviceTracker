@@ -144,7 +144,7 @@ fun ProfileDetailSection(memberData: Member?){
             .padding(top = 60.dp, bottom = 8.dp)
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary)
     ){
         Column(
             modifier = Modifier

@@ -76,7 +76,7 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Asset List",  style = MaterialTheme.typography.headlineMedium) },
+                title = { Text("Asset List",  style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground) },
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
                         Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
@@ -136,7 +136,7 @@ fun AssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit) {
             .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary)
     ){
         Row(
             modifier = Modifier

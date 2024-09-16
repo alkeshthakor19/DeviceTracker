@@ -1,6 +1,5 @@
 package com.devicetracker.ui.dashbord.home
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,19 +23,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.devicetracker.DataHelper
+import com.devicetracker.R
 import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.dashbord.assets.Asset
@@ -57,7 +55,13 @@ fun HomeScreen(openDrawer: () -> Unit) {
         // TopAppBar has slots for a title, navigation icon,
         // and actions. Also known as the action bar.
         TopAppBar(
-            title = { Text("Home", style = MaterialTheme.typography.headlineMedium) },
+            title = {
+                Text(
+                    text = stringResource(id = R.string.str_home),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            },
             navigationIcon = {
                 IconButton(onClick = openDrawer) {
                     Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
@@ -143,7 +147,7 @@ fun AssetShortInfo(assetType: String, assignedAsset: Int, unAssignedAsset: Int){
                 )
                 Text(text = assignedAsset.toString(),
                     fontSize = 18.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
             }
             Row(
@@ -157,7 +161,7 @@ fun AssetShortInfo(assetType: String, assignedAsset: Int, unAssignedAsset: Int){
                 )
                 Text(text = unAssignedAsset.toString(),
                     fontSize = 18.sp,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
             }
         }

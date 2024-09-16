@@ -107,7 +107,7 @@ fun AssetDetailSection(assetData: Asset?){
             .padding(top = 60.dp, bottom = 8.dp)
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onSecondary)
     ){
         Column(
             modifier = Modifier
@@ -118,19 +118,19 @@ fun AssetDetailSection(assetData: Asset?){
             AssetPhoto(assetData?.imageUrl)
             Row(Modifier.padding(top = 4.dp)) {
                 Text(text = stringResource(id = R.string.str_asset_type))
-                Text(text = assetData?.assetType.toString(), color = Color.Black)
+                Text(text = assetData?.assetType.toString())
             }
             Row(Modifier.padding(top = 4.dp)) {
                 Text(text = stringResource(id = R.string.str_label_asset_model_name))
-                Text(text = assetData?.modelName.toString(), color = Color.Black)
+                Text(text = assetData?.modelName.toString())
             }
             Row(Modifier.padding(top = 4.dp)) {
                 Text(text = stringResource(id = R.string.str_label_asset_serial_number))
-                Text(text = assetData?.serialNumber.toString(), color = Color.Black)
+                Text(text = assetData?.serialNumber.toString())
             }
             Row(Modifier.padding(top = 4.dp)) {
                 Text(text = stringResource(id = R.string.str_current_owner))
-                Text(text = assetOwner, color = Color.Black)
+                Text(text = assetOwner)
             }
         }
     }
