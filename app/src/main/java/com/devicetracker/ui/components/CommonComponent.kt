@@ -9,10 +9,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import com.devicetracker.ui.getFontSizeByPercent
 
 @Composable
 fun LabelText(labelText: String){
@@ -30,9 +36,38 @@ fun BlackLabelText(labelText: String){
 }
 
 @Composable
+fun TextWithLabel(labelText: String, normalText: String) {
+    Text(
+        text = buildAnnotatedString {
+            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                append("$labelText: ")
+            }
+            append(normalText)
+        },
+        fontSize = getFontSizeByPercent(fontSizeInPercent = 4f)
+    )
+}
+
+@Composable
+fun LabelAndTextWithColor(labelText: String, normalText: String, color: Color, fontSize: TextUnit = getFontSizeByPercent(3.5f)){
+    Text(
+        text = buildAnnotatedString {
+            withStyle(style = SpanStyle(color = color)) {
+                append(labelText)
+            }
+            append(": $normalText")
+        },
+        fontSize = fontSize,
+        lineHeight = 1.4.em
+    )
+}
+
+@Composable
 fun NoDataMessage(){
     Column(
-        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp).fillMaxWidth(),
+        modifier = Modifier
+            .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         Text(text = "No Data!!", style = MaterialTheme.typography.titleLarge)

@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -48,16 +50,6 @@ fun SignInContent(onSignInButtonCLick: (email: String, password: String) -> Unit
             .absolutePadding(36.dp, 84.dp, 36.dp, 16.dp),
         horizontalAlignment =  Alignment.CenterHorizontally) {
 
-        val onSignInAction = {
-            if(!emailState.isValid) {
-                emailState.enableShowError()
-            } else if(!passwordState.isValid) {
-                 passwordState.enableShowError()
-            } else {
-                onSignInButtonCLick(emailState.text,passwordState.text)
-            }
-        }
-
         Text(text = stringResource(R.string.str_welcome_to_asset_tracker),
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold)
@@ -67,7 +59,10 @@ fun SignInContent(onSignInButtonCLick: (email: String, password: String) -> Unit
         Spacer(modifier = Modifier.height(16.dp))
         PasswordTextField(passwordState)
         Spacer(modifier = Modifier.height(36.dp))
-        Button(onClick = {
+        Button(
+            modifier = Modifier.width(200.dp),
+            shape = RoundedCornerShape(5.dp),
+            onClick = {
             // Enable error display on button click
             emailState.enableShowError()
             passwordState.enableShowError()

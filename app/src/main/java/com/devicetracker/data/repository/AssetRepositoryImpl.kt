@@ -5,12 +5,13 @@ import android.net.Uri
 import android.util.Log
 import com.devicetracker.core.Constants.ADMIN_EMAIL
 import com.devicetracker.core.Constants.ASSET_DESCRIPTION
+import com.devicetracker.core.Constants.ASSET_DOC_ID
 import com.devicetracker.core.Constants.ASSET_ID
-import com.devicetracker.core.Constants.IMAGE_URL
 import com.devicetracker.core.Constants.ASSET_MODEL_NAME
 import com.devicetracker.core.Constants.ASSET_NAME
 import com.devicetracker.core.Constants.ASSET_OWNER_ID
 import com.devicetracker.core.Constants.ASSET_OWNER_NAME
+import com.devicetracker.core.Constants.ASSET_QUANTITY
 import com.devicetracker.core.Constants.ASSET_SERIAL_NUMBER
 import com.devicetracker.core.Constants.ASSET_TYPE
 import com.devicetracker.core.Constants.COLLECTION_ASSETS
@@ -19,6 +20,9 @@ import com.devicetracker.core.Constants.COLLECTION_ASSETS_MODELS
 import com.devicetracker.core.Constants.CREATED_AT
 import com.devicetracker.core.Constants.EMPTY_STR
 import com.devicetracker.core.Constants.FIRE_STORAGE_IMAGES
+import com.devicetracker.core.Constants.IMAGE_URL
+import com.devicetracker.core.Constants.LAST_VERIFICATION_AT
+import com.devicetracker.core.Constants.PROJECT_NAME
 import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UPDATED_AT
 import com.devicetracker.domain.models.Response.Failure
@@ -54,6 +58,9 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         description: String,
         selectedMember: Member,
         imageUrl: String,
+        assetId: String,
+        assetQuantity: String,
+        projectName: String
     ): AddAssetResponse = try {
         val assetOwnerName = if(selectedMember.memberId == UNASSIGN_ID) {
             EMPTY_STR
@@ -62,20 +69,25 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         }
         val asset = hashMapOf(
             ASSET_NAME to assetName,
+            ASSET_ID to assetId,
             ASSET_TYPE to assetType,
             ASSET_MODEL_NAME to modelName,
             ASSET_SERIAL_NUMBER to serialNumber,
+            ASSET_QUANTITY to assetQuantity,
+            PROJECT_NAME to projectName,
             ASSET_DESCRIPTION to description,
             ASSET_OWNER_ID to selectedMember.memberId,
             ASSET_OWNER_NAME to assetOwnerName,
             IMAGE_URL to imageUrl,
+            LAST_VERIFICATION_AT to serverTimestamp(),
             CREATED_AT to serverTimestamp(),
             UPDATED_AT to serverTimestamp()
         )
         val result = db.collection(COLLECTION_ASSETS).add(asset).await()
         if(assetOwnerName.isNotEmpty()) {
             val assetHistory = hashMapOf(
-                ASSET_ID to result.id,
+                ASSET_DOC_ID to result.id,
+                ASSET_ID to assetId,
                 ASSET_OWNER_ID to selectedMember.memberId,
                 ASSET_OWNER_NAME to selectedMember.memberName,
                 ADMIN_EMAIL to FirebaseAuth.getInstance().currentUser?.email,
@@ -114,6 +126,9 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         serialNumber: String,
         description: String,
         selectedMember: Member,
+        assetId: String,
+        assetQuantity: String,
+        projectName: String,
         onNavUp: () -> Unit
     ): AddAssetResponse = try {
         val imageRef = storageReference.child("$FIRE_STORAGE_IMAGES/${UUID.randomUUID()}.jpg")
@@ -130,7 +145,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
 
         uploadTask.await()
         val resultUri = imageRef.downloadUrl.await()
-        addAsset(assetName, assetType,modelName, serialNumber, description, selectedMember, resultUri.toString())
+        addAsset(assetName, assetType,modelName, serialNumber, description, selectedMember, resultUri.toString(), assetId, assetQuantity, projectName)
         onNavUp()
         Success(true)
     } catch (e: Exception) {
@@ -145,7 +160,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             if (querySnapshot != null && !querySnapshot.isEmpty) {
                 assets = querySnapshot.documents.map { document ->
                     val asset = document.toObject(Asset::class.java) ?: Asset()
-                    asset.assetId = document.id
+                    asset.assetDocId = document.id
                     asset
                 }
             }
@@ -154,13 +169,13 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         }
         return assets
     }
-    override suspend fun getAssetsDetailById(assetId: String): GetAssetsByIdResponse {
-        val document = db.collection(COLLECTION_ASSETS).document(assetId).get().await()
+    override suspend fun getAssetsDetailById(assetDocId: String): GetAssetsByIdResponse {
+        val document = db.collection(COLLECTION_ASSETS).document(assetDocId).get().await()
         var asset : Asset? = null
         try {
             asset = document.toObject(Asset::class.java)
             if (asset != null) {
-                asset.assetId = document.id
+                asset.assetDocId = document.id
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -169,9 +184,9 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         return asset
     }
 
-    override suspend fun getPreviousAssignHistoriesByAssetId(assetId: String): GetAssignHistoriesResponse {
+    override suspend fun getPreviousAssignHistoriesByAssetId(assetDocId: String): GetAssignHistoriesResponse {
         val collectionRef = db.collection(COLLECTION_ASSETS_HISTORY)
-        val query = collectionRef.whereEqualTo(ASSET_ID, assetId)
+        val query = collectionRef.whereEqualTo(ASSET_DOC_ID, assetDocId)
         val querySnapshot = query.orderBy(CREATED_AT, Query.Direction.DESCENDING).get().await()
         val assetHistories = mutableListOf<AssetHistory>()
         try {
@@ -188,14 +203,17 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         return assetHistories
     }
     override suspend fun updateAsset(
-        assetId: String,
+        assetDocId: String,
         assetName: String,
         assetType: String,
         modelName: String,
         serialNumber: String,
         description: String,
         selectedOwner: Member?,
-        imageUrl: String?
+        imageUrl: String?,
+        assetId: String,
+        assetQuantity: String,
+        projectName: String,
     ): UpdateAssetResponse {
         val assetOwnerName = if(selectedOwner != null && selectedOwner.memberId != UNASSIGN_ID) {
             selectedOwner.memberName
@@ -206,9 +224,12 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         return try {
             val assetData = hashMapOf(
                 ASSET_NAME to assetName,
+                ASSET_ID to assetId,
                 ASSET_TYPE to assetType,
                 ASSET_MODEL_NAME to modelName,
                 ASSET_SERIAL_NUMBER to serialNumber,
+                ASSET_QUANTITY to assetQuantity,
+                PROJECT_NAME to projectName,
                 ASSET_DESCRIPTION to description,
                 ASSET_OWNER_ID to assetOwnerId,
                 ASSET_OWNER_NAME to assetOwnerName,
@@ -217,10 +238,11 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             if (imageUrl != null) {
                 assetData[IMAGE_URL] = imageUrl
             }
-            val result = db.collection(COLLECTION_ASSETS).document(assetId).update(assetData).await()
+            val result = db.collection(COLLECTION_ASSETS).document(assetDocId).update(assetData).await()
             Log.d("AssetRepo", "nkp update result $result")
             if(assetOwnerName.isNotEmpty()) {
                 val assetHistory = hashMapOf(
+                    ASSET_DOC_ID to assetDocId,
                     ASSET_ID to assetId,
                     ASSET_OWNER_ID to assetOwnerId,
                     ASSET_OWNER_NAME to assetOwnerName,
@@ -236,7 +258,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         }
     }
     override suspend fun uploadImageAndUpdateAsset(
-        assetId: String,
+        assetDocId: String,
         isNeedToUpdateImageUrl: Boolean,
         imageUri: Uri?,
         imageBitmap: Bitmap?,
@@ -246,6 +268,9 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         serialNumber: String,
         description: String,
         selectedOwner: Member?,
+        assetId: String,
+        assetQuantity: String,
+        projectName: String,
         onNavUp: () -> Unit
     ): UpdateAssetResponse {
         return try {
@@ -270,14 +295,17 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
 
             // After uploading the image, update the asset
             val updateResponse = updateAsset(
-                assetId,
+                assetDocId,
                 assetName,
                 assetType,
                 modelName,
                 serialNumber,
                 description,
                 selectedOwner,
-                resultUri
+                resultUri,
+                assetId,
+                assetQuantity,
+                projectName
             )
             if (updateResponse is Success && updateResponse.data) {
                 onNavUp()
@@ -298,7 +326,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             for (document in querySnapshot.documents) {
                 val asset = document.toObject(Asset::class.java)
                 if (asset != null) {
-                    asset.assetId = document.id
+                    asset.assetDocId = document.id
                     assetList.add(asset)
                 }
             }
@@ -331,7 +359,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             for (document in querySnapshot.documents) {
                 val asset = document.toObject(Asset::class.java)
                 if (asset != null) {
-                    asset.assetId = document.id
+                    asset.assetDocId = document.id
                     assetList.add(asset)
                 }
             }

@@ -36,10 +36,10 @@ class MemberViewModel @Inject constructor(
     var isLoaderShowing by mutableStateOf<Boolean>(true)
         private set
 
-    fun addNewMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, isMemberWritablePermission: Boolean) = viewModelScope.launch {
+    fun addNewMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, isMemberWritablePermission: Boolean, mobileNumber: String) = viewModelScope.launch {
         addedMemberResponse = Response.Loading
         Log.d("MemberVM", "nkp employeeCode $employeeCode, memberName $memberName, emailAddress $emailAddress isMemberWritablePermission $isMemberWritablePermission")
-        addedMemberResponse = repo.addMember(employeeCode,memberName, emailAddress, imageUrl, isMemberWritablePermission)
+        addedMemberResponse = repo.addMember(employeeCode,memberName, emailAddress, imageUrl, isMemberWritablePermission, mobileNumber)
     }
 
     fun uploadImageAndAddNewMemberToFirebase(
@@ -49,10 +49,11 @@ class MemberViewModel @Inject constructor(
         memberName: String,
         emailAddress: String,
         isMemberWritablePermission: Boolean,
+        mobileNumber: String,
         onNavUp: () -> Unit
     ) = viewModelScope.launch {
         addedMemberResponse = Response.Loading
-        addedMemberResponse = repo.uploadImageAndAddNewMemberToFirebase(imageUri, imageBitmap, employeeCode,memberName, emailAddress, isMemberWritablePermission, onNavUp)
+        addedMemberResponse = repo.uploadImageAndAddNewMemberToFirebase(imageUri, imageBitmap, employeeCode,memberName, emailAddress, isMemberWritablePermission, mobileNumber, onNavUp)
     }
 
     val members = liveData(Dispatchers.IO) {

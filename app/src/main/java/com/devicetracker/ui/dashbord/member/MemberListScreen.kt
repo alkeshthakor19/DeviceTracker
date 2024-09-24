@@ -14,8 +14,8 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -42,17 +42,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
+import com.devicetracker.core.Constants.INT_SIZE_20
 import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
 import com.devicetracker.ui.Destinations.MEMBER_SEARCH
 import com.devicetracker.ui.Destinations.NEW_MEMBER
+import com.devicetracker.ui.components.LabelAndTextWithColor
+import com.devicetracker.ui.components.MemberEmailRowSection
+import com.devicetracker.ui.getFontSizeByPercent
 import com.devicetracker.ui.theme.AssetTrackerTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -127,7 +130,6 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
 @Composable
 fun UserRow(member: Member, navigateMemberProfileCallBack: (String)-> Unit) {
     ElevatedCard (
-        shape = CutCornerShape(topEnd = 24.dp, bottomStart = 24.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         ),
@@ -139,7 +141,7 @@ fun UserRow(member: Member, navigateMemberProfileCallBack: (String)-> Unit) {
     ){
         Row(
             modifier = Modifier
-                .padding(start = 10.dp, top = 8.dp, bottom = 8.dp)
+                .padding(start = 10.dp)
                 .fillMaxWidth()
                 .noDoubleClick { navigateMemberProfileCallBack.invoke(member.memberId.toString()) },
             verticalAlignment = Alignment.CenterVertically,
@@ -184,17 +186,15 @@ fun UserContent(member: Member) {
             text = member.memberName,
             style = MaterialTheme.typography.titleLarge
         )
-        MemberRowSection(labelText = stringResource(id = R.string.str_emp_code), valueText = member.employeeCode.toString())
-        MemberRowSection(labelText = stringResource(id = R.string.str_email), valueText = member.emailAddress)
+        LabelAndTextWithColor(
+            labelText = stringResource(id = R.string.str_emp_code),
+            normalText = member.employeeCode.toString(),
+            color = Color.Gray,
+            fontSize = getFontSizeByPercent(fontSizeInPercent = 4f)
+        )
+        MemberEmailRowSection(labelText = stringResource(id = R.string.str_email), valueText = member.emailAddress, iconSize = INT_SIZE_20, fontSize = getFontSizeByPercent(fontSizeInPercent = 3.5f))
     }
 }
 
-@Composable
-fun MemberRowSection(labelText: String, valueText: String) {
-    Row {
-        Text(text = labelText, color = Color.Gray, fontSize = 15.sp)
-        Text(text = valueText, fontSize = 15.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
-}
 
 

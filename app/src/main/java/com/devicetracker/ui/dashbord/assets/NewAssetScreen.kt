@@ -13,13 +13,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -62,13 +65,19 @@ import com.devicetracker.singleClick
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetDescriptionField
 import com.devicetracker.ui.components.AssetDescriptionState
+import com.devicetracker.ui.components.AssetIdField
+import com.devicetracker.ui.components.AssetIdState
 import com.devicetracker.ui.components.AssetNameField
 import com.devicetracker.ui.components.AssetNameState
+import com.devicetracker.ui.components.AssetQuantityField
+import com.devicetracker.ui.components.AssetQuantityState
 import com.devicetracker.ui.components.AssetSerialNumberField
 import com.devicetracker.ui.components.AssetSerialNumberState
 import com.devicetracker.ui.components.AssetTypeSpinner
 import com.devicetracker.ui.components.ModelDropdown
 import com.devicetracker.ui.components.OwnerSpinner
+import com.devicetracker.ui.components.ProjectNameField
+import com.devicetracker.ui.components.ProjectNameState
 import com.devicetracker.ui.dashbord.member.Member
 import com.devicetracker.ui.dashbord.member.MemberViewModel
 
@@ -95,7 +104,7 @@ fun NewAssetScreen(onNavUp: () -> Unit) {
         ) {
             val newAssetViewModel: AssetViewModel = hiltViewModel()
             AddAsset(
-                onAssetSaved = { imageUri, imageBitmap, assetName, assetType, model, serialNumber, description, selectedMember->
+                onAssetSaved = { imageUri, imageBitmap, assetName, assetType, model, serialNumber, description, selectedMember, assetId, assetQuatinty, projectName->
                     newAssetViewModel.uploadImageAndAddNewAssetToFirebase(
                         imageUri,
                         imageBitmap,
@@ -105,6 +114,9 @@ fun NewAssetScreen(onNavUp: () -> Unit) {
                         serialNumber,
                         description,
                         selectedMember,
+                        assetId,
+                        assetQuatinty,
+                        projectName,
                         onNavUp
                     )
                 },
@@ -117,7 +129,7 @@ fun NewAssetScreen(onNavUp: () -> Unit) {
 
 @Composable
 fun AddAsset(
-    onAssetSaved: (imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber : String, description: String, memberViewModel : Member) -> Unit,
+    onAssetSaved: (imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber : String, description: String, memberViewModel : Member, assetId: String, assetQuantity: String, projectName: String) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?
 ) {
@@ -137,6 +149,9 @@ fun AddAsset(
     val description = remember { AssetDescriptionState() }
     val serialNumberState = remember { AssetSerialNumberState() }
     var selectedOwner by remember { mutableStateOf(memberList.first()) }
+    val assetIdState = remember { AssetIdState() }
+    val assetQuantityState = remember { AssetQuantityState() }
+    val projectNameState = remember { ProjectNameState() }
 
     val galleryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -153,124 +168,122 @@ fun AddAsset(
             imageUri = null
         }
     )
-
-    val scrollState = rememberScrollState()
-
-    Column(
-        modifier = Modifier
-            .noRippleClickable {
-                focusManager.clearFocus()
-                keyboardController?.hide()
-            }
-            .padding(16.dp)
-            .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        val onAddNewAssetInAction = {
-            if (!assetNameState.isValid) {
-                assetNameState.enableShowError()
-            } else if (selectedModel.isEmpty()) {
-                // Show error or handle model not selected
-            } else {
-                onAssetSaved(imageUri, imageBitmap, assetNameState.text, selectedAssetType.name, selectedModel, serialNumberState.text, description.text, selectedOwner)
-            }
+    val onAddNewAssetInAction = {
+        if (!assetNameState.isValid) {
+            assetNameState.enableShowError()
+        } else if (selectedModel.isEmpty()) {
+            // Show error or handle model not selected
+        } else {
+            onAssetSaved(imageUri, imageBitmap, assetNameState.text, selectedAssetType.name, selectedModel, serialNumberState.text, description.text, selectedOwner, assetIdState.text, assetQuantityState.text, projectNameState.text)
         }
+    }
 
-        Box(
+    Box(modifier = Modifier.fillMaxSize()) {
+        val scrollState = rememberScrollState()
+        Column(
             modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(Color.Gray)
-                .align(Alignment.CenterHorizontally)
+                .noRippleClickable {
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                }
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 64.dp)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val imageModifier = Modifier.fillMaxSize()
-
-            imageBitmap?.let {
-                Image(
-                    bitmap = it.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = imageModifier,
-                    contentScale = ContentScale.Crop
-                )
-            } ?: imageUri?.let {
-                Image(
-                    painter = rememberAsyncImagePainter(it),
-                    contentDescription = null,
-                    modifier = imageModifier,
-                    contentScale = ContentScale.Crop
-                )
-            } ?: Image(
-                painter = painterResource(id = R.drawable.ic_person),
-                contentDescription = "Profile Picture",
-                modifier = imageModifier,
-                contentScale = ContentScale.Crop
-            )
-
-            FloatingActionButton(
-                onClick = { showMenu = true },
+            Box(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(8.dp)
-                    .size(32.dp),
-                containerColor = MaterialTheme.colorScheme.primary
+                    .fillMaxWidth(0.6f)
+                    .height(130.dp)
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(Color.Gray)
+                    .align(Alignment.CenterHorizontally)
             ) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Image")
+                val imageModifier = Modifier.fillMaxSize()
+
+                imageBitmap?.let {
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = imageModifier,
+                        contentScale = ContentScale.FillBounds
+                    )
+                } ?: imageUri?.let {
+                    Image(
+                        painter = rememberAsyncImagePainter(it),
+                        contentDescription = null,
+                        modifier = imageModifier,
+                        contentScale = ContentScale.Crop
+                    )
+                } ?: Image(
+                    painter = painterResource(id = R.drawable.ic_devices),
+                    contentDescription = "Profile Picture",
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop
+                )
+
+                FloatingActionButton(
+                    onClick = { showMenu = true },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp)
+                        .size(32.dp),
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Image")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+            AssetNameField(assetName = assetNameState)
+            AssetIdField(assetId = assetIdState)
+            AssetTypeSpinner(selectedAssetType = selectedAssetType.toString(), onAssetTypeSelected = { assetType ->
+                selectedAssetType = assetType
+                selectedModel = Constants.EMPTY_STR
+            })
+            ModelDropdown(
+                selectedAssetType = selectedAssetType.toString(),
+                selectedModel = selectedModel,
+                onModelSelected = { selectedModel = it }
+            )
+            AssetSerialNumberField(assetSerialNumber = serialNumberState)
+            OwnerSpinner(memberList = memberList, selectedOwner = selectedOwner) {
+                selectedOwner = it
+            }
+            AssetQuantityField(quantity = assetQuantityState)
+            ProjectNameField(projectName = projectNameState)
+            AssetDescriptionField(
+                description = description
+            )
+            Spacer(modifier = Modifier.height(15.dp))
+            if (showMenu) {
+                ImagePickDialog(
+                    {
+                        showMenu = false
+                    },
+                    onCamera = {
+                        cameraPicker.launch(null)
+                        showMenu = false
+                    },
+                    onGallery = {
+                        galleryPicker.launch("image/*")
+                        showMenu = false
+                    },
+                    "Choose Image",
+                    "Please select image from Gallery or Camera"
+                )
             }
         }
-
-        Spacer(modifier = Modifier.height(2.dp))
-        AssetNameField(assetName = assetNameState)
-
-        AssetTypeSpinner(selectedAssetType = selectedAssetType.toString(), onAssetTypeSelected = { assetType ->
-            selectedAssetType = assetType
-            selectedModel = Constants.EMPTY_STR
-        })
-
-        ModelDropdown(
-            selectedAssetType = selectedAssetType.toString(),
-            selectedModel = selectedModel,
-            onModelSelected = { selectedModel = it }
-        )
-        AssetSerialNumberField(assetSerialNumber = serialNumberState)
-        OwnerSpinner(memberList = memberList, selectedOwner = selectedOwner) {
-            selectedOwner = it
-        }
-        AssetDescriptionField(
-            description = description
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (showMenu) {
-            ImagePickDialog(
-                {
-                    showMenu = false
-                },
-                onCamera = {
-                    cameraPicker.launch(null)
-                    showMenu = false
-                },
-                onGallery = {
-                    galleryPicker.launch("image/*")
-                    showMenu = false
-                },
-                "Choose Image",
-                "Please select image from Gallery or Camera"
-            )
-        }
-
-
         // Save Button
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(onClick = singleClick {
+        Button(
+            modifier = Modifier.padding(vertical = 10.dp).width(200.dp).align(Alignment.BottomCenter),
+            shape = RoundedCornerShape(5.dp),
+            onClick = singleClick {
                 onAddNewAssetInAction()
                 keyboardController?.hide()
-            }) {
-                Text(stringResource(id = R.string.str_save))
             }
+        ) {
+            Text(stringResource(id = R.string.str_save))
         }
     }
 }

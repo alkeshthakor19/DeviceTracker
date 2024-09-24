@@ -3,9 +3,13 @@ package com.devicetracker.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -18,7 +22,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import com.devicetracker.R
+import com.devicetracker.ui.getFontSizeByPercent
 
 @Composable
 fun TextFieldError(textError: String = "Invalid email") {
@@ -43,9 +51,9 @@ fun EmailField(emailState: TextFieldState) {
         modifier = Modifier.fillMaxWidth(0.95f)
             .onFocusChanged {
             emailState.onFocusChange(it.isFocused)
-            if(it.isFocused) {
+            /*if(it.isFocused) {
                 emailState.enableShowError()
-            }
+            }*/
         },
         isError = emailState.showError(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
@@ -90,9 +98,9 @@ fun EmployeeCodeField(employeeCode: TextFieldState) {
             .fillMaxWidth(0.95f)
             .onFocusChanged {
             employeeCode.onFocusChange(it.isFocused)
-            if(it.isFocused) {
+            /*if(it.isFocused) {
                 employeeCode.enableShowError()
-            }
+            }*/
         },
         isError = employeeCode.showError(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
@@ -116,9 +124,9 @@ fun MemberNameField(memberName: TextFieldState) {
         modifier = Modifier.fillMaxWidth(0.95f)
             .onFocusChanged {
             memberName.onFocusChange(it.isFocused)
-            if(it.isFocused) {
+            /*if(it.isFocused) {
                 memberName.enableShowError()
-            }
+            }*/
         },
         isError = memberName.showError(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
@@ -142,5 +150,37 @@ fun MemberTypeCheckBox(memberWritablePermission: BooleanFieldState){
             colors = CheckboxDefaults.colors(Color.Green)
         )
         Text(text = stringResource(R.string.str_member_permission))
+    }
+}
+
+@Composable
+fun MemberMobileField(empMobileNo: TextFieldState) {
+    OutlinedTextField(
+        value = empMobileNo.text,
+        onValueChange = {
+            empMobileNo.text = it
+        },
+        label = {
+            Text(text = stringResource(R.string.str_mobile_number))
+        },
+        modifier = Modifier
+            .fillMaxWidth(0.95f)
+            .onFocusChanged {
+                empMobileNo.onFocusChange(it.isFocused)
+            },
+        isError = empMobileNo.showError(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
+        singleLine = true
+    )
+    empMobileNo.getError()?.let { error ->
+        TextFieldError(textError = error, )
+    }
+}
+
+@Composable
+fun MemberEmailRowSection(labelText: String, valueText: String, iconSize: Int, fontSize:TextUnit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(imageVector = Icons.Default.Email, contentDescription = labelText, modifier = Modifier.size(iconSize.dp), tint = Color.Gray)
+        Text(text = " $valueText", fontSize = fontSize, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }

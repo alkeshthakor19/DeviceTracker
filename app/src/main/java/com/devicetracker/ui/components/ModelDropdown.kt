@@ -34,7 +34,7 @@ fun ModelDropdown(
             value = selectedModel,
             onValueChange = onModelSelected,
             label = { Text("Enter Model") },
-            modifier = Modifier
+            modifier = Modifier.fillMaxWidth(0.95f)
         )
     } else {
         // Display the dropdown menu for other asset types

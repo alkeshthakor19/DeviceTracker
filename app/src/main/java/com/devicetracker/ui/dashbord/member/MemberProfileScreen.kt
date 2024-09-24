@@ -24,8 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -44,24 +44,27 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
+import com.devicetracker.core.Constants.INT_SIZE_24
+import com.devicetracker.core.Constants.INT_SIZE_80
 import com.devicetracker.getDateStringFromTimestamp
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
-import com.devicetracker.ui.components.BodyText
-import com.devicetracker.ui.components.LabelText
+import com.devicetracker.ui.components.LabelAndTextWithColor
+import com.devicetracker.ui.components.MemberEmailRowSection
 import com.devicetracker.ui.components.NoDataMessage
 import com.devicetracker.ui.dashbord.assets.Asset
 import com.devicetracker.ui.dashbord.assets.AssetPicture
 import com.devicetracker.ui.dashbord.assets.AssetViewModel
-import com.devicetracker.ui.theme.AssetTrackerTheme
+import com.devicetracker.ui.getFontSizeByPercent
+import com.devicetracker.ui.getWidthInPercent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -73,7 +76,6 @@ fun MemberProfileScreen(
     onNavUp: () -> Unit,
     navHostController: NavHostController
 ) {
-    val mTag = "MemberProfileScreen"
     val memberViewModel : MemberViewModel = hiltViewModel()
     val memberData by memberViewModel.fetchMember(memberId).observeAsState()
 
@@ -108,6 +110,7 @@ fun MemberProfileScreen(
             ) {
                 item {
                     ProfileDetailSection(memberData)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.height(25.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(
@@ -116,7 +119,9 @@ fun MemberProfileScreen(
                             fontStyle = FontStyle.Italic
                         )
                         Spacer(modifier = Modifier.width(50.dp))
-                        Text(text = "Refresh List", modifier = Modifier.padding(bottom = 2.dp).clickable { onRefreshAssetList() } )
+                        Text(text = "Refresh List", modifier = Modifier
+                            .padding(bottom = 2.dp)
+                            .clickable { onRefreshAssetList() } )
                     }
                 }
                 if(assetViewModel.isLoaderShowing){
@@ -137,42 +142,37 @@ fun MemberProfileScreen(
 
 @Composable
 fun ProfileDetailSection(memberData: Member?){
-    ElevatedCard (
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
-        ),
+    Column(
         modifier = Modifier
-            .padding(top = 60.dp, bottom = 8.dp)
             .fillMaxWidth()
-            .wrapContentHeight(align = Alignment.Top),
-        colors = CardDefaults.cardColors(containerColor = AssetTrackerTheme.colors.cardBackgroundColor)
-    ){
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 18.dp, bottom = 18.dp),
-            horizontalAlignment = Alignment.CenterHorizontally) {
-            ProfilePhoto(memberData?.imageUrl)
-            if(memberData?.memberName != null) {
-                Text(
-                    text = memberData.memberName,
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontStyle = FontStyle.Italic,
-                    fontSize = 24.sp
-                )
-            }
-            MemberFieldRow(labelText = stringResource(id = R.string.str_emp_code), bodyText = memberData?.employeeCode.toString())
-            MemberFieldRow(labelText = stringResource(id = R.string.str_email), bodyText = memberData?.emailAddress ?: "NA")
+            .padding(top = 78.dp, bottom = 18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        ProfilePhoto(memberData?.imageUrl)
+        Spacer(modifier = Modifier.height(4.dp))
+        if(memberData?.memberName != null) {
+            Text(
+                text = memberData.memberName,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleMedium,
+                fontStyle = FontStyle.Italic,
+                fontSize = getFontSizeByPercent(fontSizeInPercent = 6f)
+            )
         }
+        MemberFieldRow(labelText = stringResource(id = R.string.str_emp_code), bodyText = memberData?.employeeCode.toString())
+        MemberEmailRowSection(
+            labelText = stringResource(id = R.string.str_email),
+            valueText = memberData?.emailAddress.toString(),
+            iconSize = INT_SIZE_24,
+            fontSize = getFontSizeByPercent(fontSizeInPercent = 4f)
+        )
     }
 }
 
 @Composable
 fun MemberFieldRow(labelText: String, bodyText: String){
-    Row(modifier = Modifier.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        LabelText(labelText = labelText)
-        BodyText(bodyText = bodyText)
+    Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.Center) {
+        Text(modifier = Modifier.width(getWidthInPercent(50f)), text = "$labelText: ", textAlign = TextAlign.End, fontSize = getFontSizeByPercent(fontSizeInPercent = 4f))
+        Text(modifier = Modifier.width(getWidthInPercent(50f)), text = bodyText, textAlign = TextAlign.Start, fontSize = getFontSizeByPercent(fontSizeInPercent = 4f))
     }
 }
 
@@ -196,7 +196,7 @@ fun AssignedAssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top)
             .clickable {
-                navigateDeviceDetailCallBack.invoke(asset.assetId.toString())
+                navigateDeviceDetailCallBack.invoke(asset.assetDocId.toString())
             },
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.primaryContainer)
@@ -209,7 +209,7 @@ fun AssignedAssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            AssetPicture(asset)
+            AssetPicture(asset, INT_SIZE_80)
             AssignAssetContent(asset)
         }
     }
@@ -226,22 +226,13 @@ fun AssignAssetContent(asset: Asset) {
             text = asset.assetName,
             style = MaterialTheme.typography.titleMedium,
         )
-        Row {
-            Text(text = stringResource(id = R.string.str_asset_type), color = Color.Gray)
-            Text(text = asset.assetType.toString())
-        }
-        Row {
-            Text(text = stringResource(id = R.string.str_label_asset_model_name), color = Color.Gray)
-            Text(text = asset.modelName.toString())
-        }
+        LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_type), normalText = asset.assetType.toString(), color = Color.Gray)
+        LabelAndTextWithColor(labelText = stringResource(id = R.string.str_label_asset_model_name), normalText = asset.modelName.toString(), color = Color.Gray)
+        LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_assign_date), normalText = getDateStringFromTimestamp(asset.createdAt), color = Color.Gray)
         /*Row {
             Text(text = stringResource(id = R.string.str_label_asset_serial_number), color = Color.Gray)
             Text(text = asset.serialNumber.toString())
         }*/
-        Row {
-            Text(text = stringResource(id = R.string.str_asset_assign_date), color = Color.Gray)
-            Text(text = getDateStringFromTimestamp(asset.createdAt))
-        }
     }
 }
 

@@ -13,8 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
@@ -47,10 +46,12 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
+import com.devicetracker.core.Constants.INT_SIZE_72
 import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
 import com.devicetracker.ui.Destinations.ASSET_SEARCH
 import com.devicetracker.ui.Destinations.NEW_ASSET
+import com.devicetracker.ui.components.LabelAndTextWithColor
 import com.devicetracker.ui.components.NoDataMessage
 import com.devicetracker.ui.theme.AssetTrackerTheme
 import kotlinx.coroutines.Dispatchers
@@ -129,7 +130,6 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
 @Composable
 fun AssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit) {
     ElevatedCard (
-        shape = CutCornerShape(topEnd = 24.dp, bottomStart = 24.dp),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         ),
@@ -141,22 +141,22 @@ fun AssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit) {
     ){
         Row(
             modifier = Modifier
-                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                .padding(start = 16.dp)
                 .fillMaxWidth()
-                .noDoubleClick { navigateDeviceDetailCallBack.invoke(asset.assetId.toString()) },
+                .noDoubleClick { navigateDeviceDetailCallBack.invoke(asset.assetDocId.toString()) },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            AssetPicture(asset)
+            AssetPicture(asset, INT_SIZE_72)
             AssetContent(asset)
         }
     }
 }
 
 @Composable
-fun AssetPicture(asset: Asset) {
+fun AssetPicture(asset: Asset, imageSize: Int) {
     Card(
-        shape = CircleShape,
+        shape = RoundedCornerShape(5.dp),
         border = BorderStroke(
             width = 2.dp,
             color = MaterialTheme.colorScheme.secondary
@@ -175,7 +175,7 @@ fun AssetPicture(asset: Asset) {
             placeholder = painterResource(resourceId),
             contentDescription = stringResource(R.string.app_name),
             contentScale = ContentScale.Crop,
-            modifier = Modifier.size(72.dp)
+            modifier = Modifier.fillMaxWidth(0.25f).size(imageSize.dp)
         )
     }
 }
@@ -196,17 +196,10 @@ fun AssetContent(asset: Asset) {
     ) {
         Text(
          text = asset.assetName,
-         style = MaterialTheme.typography.titleLarge
+         style = MaterialTheme.typography.titleMedium
         )
-
-        Row {
-          Text(text = stringResource(id = R.string.str_asset_type), color = Color.Gray)
-          Text(text = assetTypeName)
-        }
-        Row {
-          Text(text = stringResource(id = R.string.str_label_asset_model_name), color = Color.Gray)
-          Text(text = asset.modelName.toString())
-        }
+        LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_type), normalText = assetTypeName, color = Color.Gray)
+        LabelAndTextWithColor(labelText = stringResource(id = R.string.str_label_asset_model_name), normalText = asset.modelName.toString(), color = Color.Gray)
         /*Row {
             Text(text = stringResource(id = R.string.str_label_asset_serial_number), color = Color.Gray)
             Text(text = asset.serialNumber.toString())

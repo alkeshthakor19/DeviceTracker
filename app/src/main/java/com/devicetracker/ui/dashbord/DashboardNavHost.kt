@@ -87,11 +87,11 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
         }
         composable(
             ASSET_DETAIL,
-            arguments = listOf(navArgument("assetId") { type = NavType.StringType })
+            arguments = listOf(navArgument("assetDocId") { type = NavType.StringType })
         ) {
             Log.d("DashNavHost", "nkp Navigating to Asset Detail")
             AssetDetailScreen(
-                assetId = it.arguments?.getString("assetId")?:Constants.EMPTY_STR,
+                assetDocId = it.arguments?.getString("assetDocId")?:Constants.EMPTY_STR,
                 onNavUp = {
                     navigationController.navigateUp()
                 },
@@ -100,11 +100,11 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
         }
         composable(
             EDIT_ASSET,
-            arguments = listOf(navArgument("assetId") { type = NavType.StringType })
+            arguments = listOf(navArgument("assetDocId") { type = NavType.StringType })
         ) {
             Log.d("DashNavHost", "nkp Navigating to Edit Asset")
             AssetEditScreen(
-                assetId = it.arguments?.getString("assetId").toString(),
+                assetDocId = it.arguments?.getString("assetDocId").toString(),
                 onNavUp = {
                     navigationController.navigateUp()
                 }

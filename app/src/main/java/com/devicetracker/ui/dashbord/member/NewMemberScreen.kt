@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
@@ -60,10 +62,12 @@ import com.devicetracker.ui.components.CheckBoxState
 import com.devicetracker.ui.components.EmailField
 import com.devicetracker.ui.components.EmailState
 import com.devicetracker.ui.components.EmployeeCodeField
-import com.devicetracker.ui.components.EmployeeIdState
+import com.devicetracker.ui.components.EmloyeeCodeState
+import com.devicetracker.ui.components.MemberMobileField
 import com.devicetracker.ui.components.MemberNameField
 import com.devicetracker.ui.components.MemberNameState
 import com.devicetracker.ui.components.MemberTypeCheckBox
+import com.devicetracker.ui.components.MobileNumberState
 import com.devicetracker.ui.theme.AssetTrackerTheme
 
 @Composable
@@ -89,7 +93,7 @@ fun NewMemberScreen(onNavUp: () -> Unit) {
         ) {
             val memberViewModel: MemberViewModel = hiltViewModel()
             AddMember(
-                onMemberSaved = { imageUri, imageBitmap, employeeId, memberName, memberEmail, isMemberWritablePermission ->
+                onMemberSaved = { imageUri, imageBitmap, employeeId, memberName, memberEmail, isMemberWritablePermission, mobileNumber ->
                     memberViewModel.uploadImageAndAddNewMemberToFirebase(
                         imageUri,
                         imageBitmap,
@@ -97,6 +101,7 @@ fun NewMemberScreen(onNavUp: () -> Unit) {
                         memberName,
                         memberEmail,
                         isMemberWritablePermission,
+                        mobileNumber,
                         onNavUp
                     )
                 },
@@ -109,13 +114,14 @@ fun NewMemberScreen(onNavUp: () -> Unit) {
 
 @Composable
 fun AddMember(
-    onMemberSaved: (imageUri: Uri?, imageBitmap: Bitmap?, employeeId: Int, memberName: String, memberEmail: String, isMemberWritablePermission: Boolean) -> Unit,
+    onMemberSaved: (imageUri: Uri?, imageBitmap: Bitmap?, employeeId: Int, memberName: String, memberEmail: String, isMemberWritablePermission: Boolean, mobileNumber: String) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?
 ) {
     val emailState = remember { EmailState() }
-    val employeeCodeState = remember { EmployeeIdState() }
+    val employeeCodeState = remember { EmloyeeCodeState() }
     val memberNameState = remember { MemberNameState() }
+    val mobileNumberState = remember { MobileNumberState() }
     val memberWritablePermission = remember { CheckBoxState() }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
@@ -156,7 +162,7 @@ fun AddMember(
                 emailState.enableShowError()
             } else {
                 Log.d("NewMemberScreen", "nkp imageUri ${imageUri?.path}  ${imageUri}")
-                onMemberSaved(imageUri, imageBitmap, employeeCodeState.text.toInt(), memberNameState.text, emailState.text,memberWritablePermission.isChecked)
+                onMemberSaved(imageUri, imageBitmap, employeeCodeState.text.toInt(), memberNameState.text, emailState.text,memberWritablePermission.isChecked, mobileNumberState.text)
             }
         }
         Box(
@@ -205,6 +211,7 @@ fun AddMember(
         EmployeeCodeField(employeeCodeState)
         MemberNameField(memberNameState)
         EmailField(emailState)
+        MemberMobileField(mobileNumberState)
         MemberTypeCheckBox(memberWritablePermission)
         if (showMenu){
             ImagePickDialog(
@@ -223,12 +230,14 @@ fun AddMember(
                 "Please select image from Gallery or Camera"
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(15.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
+                modifier = Modifier.width(200.dp),
+                shape = RoundedCornerShape(5.dp),
                 onClick = singleClick{
                     onAddNewMemberInAction()
                     keyboardController?.hide()

@@ -4,7 +4,14 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import com.devicetracker.core.Constants.COLLECTION_MEMBERS
+import com.devicetracker.core.Constants.CREATED_AT
+import com.devicetracker.core.Constants.EMAIL_ADDRESS
+import com.devicetracker.core.Constants.EMPLOYEE_CODE
 import com.devicetracker.core.Constants.FIRE_STORAGE_IMAGES
+import com.devicetracker.core.Constants.IMAGE_URL
+import com.devicetracker.core.Constants.IS_WRITABLE_PERMISSION
+import com.devicetracker.core.Constants.MEMBER_NAME
+import com.devicetracker.core.Constants.MOBILE_NUMBER
 import com.devicetracker.domain.models.Response.Failure
 import com.devicetracker.domain.models.Response.Success
 import com.devicetracker.domain.repository.AddMemberResponse
@@ -12,6 +19,7 @@ import com.devicetracker.domain.repository.GetMembersByIdResponse
 import com.devicetracker.domain.repository.GetMembersResponse
 import com.devicetracker.domain.repository.MemberRepository
 import com.devicetracker.ui.dashbord.member.Member
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue.serverTimestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.StorageReference
@@ -28,17 +36,18 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
         memberName: String,
         emailAddress: String,
         imageUrl: String,
-        isWritablePermission: Boolean
+        isWritablePermission: Boolean,
+        mobileNumber: String
     ): AddMemberResponse = try {
         val member = hashMapOf(
-            "employeeCode" to employeeCode,
-            "memberName" to memberName,
-            "emailAddress" to emailAddress,
-            "imageUrl" to imageUrl,
-            "isWritablePermission" to isWritablePermission,
-            "createdAt" to serverTimestamp()
+            EMPLOYEE_CODE to employeeCode,
+            MEMBER_NAME to memberName,
+            EMAIL_ADDRESS to emailAddress,
+            IMAGE_URL to imageUrl,
+            IS_WRITABLE_PERMISSION to isWritablePermission,
+            MOBILE_NUMBER to mobileNumber,
+            CREATED_AT to serverTimestamp()
         )
-
         db.collection(COLLECTION_MEMBERS).add(member).await()
         Success(true)
     } catch (e: Exception) {
@@ -53,6 +62,7 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
         memberName: String,
         emailAddress: String,
         isWritablePermission: Boolean,
+        mobileNumber: String,
         onNavUp: () -> Unit
     ): AddMemberResponse = try {
         val imageRef = storageReference.child("$FIRE_STORAGE_IMAGES/${UUID.randomUUID()}.jpg")
@@ -69,7 +79,7 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
 
         uploadTask.await()
         val resultUri = imageRef.downloadUrl.await()
-        addMember(employeeCode, memberName, emailAddress, resultUri.toString(), isWritablePermission)
+        addMember(employeeCode, memberName, emailAddress, resultUri.toString(), isWritablePermission, mobileNumber)
         onNavUp()
         Log.d("MemberRepositoryImpl", "nkp uploadImageAndAddNewMemberToFirebase()")
         Success(true)

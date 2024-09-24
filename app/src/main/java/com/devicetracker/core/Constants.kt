@@ -14,14 +14,25 @@ object Constants {
     const val FIRE_STORAGE_IMAGES = "images"
 
     // Asset field name
+    const val ASSET_DOC_ID = "assetDocId"
     const val ASSET_ID = "assetId"
     const val ASSET_NAME = "assetName"
     const val ASSET_TYPE = "assetType"
     const val ASSET_MODEL_NAME = "modelName"
     const val ASSET_SERIAL_NUMBER = "serialNumber"
+    const val ASSET_QUANTITY = "quantity"
+    const val PROJECT_NAME = "projectName"
     const val ASSET_DESCRIPTION = "description"
     const val ASSET_OWNER_ID = "assetOwnerId"
     const val ASSET_OWNER_NAME = "assetOwnerName"
+    const val LAST_VERIFICATION_AT = "lastVerificationAt"
+
+    //Member
+    const val EMPLOYEE_CODE = "employeeCode"
+    const val MEMBER_NAME = "memberName"
+    const val EMAIL_ADDRESS = "emailAddress"
+    const val IS_WRITABLE_PERMISSION = "isWritablePermission"
+    const val MOBILE_NUMBER = "mobileNumber"
 
     // Common
     const val IMAGE_URL = "imageUrl"
@@ -31,4 +42,9 @@ object Constants {
 
     const val UNASSIGN_NAME = "Un Assign"
     const val UNASSIGN_ID = "unassign"
+
+    const val INT_SIZE_20 = 20
+    const val INT_SIZE_24 = 24
+    const val INT_SIZE_72 = 72
+    const val INT_SIZE_80 = 80
 }

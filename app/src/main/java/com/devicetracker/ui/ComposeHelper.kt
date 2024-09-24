@@ -1,6 +1,5 @@
 package com.devicetracker.ui
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -15,14 +14,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.devicetracker.R
 import com.devicetracker.ui.theme.AssetTrackerTheme
 
@@ -64,4 +66,18 @@ fun ProgressBar() {
     ){
         CircularProgressIndicator()
     }
+}
+
+@Composable
+fun getFontSizeByPercent(fontSizeInPercent: Float): TextUnit {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    return (screenWidth * (fontSizeInPercent/100)).sp  // Calculate font size as x% of screen width
+}
+
+@Composable
+fun getWidthInPercent(widthInPercent: Float): Dp {
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp
+    return (screenWidth * (widthInPercent/100)).dp
 }

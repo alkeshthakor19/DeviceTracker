@@ -4,6 +4,7 @@
     <string name="str_email_address">Email Address</string>
     <string name="str_employee_code">Employee Code</string>
     <string name="str_member_name">Member Name</string>
+    <string name="str_mobile_number">Mobile Number</string>
     <string name="str_member_permission">Does the member have to give written permission?</string>
     <string name="str_password">Password</string>
     <string name="str_welcome_to_asset_tracker">Welcome to Asset Tracker</string>
@@ -13,15 +14,15 @@
     <string name="str_home">Home</string>
     <string name="str_logout">Logout</string>
 
-    <string name="str_emp_code">Employee Code: </string>
-    <string name="str_email">Email: </string>
+    <string name="str_emp_code">Emp Code</string>
+    <string name="str_email">Email</string>
 
-    <string name="str_asset_type">Asset Type: </string>
+    <string name="str_asset_type">Type</string>
     <string name="str_asset_serial_number">Serial No.</string>
-    <string name="str_label_asset_serial_number">Serial No.:</string>
-    <string name="str_label_asset_model_name">Model Name: </string>
+    <string name="str_label_asset_serial_number">Serial No.</string>
+    <string name="str_label_asset_model_name">Name </string>
     <string name="str_asset_model_name">Model Name </string>
-    <string name="str_asset_assign_date">Assign Date: </string>
+    <string name="str_asset_assign_date">Assign Date</string>
     <string name="str_device_type_tab">TAB</string>
     <string name="str_device_type_storage">USB STORAGE</string>
     <string name="str_device_type_cable">CABLE</string>
@@ -30,11 +31,15 @@
     <string name="str_save">SAVE</string>
 
     <string name="str_asset_name">Asset Name</string>
+    <string name="str_asset_id">Asset Id</string>
+    <string name="str_asset_quantity">Quantity</string>
+    <string name="str_project_name">Project Name</string>
+    <string name="str_description">Description</string>
 
     <string name="str_asset_owner">Asset Owner</string>
     <string name="str_un_assign">Un Assign</string>
     <string name="str_description_name">Description</string>
 
-    <string name="str_admin_name">Admin Name: </string>
-    <string name="str_current_owner">Current Owner: </string>
+    <string name="str_assigned_by">Assigned By</string>
+    <string name="str_current_owner">Current Owner</string>
 </resources>

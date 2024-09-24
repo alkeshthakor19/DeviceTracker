@@ -48,6 +48,29 @@ fun AssetNameField(assetName: TextFieldState) {
     }
 }
 
+@Composable
+fun AssetIdField(assetId: TextFieldState) {
+    OutlinedTextField(
+        value = assetId.text,
+        onValueChange = {
+            assetId.text = it
+        },
+        label = {
+            Text(text = stringResource(R.string.str_asset_id))
+        },
+        modifier = Modifier.fillMaxWidth(0.95f)
+            .onFocusChanged {
+                assetId.onFocusChange(it.isFocused)
+            },
+        isError = assetId.showError(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+        singleLine = true
+    )
+    assetId.getError()?.let {error ->
+        TextFieldError(textError = error )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OwnerSpinner(
@@ -159,3 +182,46 @@ fun AssetSerialNumberField(assetSerialNumber: TextFieldState) {
     }
 }
 
+@Composable
+fun AssetQuantityField(quantity: TextFieldState) {
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(0.95f).onFocusChanged {
+            quantity.onFocusChange(it.isFocused)
+        },
+        value = quantity.text,
+        onValueChange = {
+            quantity.text = it
+        },
+        label = {
+            Text(text = stringResource(R.string.str_asset_quantity))
+        },
+        isError = quantity.showError(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+        singleLine = true
+    )
+    quantity.getError()?.let {error ->
+        TextFieldError(textError = error )
+    }
+}
+
+@Composable
+fun ProjectNameField(projectName: TextFieldState) {
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth(0.95f).onFocusChanged {
+            projectName.onFocusChange(it.isFocused)
+        },
+        value = projectName.text,
+        onValueChange = {
+            projectName.text = it
+        },
+        label = {
+            Text(text = stringResource(R.string.str_project_name))
+        },
+        isError = projectName.showError(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+        singleLine = true
+    )
+    projectName.getError()?.let {error ->
+        TextFieldError(textError = error )
+    }
+}

@@ -16,7 +16,7 @@ typealias UpdateAssetResponse = Response<Boolean>
 typealias AddModelResponse = Response<Boolean>
 
 interface AssetRepository {
-    suspend fun addAsset(assetName: String, assetType: String, modelName: String, serialNumber: String, description: String ,selectedMember: Member, imageUrl: String): AddAssetResponse
+    suspend fun addAsset(assetName: String, assetType: String, modelName: String, serialNumber: String, description: String ,selectedMember: Member, imageUrl: String, assetId: String, assetQuantity: String, projectName: String): AddAssetResponse
 
     suspend fun uploadImageAndAddNewAssetToFirebase(
         imageUri: Uri?,
@@ -27,28 +27,34 @@ interface AssetRepository {
         serialNumber: String,
         description: String,
         selectedMember: Member,
+        assetId: String,
+        assetQuantity: String,
+        projectName: String,
         onNavUp: () -> Unit
     ) : AddAssetResponse
 
     suspend fun getAssetsFromFirebase() : GetAssetsResponse
 
-    suspend fun getAssetsDetailById(assetId: String) : GetAssetsByIdResponse
+    suspend fun getAssetsDetailById(assetDocId: String) : GetAssetsByIdResponse
 
-    suspend fun getPreviousAssignHistoriesByAssetId(assetId: String) : GetAssignHistoriesResponse
+    suspend fun getPreviousAssignHistoriesByAssetId(assetDocId: String) : GetAssignHistoriesResponse
 
     suspend fun updateAsset(
-        assetId: String,
+        assetDocId: String,
         assetName: String,
         assetType: String,
         modelName: String,
         serialNumber: String,
         description: String,
         selectedOwner: Member?,
-        imageUrl: String?
+        imageUrl: String?,
+        assetId: String,
+        assetQuantity: String,
+        projectName: String
     ): UpdateAssetResponse
 
     suspend fun uploadImageAndUpdateAsset(
-        assetId: String,
+        assetDocId: String,
         isNeedToUpdateImageUrl: Boolean,
         imageUri: Uri?,
         imageBitmap: Bitmap?,
@@ -58,6 +64,9 @@ interface AssetRepository {
         serialNumber: String,
         description: String,
         selectedOwner: Member?,
+        assetId: String,
+        assetQuantity: String,
+        projectName: String,
         onNavUp: () -> Unit
     ): UpdateAssetResponse
 

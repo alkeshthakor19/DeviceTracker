@@ -14,12 +14,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
@@ -58,22 +63,28 @@ import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetDescriptionField
 import com.devicetracker.ui.components.AssetDescriptionState
+import com.devicetracker.ui.components.AssetIdField
+import com.devicetracker.ui.components.AssetIdState
 import com.devicetracker.ui.components.AssetNameField
 import com.devicetracker.ui.components.AssetNameState
+import com.devicetracker.ui.components.AssetQuantityField
+import com.devicetracker.ui.components.AssetQuantityState
 import com.devicetracker.ui.components.AssetSerialNumberField
 import com.devicetracker.ui.components.AssetSerialNumberState
 import com.devicetracker.ui.components.AssetTypeSpinner
 import com.devicetracker.ui.components.ModelDropdown
 import com.devicetracker.ui.components.OwnerSpinner
+import com.devicetracker.ui.components.ProjectNameField
+import com.devicetracker.ui.components.ProjectNameState
 import com.devicetracker.ui.dashbord.member.Member
 import com.devicetracker.ui.dashbord.member.MemberViewModel
 
 @Composable
-fun AssetEditScreen(assetId: String, onNavUp: () -> Unit) {
+fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val assetViewModel: AssetViewModel = hiltViewModel()
-    val assetData by assetViewModel.fetchAssetDetailById(assetId).observeAsState()
+    val assetData by assetViewModel.fetchAssetDetailById(assetDocId).observeAsState()
     Scaffold(
             topBar = {
                 TopBarWithTitleAndBackNavigation(titleText = "Edit Asset", onNavUp = onNavUp)
@@ -94,9 +105,9 @@ fun AssetEditScreen(assetId: String, onNavUp: () -> Unit) {
                     ProgressBar()
                 } else{
                     UpdateAsset(
-                        onAssetSaved = { isNeedToUpdateImageUrl, imageUri, imageBitmap, assetName, assetType, assetModelName, serialNumber, description, selectedOwner ->
+                        onAssetSaved = { isNeedToUpdateImageUrl, imageUri, imageBitmap, assetName, assetType, assetModelName, serialNumber, description, selectedOwner, assetId, assetQuantity, projectName ->
                             assetViewModel.uploadImageAndUpdateAsset(
-                                assetId,
+                                assetDocId,
                                 isNeedToUpdateImageUrl,
                                 imageUri,
                                 imageBitmap,
@@ -106,6 +117,9 @@ fun AssetEditScreen(assetId: String, onNavUp: () -> Unit) {
                                 serialNumber,
                                 description,
                                 selectedOwner,
+                                assetId,
+                                assetQuantity,
+                                projectName,
                                 onNavUp
                             )
                         },
@@ -120,7 +134,7 @@ fun AssetEditScreen(assetId: String, onNavUp: () -> Unit) {
 
 @Composable
 fun UpdateAsset(
-    onAssetSaved: (isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber: String, description: String, selectedOwner: Member?) -> Unit,
+    onAssetSaved: (isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?,
     initialAssetData: Asset?
@@ -169,6 +183,13 @@ fun UpdateAsset(
     val description = remember { AssetDescriptionState() }
     description.text = initialAssetData?.description ?: Constants.EMPTY_STR
 
+    val assetIdState = remember { AssetIdState() }
+    assetIdState.text = initialAssetData?.assetId ?: Constants.EMPTY_STR
+    val assetQuantityState = remember { AssetQuantityState() }
+    assetQuantityState.text = initialAssetData?.quantity ?: Constants.EMPTY_STR
+    val projectNameState = remember { ProjectNameState() }
+    projectNameState.text = initialAssetData?.projectName ?: Constants.EMPTY_STR
+
     val galleryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
@@ -186,119 +207,120 @@ fun UpdateAsset(
             imageUri = null
         }
     )
-
-    Column(
-        modifier = Modifier
-            .noRippleClickable {
-                focusManager.clearFocus()
-                keyboardController?.hide()
-            }
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        val onAddNewAssetInAction = {
-            if (!assetNameState.isValid) {
-                assetNameState.enableShowError()
-            } else if (selectedModel.value.isEmpty()) {
-                // Show error or handle model not selected
-            } else {
-                onAssetSaved(isNeedToUpdateImageUrl, imageUri, imageBitmap, assetNameState.text,
-                    selectedAssetType.value, selectedModel.value, serialNumberState.text, description.text, selectedOwner.value
-                )
-            }
+    val onAddNewAssetInAction = {
+        if (!assetNameState.isValid) {
+            assetNameState.enableShowError()
+        } else if (selectedModel.value.isEmpty()) {
+            // Show error or handle model not selected
+        } else {
+            onAssetSaved(isNeedToUpdateImageUrl, imageUri, imageBitmap, assetNameState.text,
+                selectedAssetType.value, selectedModel.value, serialNumberState.text, description.text, selectedOwner.value,
+                assetIdState.text, assetQuantityState.text, projectNameState.text
+            )
         }
+    }
 
-        Box(
+    Box(modifier = Modifier.fillMaxSize()) {
+        val scrollState = rememberScrollState()
+        Column(
             modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(Color.Gray)
-                .align(Alignment.CenterHorizontally)
+                .noRippleClickable {
+                    focusManager.clearFocus()
+                    keyboardController?.hide()
+                }
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 64.dp)
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val imageModifier = Modifier.fillMaxSize()
-
-            imageBitmap?.let {
-                Image(
-                    bitmap = it.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = imageModifier,
-                    contentScale = ContentScale.Crop
-                )
-            } ?: imageUri?.let {
-                Image(
-                    painter = rememberAsyncImagePainter(it),
-                    contentDescription = null,
-                    modifier = imageModifier,
-                    contentScale = ContentScale.Crop
-                )
-            } ?: Image(
-                painter = painterResource(id = R.drawable.ic_person),
-                contentDescription = "Profile Picture",
-                modifier = imageModifier,
-                contentScale = ContentScale.Crop
-            )
-
-            FloatingActionButton(
-                onClick = { showMenu = true },
+            Box(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(8.dp)
-                    .size(32.dp),
-                containerColor = MaterialTheme.colorScheme.primary
+                    .fillMaxWidth(0.6f)
+                    .height(130.dp)
+                    .clip(RoundedCornerShape(5.dp))
+                    .background(Color.Gray)
+                    .align(Alignment.CenterHorizontally)
             ) {
-                Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit Image")
+                val imageModifier = Modifier.fillMaxSize()
+
+                imageBitmap?.let {
+                    Image(
+                        bitmap = it.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = imageModifier,
+                        contentScale = ContentScale.Crop
+                    )
+                } ?: imageUri?.let {
+                    Image(
+                        painter = rememberAsyncImagePainter(it),
+                        contentDescription = null,
+                        modifier = imageModifier,
+                        contentScale = ContentScale.Crop
+                    )
+                } ?: Image(
+                    painter = painterResource(id = R.drawable.ic_person),
+                    contentDescription = "Profile Picture",
+                    modifier = imageModifier,
+                    contentScale = ContentScale.Crop
+                )
+
+                FloatingActionButton(
+                    onClick = { showMenu = true },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp)
+                        .size(32.dp),
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit Image")
+                }
             }
-        }
-        Spacer(modifier = Modifier.height(2.dp))
-        AssetNameField(assetName = assetNameState)
-
-        AssetTypeSpinner(selectedAssetType = selectedAssetType.value, onAssetTypeSelected = { assetType ->
-            Log.d("AssetEditScreen", "nkp1 call when change the assetType")
-            selectedAssetType.value = assetType.name
-            selectedModel.value = Constants.EMPTY_STR
-        })
-        ModelDropdown(
-            selectedAssetType = selectedAssetType.value,
-            selectedModel = selectedModel.value,
-            onModelSelected = { selectedModel.value = it }
-        )
-
-        AssetSerialNumberField(assetSerialNumber = serialNumberState)
-
-        OwnerSpinner(memberList = memberList, selectedOwner = selectedOwner.value) {
-            Log.d("AssetEdit", "nkp selected click name ${it.memberName}")
-            selectedOwner.value = it
-        }
-
-        AssetDescriptionField(description = description)
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        if (showMenu) {
-            ImagePickDialog(
-                onDismissRequest = { showMenu = false },
-                onCamera = {
-                    cameraPicker.launch(null)
-                    showMenu = false
-                },
-                onGallery = {
-                    galleryPicker.launch("image/*")
-                    showMenu = false
-                },
-                dialogTitle = "Choose Image",
-                dialogText = "Please select image from Gallery or Camera"
+            Spacer(modifier = Modifier.height(2.dp))
+            AssetNameField(assetName = assetNameState)
+            AssetIdField(assetId = assetIdState)
+            AssetTypeSpinner(selectedAssetType = selectedAssetType.value, onAssetTypeSelected = { assetType ->
+                selectedAssetType.value = assetType.name
+                selectedModel.value = Constants.EMPTY_STR
+            })
+            ModelDropdown(
+                selectedAssetType = selectedAssetType.value,
+                selectedModel = selectedModel.value,
+                onModelSelected = { selectedModel.value = it }
             )
-        }
-
-        // Save Button
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Button(onClick = onAddNewAssetInAction) {
-                Text(text = "Update")
+            AssetSerialNumberField(assetSerialNumber = serialNumberState)
+            OwnerSpinner(memberList = memberList, selectedOwner = selectedOwner.value) {
+                Log.d("AssetEdit", "nkp selected click name ${it.memberName}")
+                selectedOwner.value = it
             }
+            AssetQuantityField(quantity = assetQuantityState)
+            ProjectNameField(projectName = projectNameState)
+            AssetDescriptionField(description = description)
+
+            Spacer(modifier = Modifier.height(15.dp))
+
+            if (showMenu) {
+                ImagePickDialog(
+                    onDismissRequest = { showMenu = false },
+                    onCamera = {
+                        cameraPicker.launch(null)
+                        showMenu = false
+                    },
+                    onGallery = {
+                        galleryPicker.launch("image/*")
+                        showMenu = false
+                    },
+                    dialogTitle = "Choose Image",
+                    dialogText = "Please select image from Gallery or Camera"
+                )
+            }
+        }
+        // Save Button
+        Button(
+            modifier = Modifier.padding(vertical = 10.dp).width(200.dp).align(Alignment.BottomCenter),
+            shape = RoundedCornerShape(5.dp),
+            onClick = onAddNewAssetInAction
+        ) {
+            Text(text = "Update")
         }
     }
 }

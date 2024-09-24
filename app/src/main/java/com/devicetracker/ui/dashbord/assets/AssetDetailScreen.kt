@@ -13,21 +13,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -38,6 +40,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -49,15 +52,16 @@ import com.devicetracker.singleClick
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.BlackLabelText
-import com.devicetracker.ui.components.BodyText
-import com.devicetracker.ui.theme.AssetTrackerTheme
+import com.devicetracker.ui.components.LabelAndTextWithColor
+import com.devicetracker.ui.components.TextWithLabel
+import com.devicetracker.ui.getWidthInPercent
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit, navHostController: NavHostController) {
+fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController: NavHostController) {
     val assetViewModel : AssetViewModel = hiltViewModel()
-    val assetData by assetViewModel.fetchAssetDetailById(assetId).observeAsState()
-    val assignedHistories by assetViewModel.getAssetHistories(assetId).observeAsState(emptyList())
+    val assetData by assetViewModel.fetchAssetDetailById(assetDocId).observeAsState()
+    val assignedHistories by assetViewModel.getAssetHistories(assetDocId).observeAsState(emptyList())
     Scaffold(
         topBar = {
             TopBarWithTitleAndBackNavigation(titleText = assetData?.assetName ?: "NA", onNavUp)
@@ -65,7 +69,7 @@ fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit, navHostController: N
         floatingActionButton = {
             FloatingActionButton(
                 onClick = singleClick{
-                    navHostController.navigate("edit_asset/${assetId}")
+                    navHostController.navigate("edit_asset/${assetDocId}")
                 },
                 modifier = Modifier.padding(bottom = 24.dp)
             ) {
@@ -82,10 +86,11 @@ fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit, navHostController: N
             ) {
                 item {
                     AssetDetailSection(assetData)
-                    Spacer(modifier = Modifier.height(25.dp))
+                    HorizontalDivider(color = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.height(20.dp))
                     DescriptionSection(assetData?.description)
-                    Spacer(modifier = Modifier.height(25.dp))
-                    BlackLabelText("Assign History: ")
+                    Spacer(modifier = Modifier.height(15.dp))
+                    BlackLabelText("Assigned Histories")
                 }
                 assetHistorySection(assignedHistories)
             }
@@ -93,6 +98,7 @@ fun AssetDetailScreen(assetId: String, onNavUp: () -> Unit, navHostController: N
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AssetDetailSection(assetData: Asset?){
     val assetOwner = if(assetData != null && !assetData.assetOwnerName.isNullOrEmpty()){
@@ -100,40 +106,29 @@ fun AssetDetailSection(assetData: Asset?){
     } else {
         stringResource(id = R.string.str_un_assign)
     }
-    ElevatedCard (
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
-        ),
+    Column(
         modifier = Modifier
-            .padding(top = 60.dp, bottom = 8.dp)
             .fillMaxWidth()
-            .wrapContentHeight(align = Alignment.Top),
-        colors = CardDefaults.cardColors(containerColor = AssetTrackerTheme.colors.cardBackgroundColor)
-    ){
-        Column(
-            modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 18.dp, bottom = 18.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AssetPhoto(assetData?.imageUrl)
-            Row(Modifier.padding(top = 4.dp)) {
-                Text(text = stringResource(id = R.string.str_asset_type))
-                Text(text = assetData?.assetType.toString())
-            }
-            Row(Modifier.padding(top = 4.dp)) {
-                Text(text = stringResource(id = R.string.str_label_asset_model_name))
-                Text(text = assetData?.modelName.toString())
-            }
-            Row(Modifier.padding(top = 4.dp)) {
-                Text(text = stringResource(id = R.string.str_label_asset_serial_number))
-                Text(text = assetData?.serialNumber.toString())
-            }
-            Row(Modifier.padding(top = 4.dp)) {
-                Text(text = stringResource(id = R.string.str_current_owner))
-                Text(text = assetOwner)
-            }
-        }
+            .padding(top = TopAppBarDefaults.TopAppBarExpandedHeight, bottom = 18.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AssetPhoto(assetData?.imageUrl)
+        Spacer(modifier = Modifier.height(4.dp))
+        AssetDetailSectionRow(leftText = stringResource(id = R.string.str_asset_id), rightText = assetData?.assetId.toString())
+        AssetDetailSectionRow(leftText = stringResource(id = R.string.str_asset_type), rightText = assetData?.assetType.toString())
+        AssetDetailSectionRow(leftText = stringResource(id = R.string.str_label_asset_model_name), rightText = assetData?.modelName.toString())
+        AssetDetailSectionRow(leftText = stringResource(id = R.string.str_label_asset_serial_number), rightText = assetData?.serialNumber.toString())
+        AssetDetailSectionRow(leftText = stringResource(id = R.string.str_current_owner), rightText = assetOwner)
+        AssetDetailSectionRow(leftText = stringResource(id = R.string.str_asset_quantity), rightText = assetData?.quantity.toString())
+        AssetDetailSectionRow(leftText = stringResource(id = R.string.str_project_name), rightText = assetData?.projectName.toString())
+    }
+}
+
+@Composable
+fun AssetDetailSectionRow(leftText: String, rightText:String){
+    Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.Center) {
+        Text(modifier = Modifier.width(getWidthInPercent(50f)), text = "$leftText: ", textAlign = TextAlign.End)
+        Text(modifier = Modifier.width(getWidthInPercent(50f)), text = rightText, textAlign = TextAlign.Start)
     }
 }
 
@@ -141,10 +136,7 @@ fun AssetDetailSection(assetData: Asset?){
 @Composable
 fun DescriptionSection(text: String?) {
     if (!text.isNullOrBlank()) {
-        Row(Modifier.padding(top = 4.dp)) {
-            BlackLabelText("Description: ")
-            BodyText(text)
-        }
+        TextWithLabel(stringResource(id = R.string.str_description), text)
     }
 }
 
@@ -178,21 +170,14 @@ fun AssignHistoryRow(assetHistory: AssetHistory, navigateDeviceDetailCallBack: (
 fun AssignHistoryContent(assetHistory: AssetHistory) {
     Column(
         Modifier
-            .padding(start = 8.dp, end = 8.dp)
             .fillMaxWidth()
     ) {
         Text(
             text = assetHistory.assetOwnerName.toString(),
             style = MaterialTheme.typography.titleMedium
         )
-        Row {
-            Text(text = stringResource(id = R.string.str_admin_name), color = Color.Gray)
-            Text(text = assetHistory.adminEmail.toString())
-        }
-        Row {
-            Text(text = stringResource(id = R.string.str_asset_assign_date), color = Color.Gray)
-            Text(text = getDateStringFromTimestamp(assetHistory.createdAt))
-        }
+        LabelAndTextWithColor(labelText = stringResource(id = R.string.str_assigned_by), normalText = assetHistory.adminEmail.toString(), color = Color.Gray)
+        LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_assign_date), normalText = getDateStringFromTimestamp(assetHistory.createdAt), color = Color.Gray)
     }
 }
 
@@ -207,7 +192,7 @@ fun LazyListScope.assetHistorySection(assignedHistories: List<AssetHistory>) {
 @Composable
 fun AssetPhoto(imageUrl : String?){
     Card(
-        shape = CircleShape,
+        shape = RoundedCornerShape(5.dp),
         border = BorderStroke(
             width = 2.dp,
             color = MaterialTheme.colorScheme.secondary,
@@ -222,10 +207,12 @@ fun AssetPhoto(imageUrl : String?){
                 .data(imageUrl)
                 .crossfade(true)
                 .build(),
-            placeholder = painterResource(R.drawable.ic_baseline_users),
+            placeholder = painterResource(R.drawable.ic_devices),
             contentDescription = stringResource(R.string.app_name),
             contentScale = ContentScale.Crop,
-            modifier = Modifier.size(120.dp)
+            modifier = Modifier
+                .fillMaxWidth(0.6f)
+                .height(130.dp)
         )
     }
 }
