@@ -27,6 +27,10 @@ import javax.inject.Inject
 class AssetViewModel @Inject constructor(
     private val repo: AssetRepository
 ) :  ViewModel() {
+
+    private val _assets = MutableLiveData<List<Asset>>()
+    val assets: LiveData<List<Asset>> get() = _assets
+
     private val _asset = MutableLiveData<Asset>()
     val asset: LiveData<Asset> = _asset
 
@@ -44,6 +48,10 @@ class AssetViewModel @Inject constructor(
 
     private var updateAssetResponse by mutableStateOf<AddAssetResponse>(Response.Success(false))
 
+    init {
+        refreshAssets()
+    }
+
     fun uploadImageAndAddNewAssetToFirebase(
         imageUri: Uri?,
         imageBitmap: Bitmap?,
@@ -56,6 +64,7 @@ class AssetViewModel @Inject constructor(
         assetId: String,
         assetQuantity: String,
         projectName: String,
+        assetWorkingStatus: Boolean,
         onNavUp: () -> Unit
     ) = viewModelScope.launch {
         addedAssetResponse = Response.Loading
@@ -71,6 +80,7 @@ class AssetViewModel @Inject constructor(
             assetId,
             assetQuantity,
             projectName,
+            assetWorkingStatus,
             onNavUp
         )
     }
@@ -84,11 +94,14 @@ class AssetViewModel @Inject constructor(
         _models.value = repo.getModelsForAssetType(assetType)
     }
 
-    val assets = liveData(Dispatchers.IO) {
-        emit(fetchAssets())
+    fun refreshAssets() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newAssets = fetchAssets()
+            _assets.postValue(newAssets)
+        }
     }
 
-    suspend fun fetchAssets(): GetAssetsResponse {
+    private suspend fun fetchAssets(): GetAssetsResponse {
         isLoaderShowing = true
         val result = repo.getAssetsFromFirebase()
         isLoaderShowing = false
@@ -130,7 +143,7 @@ class AssetViewModel @Inject constructor(
     }
 
     // Function to upload image and update the asset in Firebase
-    fun uploadImageAndUpdateAsset(assetDocId: String, isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, assetModelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, onNavUp: () -> Unit) = viewModelScope.launch {
+    fun uploadImageAndUpdateAsset(assetDocId: String, isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, assetModelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean, onNavUp: () -> Unit) = viewModelScope.launch {
         updateAssetResponse = Response.Loading
         updateAssetResponse = repo.uploadImageAndUpdateAsset(
             assetDocId,
@@ -146,6 +159,7 @@ class AssetViewModel @Inject constructor(
             assetId,
             assetQuantity,
             projectName,
+            assetWorkingStatus,
             onNavUp
         )
     }

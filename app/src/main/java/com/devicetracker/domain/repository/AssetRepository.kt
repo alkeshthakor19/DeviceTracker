@@ -16,7 +16,7 @@ typealias UpdateAssetResponse = Response<Boolean>
 typealias AddModelResponse = Response<Boolean>
 
 interface AssetRepository {
-    suspend fun addAsset(assetName: String, assetType: String, modelName: String, serialNumber: String, description: String ,selectedMember: Member, imageUrl: String, assetId: String, assetQuantity: String, projectName: String): AddAssetResponse
+    suspend fun addAsset(assetName: String, assetType: String, modelName: String, serialNumber: String, description: String ,selectedMember: Member, imageUrl: String, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean): AddAssetResponse
 
     suspend fun uploadImageAndAddNewAssetToFirebase(
         imageUri: Uri?,
@@ -30,6 +30,7 @@ interface AssetRepository {
         assetId: String,
         assetQuantity: String,
         projectName: String,
+        assetWorkingStatus: Boolean,
         onNavUp: () -> Unit
     ) : AddAssetResponse
 
@@ -50,7 +51,8 @@ interface AssetRepository {
         imageUrl: String?,
         assetId: String,
         assetQuantity: String,
-        projectName: String
+        projectName: String,
+        assetWorkingStatus: Boolean
     ): UpdateAssetResponse
 
     suspend fun uploadImageAndUpdateAsset(
@@ -67,6 +69,7 @@ interface AssetRepository {
         assetId: String,
         assetQuantity: String,
         projectName: String,
+        assetWorkingStatus: Boolean,
         onNavUp: () -> Unit
     ): UpdateAssetResponse
 

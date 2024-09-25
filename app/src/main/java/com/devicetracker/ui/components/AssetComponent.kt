@@ -43,7 +43,7 @@ fun AssetNameField(assetName: TextFieldState) {
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         singleLine = true
     )
-    assetName.getError()?.let {error ->
+    assetName.getError(stringResource(R.string.str_asset_name))?.let {error ->
         TextFieldError(textError = error )
     }
 }
@@ -66,7 +66,7 @@ fun AssetIdField(assetId: TextFieldState) {
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         singleLine = true
     )
-    assetId.getError()?.let {error ->
+    assetId.getError(stringResource(R.string.str_asset_id))?.let { error ->
         TextFieldError(textError = error )
     }
 }
@@ -132,7 +132,7 @@ fun AssetDescriptionField(description: TextFieldState) {
         singleLine = false,
         maxLines = 3
     )
-    description.getError()?.let {error ->
+    description.getError(stringResource(R.string.str_description_name))?.let { error ->
         TextFieldError(textError = error )
     }
 }
@@ -155,7 +155,7 @@ fun AssetModelField(model: TextFieldState) {
         //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Go),
         singleLine = true
     )
-    model.getError()?.let {error ->
+    model.getError(stringResource(R.string.str_asset_model_name))?.let { error ->
         TextFieldError(textError = error )
     }
 }
@@ -177,7 +177,7 @@ fun AssetSerialNumberField(assetSerialNumber: TextFieldState) {
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         singleLine = true
     )
-    assetSerialNumber.getError()?.let {error ->
+    assetSerialNumber.getError(stringResource(R.string.str_asset_serial_number))?.let { error ->
         TextFieldError(textError = error )
     }
 }
@@ -196,10 +196,10 @@ fun AssetQuantityField(quantity: TextFieldState) {
             Text(text = stringResource(R.string.str_asset_quantity))
         },
         isError = quantity.showError(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
         singleLine = true
     )
-    quantity.getError()?.let {error ->
+    quantity.getError(stringResource(R.string.str_asset_quantity))?.let { error ->
         TextFieldError(textError = error )
     }
 }
@@ -221,7 +221,7 @@ fun ProjectNameField(projectName: TextFieldState) {
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         singleLine = true
     )
-    projectName.getError()?.let {error ->
+    projectName.getError(stringResource(R.string.str_project_name))?.let { error ->
         TextFieldError(textError = error )
     }
 }

@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,12 +44,6 @@ import com.devicetracker.ui.theme.AssetTrackerTheme
 @Composable
 fun HomeScreen(openDrawer: () -> Unit) {
     val homeScreenVM: HomeScreenVM = hiltViewModel()
-
-    @Composable
-    fun getAssetByType(assetType:String): List<Asset> {
-        val assetList by homeScreenVM.fetchAssetsByAssetType(assetType).observeAsState(emptyList())
-        return  assetList
-    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // TopAppBar has slots for a title, navigation icon,
@@ -76,7 +69,7 @@ fun HomeScreen(openDrawer: () -> Unit) {
         Surface(modifier = Modifier.weight(1f)) {
             val differentTypeAssetList = mutableMapOf<String, List<Asset>?>()
             AssetType.entries.forEach { assetType ->
-                differentTypeAssetList[assetType.name] = getAssetByType(assetType.name)
+                differentTypeAssetList[assetType.name] = homeScreenVM.fetchAssetsByAssetType(assetType.name).observeAsState().value
             }
             LazyColumn(
                 // content padding
@@ -87,17 +80,17 @@ fun HomeScreen(openDrawer: () -> Unit) {
                     bottom = 16.dp
                 )
             ){
-                if (homeScreenVM.isLoaderShowing) {
+                /*if (homeScreenVM.isLoaderShowing) {
                     item {
                         ProgressBar()
                     }
-                } else {
+                } else {*/
                     items(differentTypeAssetList.entries.toList()){
-                        val assignCount = it.value?.filter { it.assetOwnerId != UNASSIGN_ID }?.size?:0
-                        val unAssignCount = it.value?.filter { it.assetOwnerId == UNASSIGN_ID }?.size?:0
+                        val assignCount = it.value?.filter { asset -> asset.assetOwnerId != UNASSIGN_ID }?.size?:0
+                        val unAssignCount = it.value?.filter { asset -> asset.assetOwnerId == UNASSIGN_ID }?.size?:0
                         AssetShortInfo(it.key, assignCount, unAssignCount)
                     }
-                }
+                //}
             }
         }
     }

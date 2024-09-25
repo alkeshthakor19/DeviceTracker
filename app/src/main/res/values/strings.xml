@@ -14,7 +14,7 @@
     <string name="str_home">Home</string>
     <string name="str_logout">Logout</string>
 
-    <string name="str_emp_code">Emp Code</string>
+    <string name="str_emp_code">Emp. Code</string>
     <string name="str_email">Email</string>
 
     <string name="str_asset_type">Type</string>
@@ -22,7 +22,7 @@
     <string name="str_label_asset_serial_number">Serial No.</string>
     <string name="str_label_asset_model_name">Name </string>
     <string name="str_asset_model_name">Model Name </string>
-    <string name="str_asset_assign_date">Assign Date</string>
+    <string name="str_asset_assign_date">Assgn. Dt.</string>
     <string name="str_device_type_tab">TAB</string>
     <string name="str_device_type_storage">USB STORAGE</string>
     <string name="str_device_type_cable">CABLE</string>
@@ -40,6 +40,9 @@
     <string name="str_un_assign">Un Assign</string>
     <string name="str_description_name">Description</string>
 
-    <string name="str_assigned_by">Assigned By</string>
+    <string name="str_assigned_by">Assgn. By</string>
     <string name="str_current_owner">Current Owner</string>
+    <string name="str_working_status">Working Status</string>
+    <string name="str_yes">Yes</string>
+    <string name="str_no">No</string>
 </resources>

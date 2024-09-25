@@ -32,7 +32,13 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,6 +61,7 @@ import com.devicetracker.ui.Destinations.MEMBER_SEARCH
 import com.devicetracker.ui.Destinations.NEW_MEMBER
 import com.devicetracker.ui.components.LabelAndTextWithColor
 import com.devicetracker.ui.components.MemberEmailRowSection
+import com.devicetracker.ui.dashbord.assets.Asset
 import com.devicetracker.ui.getFontSizeByPercent
 import com.devicetracker.ui.theme.AssetTrackerTheme
 import kotlinx.coroutines.Dispatchers
@@ -65,17 +72,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
     val memberViewModel: MemberViewModel = hiltViewModel()
-    var members = emptyList<Member>()
-    val coroutineScope = rememberCoroutineScope()
-    memberViewModel.members.observe(LocalLifecycleOwner.current) {
-        members = it
-    }
+    val isEditablePermission by memberViewModel.isEditableUser().observeAsState(false)
+    val members by memberViewModel.members.observeAsState(initial = emptyList())
     val state = rememberPullToRefreshState()
     val onRefresh: () -> Unit = {
         Log.d("MemberList", "nkp onRefresh call")
-        coroutineScope.launch(Dispatchers.IO) {
-            members = memberViewModel.fetchMembers()
-        }
+        memberViewModel.refreshMembers()
     }
 
     Scaffold (
@@ -99,8 +101,10 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
             )
         },
         floatingActionButton = {
-            AppFloatingButton {
-                navHostController.navigate(NEW_MEMBER)
+            if(isEditablePermission){
+                AppFloatingButton {
+                    navHostController.navigate(NEW_MEMBER)
+                }
             }
         }
     ) {

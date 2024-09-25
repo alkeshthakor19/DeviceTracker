@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import com.devicetracker.R
-import com.devicetracker.ui.getFontSizeByPercent
 
 @Composable
 fun TextFieldError(textError: String = "Invalid email") {
@@ -59,7 +58,7 @@ fun EmailField(emailState: TextFieldState) {
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
         singleLine = true
     )
-    emailState.getError()?.let {error ->
+    emailState.getError(stringResource(R.string.str_email_address))?.let { error ->
         TextFieldError(textError = error, )
     }
 }
@@ -70,7 +69,9 @@ fun PasswordTextField(
 ) {
     OutlinedTextField(
         value = passwordState.text,
-        modifier = Modifier.fillMaxWidth(0.95f),
+        modifier = Modifier.fillMaxWidth(0.95f) .onFocusChanged {
+            passwordState.onFocusChange(it.isFocused)
+        },
         onValueChange = {
             passwordState.text = it
         },
@@ -82,6 +83,9 @@ fun PasswordTextField(
         isError = passwordState.showError(),
         visualTransformation = PasswordVisualTransformation()
     )
+    passwordState.getError(stringResource(R.string.str_password))?.let { error ->
+        TextFieldError(textError = error, )
+    }
 }
 
 @Composable
@@ -106,7 +110,7 @@ fun EmployeeCodeField(employeeCode: TextFieldState) {
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
         singleLine = true
     )
-    employeeCode.getError()?.let { error ->
+    employeeCode.getError(stringResource(R.string.str_employee_code))?.let { error ->
         TextFieldError(textError = error, )
     }
 }
@@ -132,7 +136,7 @@ fun MemberNameField(memberName: TextFieldState) {
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
         singleLine = true
     )
-    memberName.getError()?.let {error ->
+    memberName.getError(stringResource(R.string.str_member_name))?.let { error ->
         TextFieldError(textError = error, )
     }
 }
@@ -172,7 +176,7 @@ fun MemberMobileField(empMobileNo: TextFieldState) {
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next),
         singleLine = true
     )
-    empMobileNo.getError()?.let { error ->
+    empMobileNo.getError(stringResource(R.string.str_mobile_number))?.let { error ->
         TextFieldError(textError = error, )
     }
 }

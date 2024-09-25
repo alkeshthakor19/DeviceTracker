@@ -26,12 +26,13 @@ object Constants {
     const val ASSET_OWNER_ID = "assetOwnerId"
     const val ASSET_OWNER_NAME = "assetOwnerName"
     const val LAST_VERIFICATION_AT = "lastVerificationAt"
+    const val ASSET_WORKING_STATUS = "assetWorkingStatus"
 
     //Member
     const val EMPLOYEE_CODE = "employeeCode"
     const val MEMBER_NAME = "memberName"
     const val EMAIL_ADDRESS = "emailAddress"
-    const val IS_WRITABLE_PERMISSION = "isWritablePermission"
+    const val IS_WRITABLE_PERMISSION = "writablePermission"
     const val MOBILE_NUMBER = "mobileNumber"
 
     // Common

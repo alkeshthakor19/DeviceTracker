@@ -17,6 +17,7 @@ data class Asset(
     val assetOwnerName: String? = null,
     val imageUrl: String = Constants.EMPTY_STR,
     val lastVerificationAt : Timestamp? = null,
+    val assetWorkingStatus : Boolean = false,
     val createdAt : Timestamp? = null,
     val updatedAt : Timestamp? = null
 )

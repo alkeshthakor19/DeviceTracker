@@ -26,4 +26,6 @@ interface MemberRepository {
     suspend fun getMembersFromFirebase() : GetMembersResponse
 
     suspend fun getMembersDetailById(memberId: String) : GetMembersByIdResponse
+
+    suspend fun isEditableUser() : Boolean
 }

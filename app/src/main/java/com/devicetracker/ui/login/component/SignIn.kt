@@ -1,6 +1,5 @@
 package com.devicetracker.ui.login.component
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
@@ -23,7 +22,6 @@ fun SignIn(
             val isSignedIn = signInResponse.data
             if (isSignedIn) {
                 showMessage(context, "Login successfully!!")
-                Log.d("SignIn", "nkp Login success")
                 onLoginSuccess()
             }
             Unit

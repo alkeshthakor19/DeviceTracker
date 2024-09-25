@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,17 +36,20 @@ import com.devicetracker.ui.Destinations.LOGIN_ROUTE
 import com.devicetracker.ui.Destinations.LOGOUT
 import com.devicetracker.ui.Destinations.MEMBERS
 import com.devicetracker.ui.AuthViewModel
+import com.devicetracker.ui.dashbord.member.MemberViewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun DashboardRoute(mainNavHostController: NavHostController) {
+     val memberViewModel : MemberViewModel = hiltViewModel()
+     val isEditablePermission by memberViewModel.isEditableUser().observeAsState(false)
      val navigationController = rememberNavController()
      val authViewModel: AuthViewModel = hiltViewModel()
      val isAuthenticated by authViewModel.isAuthenticated.collectAsState()
 
      ///List of Navigation Items that will be clicked
-     val items = listOf(
+     var items = mutableListOf(
           NavigationItems(
                title = stringResource(id = R.string.str_home),
                selectedIcon = R.drawable.ic_home_black,
@@ -65,18 +69,21 @@ fun DashboardRoute(mainNavHostController: NavHostController) {
                route = MEMBERS
           ),
           NavigationItems(
-               title = stringResource(id = R.string.str_asset_models),
-               selectedIcon = R.drawable.ic_devices_other,
-               unselectedIcon = R.drawable.ic_devices_other_white,
-               route = ASSET_MODEL
-          ),
-          NavigationItems(
                title = stringResource(id = R.string.str_logout),
                selectedIcon = R.drawable.ic_logout_black,
                unselectedIcon = R.drawable.ic_logout_white,
                route = LOGOUT
           )
      )
+
+     if(isEditablePermission) {
+          items.add((items.size - 1), NavigationItems(
+               title = stringResource(id = R.string.str_asset_models),
+               selectedIcon = R.drawable.ic_devices_other,
+               unselectedIcon = R.drawable.ic_devices_other_white,
+               route = ASSET_MODEL
+          ))
+     }
 
      //Remember Clicked item state
      var selectedItemIndex by rememberSaveable {

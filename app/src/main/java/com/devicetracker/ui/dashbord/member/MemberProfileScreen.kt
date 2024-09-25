@@ -91,13 +91,16 @@ fun MemberProfileScreen(
             Log.d("MemberProfileScreen", "nkp assetListByMemberId1 size ${assetListByMemberId.value.size}")
         }
     }
+    val isEditablePermission by memberViewModel.isEditableUser().observeAsState(false)
     Scaffold(
         topBar = {
             TopBarWithTitleAndBackNavigation(titleText = memberData?.memberName?: "NA", onNavUp)
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { }, modifier = Modifier.padding(bottom = 24.dp) ) {
-                Icon(Icons.Filled.Edit, contentDescription ="Edit Member Detail" )
+            if(isEditablePermission) {
+                FloatingActionButton(onClick = { }, modifier = Modifier.padding(bottom = 24.dp) ) {
+                    Icon(Icons.Filled.Edit, contentDescription ="Edit Member Detail" )
+                }
             }
         }
     ) {
@@ -155,10 +158,16 @@ fun ProfileDetailSection(memberData: Member?){
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleMedium,
                 fontStyle = FontStyle.Italic,
-                fontSize = getFontSizeByPercent(fontSizeInPercent = 6f)
+                fontSize = getFontSizeByPercent(fontSizeInPercent = 5f)
             )
         }
         MemberFieldRow(labelText = stringResource(id = R.string.str_emp_code), bodyText = memberData?.employeeCode.toString())
+        if(!memberData?.mobileNumber.isNullOrEmpty()) {
+            MemberFieldRow(
+                labelText = stringResource(id = R.string.str_mobile_number),
+                bodyText = memberData?.mobileNumber.toString()
+            )
+        }
         MemberEmailRowSection(
             labelText = stringResource(id = R.string.str_email),
             valueText = memberData?.emailAddress.toString(),
@@ -171,7 +180,7 @@ fun ProfileDetailSection(memberData: Member?){
 @Composable
 fun MemberFieldRow(labelText: String, bodyText: String){
     Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.Center) {
-        Text(modifier = Modifier.width(getWidthInPercent(50f)), text = "$labelText: ", textAlign = TextAlign.End, fontSize = getFontSizeByPercent(fontSizeInPercent = 4f))
+        Text(modifier = Modifier.width(getWidthInPercent(50f)), text = "$labelText: ", textAlign = TextAlign.End, fontSize = getFontSizeByPercent(fontSizeInPercent = 4f), color = Color.Gray)
         Text(modifier = Modifier.width(getWidthInPercent(50f)), text = bodyText, textAlign = TextAlign.Start, fontSize = getFontSizeByPercent(fontSizeInPercent = 4f))
     }
 }
@@ -228,7 +237,7 @@ fun AssignAssetContent(asset: Asset) {
         )
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_type), normalText = asset.assetType.toString(), color = Color.Gray)
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_label_asset_model_name), normalText = asset.modelName.toString(), color = Color.Gray)
-        LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_assign_date), normalText = getDateStringFromTimestamp(asset.createdAt), color = Color.Gray)
+        LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_assign_date), normalText = getDateStringFromTimestamp(asset.createdAt), color = Color.Gray, fontSize = getFontSizeByPercent(3.5f))
         /*Row {
             Text(text = stringResource(id = R.string.str_label_asset_serial_number), color = Color.Gray)
             Text(text = asset.serialNumber.toString())

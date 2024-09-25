@@ -35,9 +35,9 @@ open class TextFieldState(
 
     fun showError() = !isValid && displayError
 
-    open fun getError(): String? {
+    open fun getError(fieldName: String): String? {
         return if(showError()) {
-            if (text.isBlank()) "Cannot be empty" else errorFor(text)
+            if (text.isBlank()) "$fieldName can't be empty" else errorFor(text)
         } else null
     }
 }

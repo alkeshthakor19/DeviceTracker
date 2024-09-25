@@ -14,6 +14,7 @@ import com.devicetracker.core.Constants.ASSET_OWNER_NAME
 import com.devicetracker.core.Constants.ASSET_QUANTITY
 import com.devicetracker.core.Constants.ASSET_SERIAL_NUMBER
 import com.devicetracker.core.Constants.ASSET_TYPE
+import com.devicetracker.core.Constants.ASSET_WORKING_STATUS
 import com.devicetracker.core.Constants.COLLECTION_ASSETS
 import com.devicetracker.core.Constants.COLLECTION_ASSETS_HISTORY
 import com.devicetracker.core.Constants.COLLECTION_ASSETS_MODELS
@@ -60,7 +61,8 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         imageUrl: String,
         assetId: String,
         assetQuantity: String,
-        projectName: String
+        projectName: String,
+        assetWorkingStatus: Boolean
     ): AddAssetResponse = try {
         val assetOwnerName = if(selectedMember.memberId == UNASSIGN_ID) {
             EMPTY_STR
@@ -79,6 +81,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             ASSET_OWNER_ID to selectedMember.memberId,
             ASSET_OWNER_NAME to assetOwnerName,
             IMAGE_URL to imageUrl,
+            ASSET_WORKING_STATUS to assetWorkingStatus,
             LAST_VERIFICATION_AT to serverTimestamp(),
             CREATED_AT to serverTimestamp(),
             UPDATED_AT to serverTimestamp()
@@ -129,6 +132,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         assetId: String,
         assetQuantity: String,
         projectName: String,
+        assetWorkingStatus: Boolean,
         onNavUp: () -> Unit
     ): AddAssetResponse = try {
         val imageRef = storageReference.child("$FIRE_STORAGE_IMAGES/${UUID.randomUUID()}.jpg")
@@ -145,7 +149,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
 
         uploadTask.await()
         val resultUri = imageRef.downloadUrl.await()
-        addAsset(assetName, assetType,modelName, serialNumber, description, selectedMember, resultUri.toString(), assetId, assetQuantity, projectName)
+        addAsset(assetName, assetType,modelName, serialNumber, description, selectedMember, resultUri.toString(), assetId, assetQuantity, projectName, assetWorkingStatus)
         onNavUp()
         Success(true)
     } catch (e: Exception) {
@@ -176,6 +180,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             asset = document.toObject(Asset::class.java)
             if (asset != null) {
                 asset.assetDocId = document.id
+                Log.d("AssetRepo", "nkp id ${asset.assetId} workingStatus : ${asset.assetWorkingStatus}")
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -214,6 +219,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         assetId: String,
         assetQuantity: String,
         projectName: String,
+        assetWorkingStatus: Boolean
     ): UpdateAssetResponse {
         val assetOwnerName = if(selectedOwner != null && selectedOwner.memberId != UNASSIGN_ID) {
             selectedOwner.memberName
@@ -233,6 +239,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
                 ASSET_DESCRIPTION to description,
                 ASSET_OWNER_ID to assetOwnerId,
                 ASSET_OWNER_NAME to assetOwnerName,
+                ASSET_WORKING_STATUS to assetWorkingStatus,
                 UPDATED_AT to serverTimestamp()
             )
             if (imageUrl != null) {
@@ -271,6 +278,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         assetId: String,
         assetQuantity: String,
         projectName: String,
+        assetWorkingStatus: Boolean,
         onNavUp: () -> Unit
     ): UpdateAssetResponse {
         return try {
@@ -305,7 +313,8 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
                 resultUri,
                 assetId,
                 assetQuantity,
-                projectName
+                projectName,
+                assetWorkingStatus
             )
             if (updateResponse is Success && updateResponse.data) {
                 onNavUp()

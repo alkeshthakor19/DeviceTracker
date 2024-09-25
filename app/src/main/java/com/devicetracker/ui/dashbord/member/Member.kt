@@ -8,7 +8,8 @@ data class Member(
     val employeeCode: Int? = null,
     val memberName: String = Constants.EMPTY_STR,
     val emailAddress: String = Constants.EMPTY_STR,
+    val mobileNumber: String = Constants.EMPTY_STR,
     val imageUrl: String = Constants.EMPTY_STR,
-    val isWritablePermission: Boolean = false,
+    val writablePermission: Boolean = false,
     val createdAt : Timestamp? = null
 )

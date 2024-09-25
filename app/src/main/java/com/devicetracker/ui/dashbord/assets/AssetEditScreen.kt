@@ -71,6 +71,7 @@ import com.devicetracker.ui.components.AssetQuantityField
 import com.devicetracker.ui.components.AssetQuantityState
 import com.devicetracker.ui.components.AssetSerialNumberField
 import com.devicetracker.ui.components.AssetSerialNumberState
+import com.devicetracker.ui.components.AssetStatusRadioButtons
 import com.devicetracker.ui.components.AssetTypeSpinner
 import com.devicetracker.ui.components.ModelDropdown
 import com.devicetracker.ui.components.OwnerSpinner
@@ -85,6 +86,7 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val assetViewModel: AssetViewModel = hiltViewModel()
     val assetData by assetViewModel.fetchAssetDetailById(assetDocId).observeAsState()
+
     Scaffold(
             topBar = {
                 TopBarWithTitleAndBackNavigation(titleText = "Edit Asset", onNavUp = onNavUp)
@@ -105,7 +107,7 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
                     ProgressBar()
                 } else{
                     UpdateAsset(
-                        onAssetSaved = { isNeedToUpdateImageUrl, imageUri, imageBitmap, assetName, assetType, assetModelName, serialNumber, description, selectedOwner, assetId, assetQuantity, projectName ->
+                        onAssetSaved = { isNeedToUpdateImageUrl, imageUri, imageBitmap, assetName, assetType, assetModelName, serialNumber, description, selectedOwner, assetId, assetQuantity, projectName, assetWorkingStatus ->
                             assetViewModel.uploadImageAndUpdateAsset(
                                 assetDocId,
                                 isNeedToUpdateImageUrl,
@@ -120,6 +122,7 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
                                 assetId,
                                 assetQuantity,
                                 projectName,
+                                assetWorkingStatus,
                                 onNavUp
                             )
                         },
@@ -134,7 +137,7 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
 
 @Composable
 fun UpdateAsset(
-    onAssetSaved: (isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String) -> Unit,
+    onAssetSaved: (isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?,
     initialAssetData: Asset?
@@ -190,6 +193,8 @@ fun UpdateAsset(
     val projectNameState = remember { ProjectNameState() }
     projectNameState.text = initialAssetData?.projectName ?: Constants.EMPTY_STR
 
+    var assetWorkingStatus by remember { mutableStateOf(initialAssetData?.assetWorkingStatus ?: true) }
+
     val galleryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
@@ -215,7 +220,7 @@ fun UpdateAsset(
         } else {
             onAssetSaved(isNeedToUpdateImageUrl, imageUri, imageBitmap, assetNameState.text,
                 selectedAssetType.value, selectedModel.value, serialNumberState.text, description.text, selectedOwner.value,
-                assetIdState.text, assetQuantityState.text, projectNameState.text
+                assetIdState.text, assetQuantityState.text, projectNameState.text, assetWorkingStatus
             )
         }
     }
@@ -294,6 +299,10 @@ fun UpdateAsset(
             }
             AssetQuantityField(quantity = assetQuantityState)
             ProjectNameField(projectName = projectNameState)
+            AssetStatusRadioButtons(
+                assetWorkingStatus = assetWorkingStatus,
+                onStatusChange = { status -> assetWorkingStatus = status }
+            )
             AssetDescriptionField(description = description)
 
             Spacer(modifier = Modifier.height(15.dp))

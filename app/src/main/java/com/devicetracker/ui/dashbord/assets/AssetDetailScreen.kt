@@ -33,6 +33,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,6 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -54,26 +56,32 @@ import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.BlackLabelText
 import com.devicetracker.ui.components.LabelAndTextWithColor
 import com.devicetracker.ui.components.TextWithLabel
+import com.devicetracker.ui.dashbord.member.MemberViewModel
+import com.devicetracker.ui.getFontSizeByPercent
 import com.devicetracker.ui.getWidthInPercent
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController: NavHostController) {
     val assetViewModel : AssetViewModel = hiltViewModel()
-    val assetData by assetViewModel.fetchAssetDetailById(assetDocId).observeAsState()
+    val assetData = remember(assetDocId) { assetViewModel.fetchAssetDetailById(assetDocId) }.observeAsState()
     val assignedHistories by assetViewModel.getAssetHistories(assetDocId).observeAsState(emptyList())
+    val memberViewModel: MemberViewModel = hiltViewModel()
+    val isEditablePermission by memberViewModel.isEditableUser().observeAsState(false)
     Scaffold(
         topBar = {
-            TopBarWithTitleAndBackNavigation(titleText = assetData?.assetName ?: "NA", onNavUp)
+            TopBarWithTitleAndBackNavigation(titleText = assetData.value?.assetName ?: "NA", onNavUp)
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = singleClick{
-                    navHostController.navigate("edit_asset/${assetDocId}")
-                },
-                modifier = Modifier.padding(bottom = 24.dp)
-            ) {
-                Icon(Icons.Filled.Edit, contentDescription ="Edit Asset Detail" )
+            if(isEditablePermission) {
+                FloatingActionButton(
+                    onClick = singleClick{
+                        navHostController.navigate("edit_asset/${assetDocId}")
+                    },
+                    modifier = Modifier.padding(bottom = 24.dp)
+                ) {
+                    Icon(Icons.Filled.Edit, contentDescription ="Edit Asset Detail" )
+                }
             }
         }
     ) {
@@ -85,10 +93,10 @@ fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController
                 contentPadding = PaddingValues(16.dp)
             ) {
                 item {
-                    AssetDetailSection(assetData)
+                    AssetDetailSection(assetData.value)
                     HorizontalDivider(color = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.height(20.dp))
-                    DescriptionSection(assetData?.description)
+                    DescriptionSection(assetData.value?.description)
                     Spacer(modifier = Modifier.height(15.dp))
                     BlackLabelText("Assigned Histories")
                 }
@@ -114,21 +122,47 @@ fun AssetDetailSection(assetData: Asset?){
     ) {
         AssetPhoto(assetData?.imageUrl)
         Spacer(modifier = Modifier.height(4.dp))
+        assetData?.assetName?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.titleMedium,
+                fontStyle = FontStyle.Italic,
+                fontSize = getFontSizeByPercent(fontSizeInPercent = 5f)
+            )
+        }
         AssetDetailSectionRow(leftText = stringResource(id = R.string.str_asset_id), rightText = assetData?.assetId.toString())
         AssetDetailSectionRow(leftText = stringResource(id = R.string.str_asset_type), rightText = assetData?.assetType.toString())
         AssetDetailSectionRow(leftText = stringResource(id = R.string.str_label_asset_model_name), rightText = assetData?.modelName.toString())
         AssetDetailSectionRow(leftText = stringResource(id = R.string.str_label_asset_serial_number), rightText = assetData?.serialNumber.toString())
-        AssetDetailSectionRow(leftText = stringResource(id = R.string.str_current_owner), rightText = assetOwner)
         AssetDetailSectionRow(leftText = stringResource(id = R.string.str_asset_quantity), rightText = assetData?.quantity.toString())
         AssetDetailSectionRow(leftText = stringResource(id = R.string.str_project_name), rightText = assetData?.projectName.toString())
+        val workingStatus = if(assetData?.assetWorkingStatus == true) {
+            stringResource(id = R.string.str_yes)
+        } else {
+            stringResource(id = R.string.str_no)
+        }
+        AssetDetailSectionRow(leftText = stringResource(id = R.string.str_working_status), rightText = workingStatus)
+        AssetDetailSectionRow(leftText = stringResource(id = R.string.str_current_owner), rightText = assetOwner)
     }
 }
 
 @Composable
 fun AssetDetailSectionRow(leftText: String, rightText:String){
-    Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.Center) {
-        Text(modifier = Modifier.width(getWidthInPercent(50f)), text = "$leftText: ", textAlign = TextAlign.End)
-        Text(modifier = Modifier.width(getWidthInPercent(50f)), text = rightText, textAlign = TextAlign.Start)
+    Row(horizontalArrangement = Arrangement.Center) {
+        Text(
+            modifier = Modifier.width(getWidthInPercent(45f)), 
+            fontSize = getFontSizeByPercent(fontSizeInPercent = 3.4f),
+            text = "$leftText:  ", 
+            textAlign = TextAlign.End, 
+            color = Color.Gray
+        )
+        Text(
+            modifier = Modifier.width(getWidthInPercent(55f)), 
+            fontSize = getFontSizeByPercent(fontSizeInPercent = 3.4f),
+            text = rightText, 
+            textAlign = TextAlign.Start
+        )
     }
 }
 

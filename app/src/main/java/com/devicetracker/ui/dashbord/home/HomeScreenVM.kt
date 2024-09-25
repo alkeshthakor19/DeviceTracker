@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import com.devicetracker.domain.repository.AssetRepository
-import com.devicetracker.domain.repository.AuthRepository
 import com.devicetracker.ui.dashbord.assets.Asset
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

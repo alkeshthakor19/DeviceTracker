@@ -31,7 +31,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,6 +58,8 @@ import com.devicetracker.ui.Destinations.ASSET_SEARCH
 import com.devicetracker.ui.Destinations.NEW_ASSET
 import com.devicetracker.ui.components.LabelAndTextWithColor
 import com.devicetracker.ui.components.NoDataMessage
+import com.devicetracker.ui.dashbord.member.Member
+import com.devicetracker.ui.dashbord.member.MemberViewModel
 import com.devicetracker.ui.theme.AssetTrackerTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -62,19 +69,16 @@ import kotlinx.coroutines.launch
 @Composable
 fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
     val assetViewModel: AssetViewModel = hiltViewModel()
-    var assets = emptyList<Asset>()
-    val coroutineScope = rememberCoroutineScope()
-    assetViewModel.assets.observe(LocalLifecycleOwner.current) {
-        assets = it
-    }
+    // Observe LiveData from ViewModel
+    val assets by assetViewModel.assets.observeAsState(initial = emptyList())
+    Log.d("AssetListScreen", "nkp 1 size of assets  ${assets.size}")
     val state = rememberPullToRefreshState()
     val onRefreshAsset: () -> Unit = {
         Log.d("MemberList", "nkp onRefresh call")
-        coroutineScope.launch(Dispatchers.IO) {
-            assets = assetViewModel.fetchAssets()
-        }
+        assetViewModel.refreshAssets()
     }
-
+    val memberViewModel: MemberViewModel = hiltViewModel()
+    val isEditablePermission by memberViewModel.isEditableUser().observeAsState(false)
     Scaffold(
         topBar = {
             TopAppBar(
@@ -96,8 +100,10 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
             )
         },
         floatingActionButton = {
-            AppFloatingButton {
-                navHostController.navigate(NEW_ASSET)
+            if(isEditablePermission) {
+                AppFloatingButton {
+                    navHostController.navigate(NEW_ASSET)
+                }
             }
         }
     ) {
@@ -175,7 +181,9 @@ fun AssetPicture(asset: Asset, imageSize: Int) {
             placeholder = painterResource(resourceId),
             contentDescription = stringResource(R.string.app_name),
             contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxWidth(0.25f).size(imageSize.dp)
+            modifier = Modifier
+                .fillMaxWidth(0.25f)
+                .size(imageSize.dp)
         )
     }
 }

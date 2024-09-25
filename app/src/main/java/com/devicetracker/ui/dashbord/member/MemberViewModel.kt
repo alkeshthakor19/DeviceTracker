@@ -25,16 +25,20 @@ import javax.inject.Inject
 class MemberViewModel @Inject constructor(
     private val repo: MemberRepository
 ) :  ViewModel() {
-    //private val _members = MutableLiveData<List<Member>>()
+    private val _members = MutableLiveData<List<Member>>()
     private val _member = MutableLiveData<Member>()
-    //var members: LiveData<List<Member>> = _members
-    val member: LiveData<Member> = _member
+    var members: LiveData<List<Member>> = _members
+    val member: LiveData<Member> get() = _member
 
     var addedMemberResponse by mutableStateOf<AddMemberResponse>(Response.Success(false))
         private set
 
     var isLoaderShowing by mutableStateOf<Boolean>(true)
         private set
+
+    init {
+        refreshMembers()
+    }
 
     fun addNewMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, isMemberWritablePermission: Boolean, mobileNumber: String) = viewModelScope.launch {
         addedMemberResponse = Response.Loading
@@ -56,8 +60,11 @@ class MemberViewModel @Inject constructor(
         addedMemberResponse = repo.uploadImageAndAddNewMemberToFirebase(imageUri, imageBitmap, employeeCode,memberName, emailAddress, isMemberWritablePermission, mobileNumber, onNavUp)
     }
 
-    val members = liveData(Dispatchers.IO) {
-        emit(fetchMembers())
+    fun refreshMembers() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newMember = fetchMembers()
+            _members.postValue(newMember)
+        }
     }
 
     suspend fun fetchMembers(): GetMembersResponse {
@@ -76,6 +83,15 @@ class MemberViewModel @Inject constructor(
         isLoaderShowing = true
         val result = repo.getMembersDetailById(memberId)
         isLoaderShowing = false
+        return result
+    }
+
+    fun isEditableUser() = liveData(Dispatchers.IO) {
+        emit(getEditableUser())
+    }
+
+    private suspend fun getEditableUser(): Boolean {
+        val result = repo.isEditableUser()
         return result
     }
 

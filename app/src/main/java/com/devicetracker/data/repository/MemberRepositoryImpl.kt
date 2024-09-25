@@ -18,6 +18,7 @@ import com.devicetracker.domain.repository.AddMemberResponse
 import com.devicetracker.domain.repository.GetMembersByIdResponse
 import com.devicetracker.domain.repository.GetMembersResponse
 import com.devicetracker.domain.repository.MemberRepository
+import com.devicetracker.ui.dashbord.assets.AssetHistory
 import com.devicetracker.ui.dashbord.member.Member
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue.serverTimestamp
@@ -120,5 +121,22 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
         }
         Log.d("MemberRepositoryImpl", "nkp getMembersDetailById()")
         return member
+    }
+
+    override suspend fun isEditableUser(): Boolean {
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        var isEditableUser = false
+        val querySnapshot = db.collection(COLLECTION_MEMBERS).whereEqualTo(EMAIL_ADDRESS, currentUserEmail).get().await()
+        try {
+            for (document in querySnapshot.documents) {
+                val member = document.toObject(Member::class.java)
+                if(member != null) {
+                    isEditableUser = member.writablePermission
+                }
+            }
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
+        return isEditableUser
     }
 }
