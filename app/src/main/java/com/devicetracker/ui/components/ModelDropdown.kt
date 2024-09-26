@@ -20,7 +20,8 @@ fun ModelDropdown(
     selectedAssetType: String,
     selectedModel: String,
     onModelSelected: (String) -> Unit,
-    viewModel: AssetViewModel = hiltViewModel()
+    viewModel: AssetViewModel = hiltViewModel(),
+    isEditable: Boolean = true
 ) {
     var expanded by remember { mutableStateOf(false) }
     val models by viewModel.models.observeAsState(emptyList())
@@ -34,13 +35,18 @@ fun ModelDropdown(
             value = selectedModel,
             onValueChange = onModelSelected,
             label = { Text("Enter Model") },
-            modifier = Modifier.fillMaxWidth(0.95f)
+            modifier = Modifier.fillMaxWidth(0.95f),
+            enabled = isEditable
         )
     } else {
         // Display the dropdown menu for other asset types
         ExposedDropdownMenuBox(
             expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
+            onExpandedChange = {
+                if (isEditable) {
+                    expanded = !expanded
+                }
+            }
         ) {
             OutlinedTextField(
                 value = selectedModel,
@@ -51,7 +57,8 @@ fun ModelDropdown(
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 },
                 modifier = Modifier.fillMaxWidth(0.95f)
-                    .menuAnchor()
+                    .menuAnchor(),
+                enabled = isEditable
             )
             ExposedDropdownMenu(
                 expanded = expanded,
@@ -63,7 +70,8 @@ fun ModelDropdown(
                         onClick = {
                             onModelSelected(model)
                             expanded = false
-                        }
+                        },
+                        enabled = isEditable
                     )
                 }
             }

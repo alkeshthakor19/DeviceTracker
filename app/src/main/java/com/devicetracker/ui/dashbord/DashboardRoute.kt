@@ -36,20 +36,21 @@ import com.devicetracker.ui.Destinations.LOGIN_ROUTE
 import com.devicetracker.ui.Destinations.LOGOUT
 import com.devicetracker.ui.Destinations.MEMBERS
 import com.devicetracker.ui.AuthViewModel
+import com.devicetracker.ui.dashbord.assets.AssetViewModel
 import com.devicetracker.ui.dashbord.member.MemberViewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun DashboardRoute(mainNavHostController: NavHostController) {
-     val memberViewModel : MemberViewModel = hiltViewModel()
-     val isEditablePermission by memberViewModel.isEditableUser().observeAsState(false)
+     val assetViewModel : AssetViewModel = hiltViewModel()
+     val isEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
      val navigationController = rememberNavController()
      val authViewModel: AuthViewModel = hiltViewModel()
      val isAuthenticated by authViewModel.isAuthenticated.collectAsState()
 
      ///List of Navigation Items that will be clicked
-     var items = mutableListOf(
+     val items = mutableListOf(
           NavigationItems(
                title = stringResource(id = R.string.str_home),
                selectedIcon = R.drawable.ic_home_black,

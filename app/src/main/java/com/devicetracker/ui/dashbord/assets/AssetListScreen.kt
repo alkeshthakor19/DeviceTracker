@@ -77,8 +77,7 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
         Log.d("MemberList", "nkp onRefresh call")
         assetViewModel.refreshAssets()
     }
-    val memberViewModel: MemberViewModel = hiltViewModel()
-    val isEditablePermission by memberViewModel.isEditableUser().observeAsState(false)
+    val isEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
     Scaffold(
         topBar = {
             TopAppBar(

@@ -33,17 +33,17 @@ class MemberViewModel @Inject constructor(
     var addedMemberResponse by mutableStateOf<AddMemberResponse>(Response.Success(false))
         private set
 
-    var isLoaderShowing by mutableStateOf<Boolean>(true)
+    var isLoaderShowing by mutableStateOf(true)
         private set
 
     init {
         refreshMembers()
     }
 
-    fun addNewMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, isMemberWritablePermission: Boolean, mobileNumber: String) = viewModelScope.launch {
+    fun addNewMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, memberEditablePermission: Boolean, assetEditablePermission: Boolean, mobileNumber: String) = viewModelScope.launch {
         addedMemberResponse = Response.Loading
-        Log.d("MemberVM", "nkp employeeCode $employeeCode, memberName $memberName, emailAddress $emailAddress isMemberWritablePermission $isMemberWritablePermission")
-        addedMemberResponse = repo.addMember(employeeCode,memberName, emailAddress, imageUrl, isMemberWritablePermission, mobileNumber)
+        Log.d("MemberVM", "nkp employeeCode $employeeCode, memberName $memberName, emailAddress $emailAddress memberEditablePermission $memberEditablePermission")
+        addedMemberResponse = repo.addMember(employeeCode,memberName, emailAddress, imageUrl, memberEditablePermission, assetEditablePermission, mobileNumber)
     }
 
     fun uploadImageAndAddNewMemberToFirebase(
@@ -52,12 +52,13 @@ class MemberViewModel @Inject constructor(
         employeeCode: Int,
         memberName: String,
         emailAddress: String,
-        isMemberWritablePermission: Boolean,
+        memberEditablePermission: Boolean,
+        assetEditablePermission: Boolean,
         mobileNumber: String,
         onNavUp: () -> Unit
     ) = viewModelScope.launch {
         addedMemberResponse = Response.Loading
-        addedMemberResponse = repo.uploadImageAndAddNewMemberToFirebase(imageUri, imageBitmap, employeeCode,memberName, emailAddress, isMemberWritablePermission, mobileNumber, onNavUp)
+        addedMemberResponse = repo.uploadImageAndAddNewMemberToFirebase(imageUri, imageBitmap, employeeCode,memberName, emailAddress, memberEditablePermission, assetEditablePermission, mobileNumber, onNavUp)
     }
 
     fun refreshMembers() {
@@ -86,12 +87,12 @@ class MemberViewModel @Inject constructor(
         return result
     }
 
-    fun isEditableUser() = liveData(Dispatchers.IO) {
-        emit(getEditableUser())
+    fun isMemberEditablePermission() = liveData(Dispatchers.IO) {
+        emit(getMemberEditablePermission())
     }
 
-    private suspend fun getEditableUser(): Boolean {
-        val result = repo.isEditableUser()
+    private suspend fun getMemberEditablePermission(): Boolean {
+        val result = repo.isMemberEditablePermission()
         return result
     }
 

@@ -3,13 +3,14 @@ package com.devicetracker.data.repository
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import com.devicetracker.core.Constants.ASSET_EDITABLE_PERMISSION
 import com.devicetracker.core.Constants.COLLECTION_MEMBERS
 import com.devicetracker.core.Constants.CREATED_AT
 import com.devicetracker.core.Constants.EMAIL_ADDRESS
 import com.devicetracker.core.Constants.EMPLOYEE_CODE
 import com.devicetracker.core.Constants.FIRE_STORAGE_IMAGES
 import com.devicetracker.core.Constants.IMAGE_URL
-import com.devicetracker.core.Constants.IS_WRITABLE_PERMISSION
+import com.devicetracker.core.Constants.MEMBER_EDITABLE_PERMISSION
 import com.devicetracker.core.Constants.MEMBER_NAME
 import com.devicetracker.core.Constants.MOBILE_NUMBER
 import com.devicetracker.domain.models.Response.Failure
@@ -18,7 +19,6 @@ import com.devicetracker.domain.repository.AddMemberResponse
 import com.devicetracker.domain.repository.GetMembersByIdResponse
 import com.devicetracker.domain.repository.GetMembersResponse
 import com.devicetracker.domain.repository.MemberRepository
-import com.devicetracker.ui.dashbord.assets.AssetHistory
 import com.devicetracker.ui.dashbord.member.Member
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue.serverTimestamp
@@ -37,7 +37,8 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
         memberName: String,
         emailAddress: String,
         imageUrl: String,
-        isWritablePermission: Boolean,
+        memberEditablePermission: Boolean,
+        assetEditablePermission: Boolean,
         mobileNumber: String
     ): AddMemberResponse = try {
         val member = hashMapOf(
@@ -45,7 +46,8 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
             MEMBER_NAME to memberName,
             EMAIL_ADDRESS to emailAddress,
             IMAGE_URL to imageUrl,
-            IS_WRITABLE_PERMISSION to isWritablePermission,
+            MEMBER_EDITABLE_PERMISSION to memberEditablePermission,
+            ASSET_EDITABLE_PERMISSION to assetEditablePermission,
             MOBILE_NUMBER to mobileNumber,
             CREATED_AT to serverTimestamp()
         )
@@ -62,7 +64,8 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
         employeeCode: Int,
         memberName: String,
         emailAddress: String,
-        isWritablePermission: Boolean,
+        memberEditablePermission: Boolean,
+        assetEditablePermission: Boolean,
         mobileNumber: String,
         onNavUp: () -> Unit
     ): AddMemberResponse = try {
@@ -80,7 +83,7 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
 
         uploadTask.await()
         val resultUri = imageRef.downloadUrl.await()
-        addMember(employeeCode, memberName, emailAddress, resultUri.toString(), isWritablePermission, mobileNumber)
+        addMember(employeeCode, memberName, emailAddress, resultUri.toString(), memberEditablePermission, assetEditablePermission, mobileNumber)
         onNavUp()
         Log.d("MemberRepositoryImpl", "nkp uploadImageAndAddNewMemberToFirebase()")
         Success(true)
@@ -123,20 +126,20 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
         return member
     }
 
-    override suspend fun isEditableUser(): Boolean {
+    override suspend fun isMemberEditablePermission(): Boolean {
         val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
-        var isEditableUser = false
+        var isMemberEditableUser = false
         val querySnapshot = db.collection(COLLECTION_MEMBERS).whereEqualTo(EMAIL_ADDRESS, currentUserEmail).get().await()
         try {
             for (document in querySnapshot.documents) {
                 val member = document.toObject(Member::class.java)
                 if(member != null) {
-                    isEditableUser = member.writablePermission
+                    isMemberEditableUser = member.memberEditablePermission
                 }
             }
         } catch (e: Exception){
             e.printStackTrace()
         }
-        return isEditableUser
+        return isMemberEditableUser
     }
 }

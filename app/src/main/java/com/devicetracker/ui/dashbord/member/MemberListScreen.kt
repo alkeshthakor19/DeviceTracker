@@ -72,7 +72,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostController) {
     val memberViewModel: MemberViewModel = hiltViewModel()
-    val isEditablePermission by memberViewModel.isEditableUser().observeAsState(false)
+    val isMemberEditablePermission by memberViewModel.isMemberEditablePermission().observeAsState(false)
     val members by memberViewModel.members.observeAsState(initial = emptyList())
     val state = rememberPullToRefreshState()
     val onRefresh: () -> Unit = {
@@ -101,7 +101,7 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
             )
         },
         floatingActionButton = {
-            if(isEditablePermission){
+            if(isMemberEditablePermission){
                 AppFloatingButton {
                     navHostController.navigate(NEW_MEMBER)
                 }

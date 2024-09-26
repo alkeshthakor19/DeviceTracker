@@ -91,7 +91,7 @@ fun MemberProfileScreen(
             Log.d("MemberProfileScreen", "nkp assetListByMemberId1 size ${assetListByMemberId.value.size}")
         }
     }
-    val isEditablePermission by memberViewModel.isEditableUser().observeAsState(false)
+    val isEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
     Scaffold(
         topBar = {
             TopBarWithTitleAndBackNavigation(titleText = memberData?.memberName?: "NA", onNavUp)

@@ -32,7 +32,8 @@ object Constants {
     const val EMPLOYEE_CODE = "employeeCode"
     const val MEMBER_NAME = "memberName"
     const val EMAIL_ADDRESS = "emailAddress"
-    const val IS_WRITABLE_PERMISSION = "writablePermission"
+    const val MEMBER_EDITABLE_PERMISSION = "memberEditablePermission"
+    const val ASSET_EDITABLE_PERMISSION = "assetEditablePermission"
     const val MOBILE_NUMBER = "mobileNumber"
 
     // Common

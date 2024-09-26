@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -22,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -86,7 +83,7 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val assetViewModel: AssetViewModel = hiltViewModel()
     val assetData by assetViewModel.fetchAssetDetailById(assetDocId).observeAsState()
-
+    val assetEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
     Scaffold(
             topBar = {
                 TopBarWithTitleAndBackNavigation(titleText = "Edit Asset", onNavUp = onNavUp)
@@ -128,7 +125,8 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
                         },
                         focusManager = focusManager,
                         keyboardController = keyboardController,
-                        initialAssetData = assetData
+                        initialAssetData = assetData,
+                        assetEditablePermission
                     )
                 }
             }
@@ -140,7 +138,8 @@ fun UpdateAsset(
     onAssetSaved: (isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?,
-    initialAssetData: Asset?
+    initialAssetData: Asset?,
+    assetEditablePermission: Boolean
 ) {
     val selectedModelName = if(initialAssetData?.modelName != null){
         initialAssetData.modelName
@@ -268,42 +267,43 @@ fun UpdateAsset(
                     modifier = imageModifier,
                     contentScale = ContentScale.Crop
                 )
-
-                FloatingActionButton(
-                    onClick = { showMenu = true },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(8.dp)
-                        .size(32.dp),
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit Image")
+                if (assetEditablePermission) {
+                    FloatingActionButton(
+                        onClick = { showMenu = true },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(8.dp)
+                            .size(32.dp),
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ) {
+                        Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit Image")
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(2.dp))
-            AssetNameField(assetName = assetNameState)
-            AssetIdField(assetId = assetIdState)
+            AssetNameField(assetName = assetNameState, isEditable = assetEditablePermission)
+            AssetIdField(assetId = assetIdState, isEditable = assetEditablePermission)
             AssetTypeSpinner(selectedAssetType = selectedAssetType.value, onAssetTypeSelected = { assetType ->
                 selectedAssetType.value = assetType.name
                 selectedModel.value = Constants.EMPTY_STR
-            })
+            }, isEditable = assetEditablePermission)
             ModelDropdown(
                 selectedAssetType = selectedAssetType.value,
                 selectedModel = selectedModel.value,
-                onModelSelected = { selectedModel.value = it }
+                onModelSelected = { selectedModel.value = it }, isEditable = assetEditablePermission
             )
-            AssetSerialNumberField(assetSerialNumber = serialNumberState)
+            AssetSerialNumberField(assetSerialNumber = serialNumberState, isEditable = assetEditablePermission)
             OwnerSpinner(memberList = memberList, selectedOwner = selectedOwner.value) {
                 Log.d("AssetEdit", "nkp selected click name ${it.memberName}")
                 selectedOwner.value = it
             }
-            AssetQuantityField(quantity = assetQuantityState)
-            ProjectNameField(projectName = projectNameState)
+            AssetQuantityField(quantity = assetQuantityState, isEditable = assetEditablePermission)
+            ProjectNameField(projectName = projectNameState, isEditable = assetEditablePermission)
             AssetStatusRadioButtons(
                 assetWorkingStatus = assetWorkingStatus,
                 onStatusChange = { status -> assetWorkingStatus = status }
             )
-            AssetDescriptionField(description = description)
+            AssetDescriptionField(description = description, isEditable = assetEditablePermission)
 
             Spacer(modifier = Modifier.height(15.dp))
 
@@ -325,7 +325,10 @@ fun UpdateAsset(
         }
         // Save Button
         Button(
-            modifier = Modifier.padding(vertical = 10.dp).width(200.dp).align(Alignment.BottomCenter),
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+                .width(200.dp)
+                .align(Alignment.BottomCenter),
             shape = RoundedCornerShape(5.dp),
             onClick = onAddNewAssetInAction
         ) {

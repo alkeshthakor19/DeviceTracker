@@ -3,6 +3,7 @@ package com.devicetracker.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -142,15 +143,31 @@ fun MemberNameField(memberName: TextFieldState) {
 }
 
 @Composable
-fun MemberTypeCheckBox(memberWritablePermission: BooleanFieldState){
+fun MemberEditableCheckBox(memberEditablePermission: BooleanFieldState){
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth(0.95f)
+        modifier = Modifier.padding(vertical = 0.dp).fillMaxWidth(0.95f)
     ) {
         Checkbox(
-            checked = memberWritablePermission.isChecked,
-            onCheckedChange = { memberWritablePermission.isChecked = it },
+            checked = memberEditablePermission.isChecked,
+            onCheckedChange = { memberEditablePermission.isChecked = it },
+            colors = CheckboxDefaults.colors(Color.Green)
+        )
+        Text(text = stringResource(R.string.str_member_permission))
+    }
+}
+
+@Composable
+fun AssetEditableCheckBox(assetEditablePermission: BooleanFieldState){
+    Row(
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 0.dp).fillMaxWidth(0.95f)
+    ) {
+        Checkbox(
+            checked = assetEditablePermission.isChecked,
+            onCheckedChange = { assetEditablePermission.isChecked = it },
             colors = CheckboxDefaults.colors(Color.Green)
         )
         Text(text = stringResource(R.string.str_member_permission))

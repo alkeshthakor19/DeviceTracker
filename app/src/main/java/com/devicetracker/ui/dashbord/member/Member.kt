@@ -10,6 +10,7 @@ data class Member(
     val emailAddress: String = Constants.EMPTY_STR,
     val mobileNumber: String = Constants.EMPTY_STR,
     val imageUrl: String = Constants.EMPTY_STR,
-    val writablePermission: Boolean = false,
+    val memberEditablePermission: Boolean = false,
+    val assetEditablePermission: Boolean = false,
     val createdAt : Timestamp? = null
 )

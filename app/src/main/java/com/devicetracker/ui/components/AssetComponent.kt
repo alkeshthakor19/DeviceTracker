@@ -26,7 +26,7 @@ import com.devicetracker.ui.dashbord.member.Member
 
 
 @Composable
-fun AssetNameField(assetName: TextFieldState) {
+fun AssetNameField(assetName: TextFieldState, isEditable: Boolean = true) {
     OutlinedTextField(
         value = assetName.text,
         onValueChange = {
@@ -41,7 +41,8 @@ fun AssetNameField(assetName: TextFieldState) {
         },
         isError = assetName.showError(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-        singleLine = true
+        singleLine = true,
+        enabled = isEditable
     )
     assetName.getError(stringResource(R.string.str_asset_name))?.let {error ->
         TextFieldError(textError = error )
@@ -49,7 +50,7 @@ fun AssetNameField(assetName: TextFieldState) {
 }
 
 @Composable
-fun AssetIdField(assetId: TextFieldState) {
+fun AssetIdField(assetId: TextFieldState, isEditable: Boolean = true) {
     OutlinedTextField(
         value = assetId.text,
         onValueChange = {
@@ -64,7 +65,8 @@ fun AssetIdField(assetId: TextFieldState) {
             },
         isError = assetId.showError(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-        singleLine = true
+        singleLine = true,
+        enabled = isEditable
     )
     assetId.getError(stringResource(R.string.str_asset_id))?.let { error ->
         TextFieldError(textError = error )
@@ -112,7 +114,7 @@ fun OwnerSpinner(
 }
 
 @Composable
-fun AssetDescriptionField(description: TextFieldState) {
+fun AssetDescriptionField(description: TextFieldState, isEditable: Boolean = true) {
     OutlinedTextField(
         value = description.text,
         onValueChange = {
@@ -130,7 +132,8 @@ fun AssetDescriptionField(description: TextFieldState) {
         isError = description.showError(),
         //keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Go),
         singleLine = false,
-        maxLines = 3
+        maxLines = 3,
+        enabled = isEditable
     )
     description.getError(stringResource(R.string.str_description_name))?.let { error ->
         TextFieldError(textError = error )
@@ -161,7 +164,7 @@ fun AssetModelField(model: TextFieldState) {
 }
 
 @Composable
-fun AssetSerialNumberField(assetSerialNumber: TextFieldState) {
+fun AssetSerialNumberField(assetSerialNumber: TextFieldState, isEditable: Boolean = true) {
     OutlinedTextField(
         modifier = Modifier.fillMaxWidth(0.95f).onFocusChanged {
             assetSerialNumber.onFocusChange(it.isFocused)
@@ -175,7 +178,8 @@ fun AssetSerialNumberField(assetSerialNumber: TextFieldState) {
         },
         isError = assetSerialNumber.showError(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-        singleLine = true
+        singleLine = true,
+        enabled = isEditable
     )
     assetSerialNumber.getError(stringResource(R.string.str_asset_serial_number))?.let { error ->
         TextFieldError(textError = error )
@@ -183,7 +187,7 @@ fun AssetSerialNumberField(assetSerialNumber: TextFieldState) {
 }
 
 @Composable
-fun AssetQuantityField(quantity: TextFieldState) {
+fun AssetQuantityField(quantity: TextFieldState, isEditable: Boolean = true) {
     OutlinedTextField(
         modifier = Modifier.fillMaxWidth(0.95f).onFocusChanged {
             quantity.onFocusChange(it.isFocused)
@@ -197,7 +201,8 @@ fun AssetQuantityField(quantity: TextFieldState) {
         },
         isError = quantity.showError(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-        singleLine = true
+        singleLine = true,
+        enabled = isEditable
     )
     quantity.getError(stringResource(R.string.str_asset_quantity))?.let { error ->
         TextFieldError(textError = error )
@@ -205,7 +210,7 @@ fun AssetQuantityField(quantity: TextFieldState) {
 }
 
 @Composable
-fun ProjectNameField(projectName: TextFieldState) {
+fun ProjectNameField(projectName: TextFieldState, isEditable: Boolean = true) {
     OutlinedTextField(
         modifier = Modifier.fillMaxWidth(0.95f).onFocusChanged {
             projectName.onFocusChange(it.isFocused)
@@ -219,7 +224,8 @@ fun ProjectNameField(projectName: TextFieldState) {
         },
         isError = projectName.showError(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-        singleLine = true
+        singleLine = true,
+        enabled = isEditable
     )
     projectName.getError(stringResource(R.string.str_project_name))?.let { error ->
         TextFieldError(textError = error )

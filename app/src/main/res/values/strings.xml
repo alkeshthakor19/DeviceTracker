@@ -5,7 +5,8 @@
     <string name="str_employee_code">Employee Code</string>
     <string name="str_member_name">Member Name</string>
     <string name="str_mobile_number">Mobile Number</string>
-    <string name="str_member_permission">Does the member have to give written permission?</string>
+    <string name="str_member_permission">Member editable permission</string>
+    <string name="str_asset_permission">Asset editable permission</string>
     <string name="str_password">Password</string>
     <string name="str_welcome_to_asset_tracker">Welcome to Asset Tracker</string>
     <string name="str_member">Members</string>

@@ -58,15 +58,16 @@ import com.devicetracker.R
 import com.devicetracker.noRippleClickable
 import com.devicetracker.singleClick
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
+import com.devicetracker.ui.components.AssetEditableCheckBox
 import com.devicetracker.ui.components.CheckBoxState
 import com.devicetracker.ui.components.EmailField
 import com.devicetracker.ui.components.EmailState
 import com.devicetracker.ui.components.EmployeeCodeField
 import com.devicetracker.ui.components.EmloyeeCodeState
+import com.devicetracker.ui.components.MemberEditableCheckBox
 import com.devicetracker.ui.components.MemberMobileField
 import com.devicetracker.ui.components.MemberNameField
 import com.devicetracker.ui.components.MemberNameState
-import com.devicetracker.ui.components.MemberTypeCheckBox
 import com.devicetracker.ui.components.MobileNumberState
 import com.devicetracker.ui.theme.AssetTrackerTheme
 
@@ -93,14 +94,15 @@ fun NewMemberScreen(onNavUp: () -> Unit) {
         ) {
             val memberViewModel: MemberViewModel = hiltViewModel()
             AddMember(
-                onMemberSaved = { imageUri, imageBitmap, employeeId, memberName, memberEmail, isMemberWritablePermission, mobileNumber ->
+                onMemberSaved = { imageUri, imageBitmap, employeeId, memberName, memberEmail, memberEditablePermission, assetEditablePermission, mobileNumber ->
                     memberViewModel.uploadImageAndAddNewMemberToFirebase(
                         imageUri,
                         imageBitmap,
                         employeeId,
                         memberName,
                         memberEmail,
-                        isMemberWritablePermission,
+                        memberEditablePermission,
+                        assetEditablePermission,
                         mobileNumber,
                         onNavUp
                     )
@@ -114,7 +116,7 @@ fun NewMemberScreen(onNavUp: () -> Unit) {
 
 @Composable
 fun AddMember(
-    onMemberSaved: (imageUri: Uri?, imageBitmap: Bitmap?, employeeId: Int, memberName: String, memberEmail: String, isMemberWritablePermission: Boolean, mobileNumber: String) -> Unit,
+    onMemberSaved: (imageUri: Uri?, imageBitmap: Bitmap?, employeeId: Int, memberName: String, memberEmail: String, memberEditablePermission: Boolean, assetEditablePermission: Boolean, mobileNumber: String) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?
 ) {
@@ -122,7 +124,8 @@ fun AddMember(
     val employeeCodeState = remember { EmloyeeCodeState() }
     val memberNameState = remember { MemberNameState() }
     val mobileNumberState = remember { MobileNumberState() }
-    val memberWritablePermission = remember { CheckBoxState() }
+    val memberEditablePermission = remember { CheckBoxState() }
+    val assetEditablePermission = remember { CheckBoxState() }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var showMenu by remember { mutableStateOf(false) }
@@ -162,7 +165,7 @@ fun AddMember(
                 emailState.enableShowError()
             } else {
                 Log.d("NewMemberScreen", "nkp imageUri ${imageUri?.path}  ${imageUri}")
-                onMemberSaved(imageUri, imageBitmap, employeeCodeState.text.toInt(), memberNameState.text, emailState.text,memberWritablePermission.isChecked, mobileNumberState.text)
+                onMemberSaved(imageUri, imageBitmap, employeeCodeState.text.toInt(), memberNameState.text, emailState.text, memberEditablePermission.isChecked, assetEditablePermission.isChecked, mobileNumberState.text)
             }
         }
         Box(
@@ -212,7 +215,8 @@ fun AddMember(
         MemberNameField(memberNameState)
         EmailField(emailState)
         MemberMobileField(mobileNumberState)
-        MemberTypeCheckBox(memberWritablePermission)
+        MemberEditableCheckBox(memberEditablePermission)
+        AssetEditableCheckBox(assetEditablePermission)
         if (showMenu){
             ImagePickDialog(
                 {

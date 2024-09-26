@@ -66,22 +66,19 @@ fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController
     val assetViewModel : AssetViewModel = hiltViewModel()
     val assetData = remember(assetDocId) { assetViewModel.fetchAssetDetailById(assetDocId) }.observeAsState()
     val assignedHistories by assetViewModel.getAssetHistories(assetDocId).observeAsState(emptyList())
-    val memberViewModel: MemberViewModel = hiltViewModel()
-    val isEditablePermission by memberViewModel.isEditableUser().observeAsState(false)
+    val isEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
     Scaffold(
         topBar = {
             TopBarWithTitleAndBackNavigation(titleText = assetData.value?.assetName ?: "NA", onNavUp)
         },
         floatingActionButton = {
-            if(isEditablePermission) {
-                FloatingActionButton(
-                    onClick = singleClick{
-                        navHostController.navigate("edit_asset/${assetDocId}")
-                    },
-                    modifier = Modifier.padding(bottom = 24.dp)
-                ) {
-                    Icon(Icons.Filled.Edit, contentDescription ="Edit Asset Detail" )
-                }
+            FloatingActionButton(
+                onClick = singleClick{
+                    navHostController.navigate("edit_asset/${assetDocId}")
+                },
+                modifier = Modifier.padding(bottom = 24.dp)
+            ) {
+                Icon(Icons.Filled.Edit, contentDescription ="Edit Asset Detail" )
             }
         }
     ) {

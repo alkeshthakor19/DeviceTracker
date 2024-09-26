@@ -80,4 +80,6 @@ interface AssetRepository {
     suspend fun getModelsForAssetType(assetType: String): List<String>
 
     suspend fun getAssetsByAssetType(assetType: String) : List<Asset>
+
+    suspend fun isAssetEditablePermission() : Boolean
 }

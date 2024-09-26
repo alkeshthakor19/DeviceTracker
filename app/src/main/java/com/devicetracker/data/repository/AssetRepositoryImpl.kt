@@ -18,7 +18,9 @@ import com.devicetracker.core.Constants.ASSET_WORKING_STATUS
 import com.devicetracker.core.Constants.COLLECTION_ASSETS
 import com.devicetracker.core.Constants.COLLECTION_ASSETS_HISTORY
 import com.devicetracker.core.Constants.COLLECTION_ASSETS_MODELS
+import com.devicetracker.core.Constants.COLLECTION_MEMBERS
 import com.devicetracker.core.Constants.CREATED_AT
+import com.devicetracker.core.Constants.EMAIL_ADDRESS
 import com.devicetracker.core.Constants.EMPTY_STR
 import com.devicetracker.core.Constants.FIRE_STORAGE_IMAGES
 import com.devicetracker.core.Constants.IMAGE_URL
@@ -376,6 +378,23 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             e.printStackTrace()
         }
         return assetList
+    }
+
+    override suspend fun isAssetEditablePermission(): Boolean {
+        val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+        var isAssetEditablePermission = false
+        val querySnapshot = db.collection(COLLECTION_MEMBERS).whereEqualTo(EMAIL_ADDRESS, currentUserEmail).get().await()
+        try {
+            for (document in querySnapshot.documents) {
+                val member = document.toObject(Member::class.java)
+                if(member != null) {
+                    isAssetEditablePermission = member.assetEditablePermission
+                }
+            }
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
+        return isAssetEditablePermission
     }
 
 }

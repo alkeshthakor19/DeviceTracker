@@ -164,6 +164,15 @@ class AssetViewModel @Inject constructor(
         )
     }
 
+    fun isAssetEditablePermission() = liveData(Dispatchers.IO) {
+        emit(getAssetEditablePermission())
+    }
+
+    private suspend fun getAssetEditablePermission(): Boolean {
+        val result = repo.isAssetEditablePermission()
+        return result
+    }
+
     companion object {
         private const val TAG = "NewAssetViewModel"
     }

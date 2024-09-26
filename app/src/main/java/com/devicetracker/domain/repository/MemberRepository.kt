@@ -10,7 +10,7 @@ typealias GetMembersResponse = List<Member>
 typealias GetMembersByIdResponse = Member?
 
 interface MemberRepository {
-    suspend fun addMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, isWritablePermission: Boolean, mobileNumber: String): AddMemberResponse
+    suspend fun addMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, memberEditablePermission: Boolean, assetEditablePermission: Boolean, mobileNumber: String): AddMemberResponse
 
     suspend fun uploadImageAndAddNewMemberToFirebase(
         imageUri: Uri?,
@@ -18,7 +18,8 @@ interface MemberRepository {
         employeeCode: Int,
         memberName: String,
         emailAddress: String,
-        isWritablePermission: Boolean,
+        memberEditablePermission: Boolean,
+        assetEditablePermission: Boolean,
         mobileNumber: String,
         onNavUp: () -> Unit
     ) : AddMemberResponse
@@ -27,5 +28,5 @@ interface MemberRepository {
 
     suspend fun getMembersDetailById(memberId: String) : GetMembersByIdResponse
 
-    suspend fun isEditableUser() : Boolean
+    suspend fun isMemberEditablePermission() : Boolean
 }

@@ -17,13 +17,16 @@ import com.devicetracker.ui.dashbord.assets.AssetType
 fun AssetTypeSpinner(
     selectedAssetType: String,
     onAssetTypeSelected: (AssetType) -> Unit,
-    excludeOther: Boolean = false
+    excludeOther: Boolean = false,
+    isEditable: Boolean = true
 ) {
     var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+        onExpandedChange = { if (isEditable) {
+            expanded = !expanded
+        } }
     ) {
         OutlinedTextField(
             value = selectedAssetType,
@@ -34,7 +37,8 @@ fun AssetTypeSpinner(
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             modifier = Modifier.fillMaxWidth(0.95f)
-                .menuAnchor()
+                .menuAnchor(),
+            enabled = isEditable
         )
         ExposedDropdownMenu(
             expanded = expanded,
@@ -52,7 +56,8 @@ fun AssetTypeSpinner(
                     onClick = {
                         onAssetTypeSelected(assetType)
                         expanded = false
-                    }
+                    },
+                    enabled = isEditable
                 )
             }
         }
