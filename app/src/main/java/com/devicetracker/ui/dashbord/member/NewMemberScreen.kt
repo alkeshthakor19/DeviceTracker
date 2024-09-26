@@ -234,7 +234,6 @@ fun AddMember(
                 "Please select image from Gallery or Camera"
             )
         }
-        Spacer(modifier = Modifier.height(15.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center

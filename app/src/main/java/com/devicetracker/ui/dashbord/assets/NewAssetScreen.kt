@@ -41,8 +41,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
@@ -57,7 +61,6 @@ import com.devicetracker.R
 import com.devicetracker.core.Constants
 import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UNASSIGN_NAME
-import com.devicetracker.noRippleClickable
 import com.devicetracker.singleClick
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetDescriptionField
@@ -168,6 +171,16 @@ fun AddAsset(
             imageUri = null
         }
     )
+    val scrollState = rememberScrollState()
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                focusManager.clearFocus()
+                keyboardController?.hide()
+                return Offset.Zero
+            }
+        }
+    }
     val onAddNewAssetInAction = {
         if (!assetNameState.isValid) {
             assetNameState.enableShowError()
@@ -179,13 +192,9 @@ fun AddAsset(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
-                .noRippleClickable {
-                    focusManager.clearFocus()
-                    keyboardController?.hide()
-                }
+                .nestedScroll(nestedScrollConnection)
                 .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 64.dp)
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(8.dp),

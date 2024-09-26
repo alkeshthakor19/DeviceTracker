@@ -3,7 +3,7 @@ package com.devicetracker.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -147,7 +147,7 @@ fun MemberEditableCheckBox(memberEditablePermission: BooleanFieldState){
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 0.dp).fillMaxWidth(0.95f)
+        modifier = Modifier.offset(x = (-10).dp).fillMaxWidth(0.95f)
     ) {
         Checkbox(
             checked = memberEditablePermission.isChecked,
@@ -163,14 +163,14 @@ fun AssetEditableCheckBox(assetEditablePermission: BooleanFieldState){
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.padding(vertical = 0.dp).fillMaxWidth(0.95f)
+        modifier = Modifier.offset(x = (-10).dp, y = (-20).dp).fillMaxWidth(0.95f)
     ) {
         Checkbox(
             checked = assetEditablePermission.isChecked,
             onCheckedChange = { assetEditablePermission.isChecked = it },
             colors = CheckboxDefaults.colors(Color.Green)
         )
-        Text(text = stringResource(R.string.str_member_permission))
+        Text(text = stringResource(R.string.str_asset_permission))
     }
 }
 
