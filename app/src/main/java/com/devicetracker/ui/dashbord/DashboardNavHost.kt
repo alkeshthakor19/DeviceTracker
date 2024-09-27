@@ -15,6 +15,7 @@ import com.devicetracker.ui.Destinations.ASSET_DETAIL
 import com.devicetracker.ui.Destinations.ASSET_MODEL
 import com.devicetracker.ui.Destinations.ASSET_SEARCH
 import com.devicetracker.ui.Destinations.EDIT_ASSET
+import com.devicetracker.ui.Destinations.EDIT_MEMBER
 import com.devicetracker.ui.Destinations.HOME
 import com.devicetracker.ui.Destinations.MEMBERS
 import com.devicetracker.ui.Destinations.MEMBER_DETAIL
@@ -29,6 +30,7 @@ import com.devicetracker.ui.dashbord.assets.AssetModelRoute
 import com.devicetracker.ui.dashbord.assets.AssetSearchScreen
 import com.devicetracker.ui.dashbord.home.HomeScreen
 import com.devicetracker.ui.dashbord.member.AddMemberRoute
+import com.devicetracker.ui.dashbord.member.MemberEditScreen
 import com.devicetracker.ui.dashbord.member.MemberListScreen
 import com.devicetracker.ui.dashbord.member.MemberProfileScreen
 import com.devicetracker.ui.dashbord.member.MemberSearchScreen
@@ -83,6 +85,17 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
                 memberId = it.arguments?.getString("memberId") ?: Constants.EMPTY_STR,
                 onNavUp = { navigationController.navigateUp() },
                 navHostController = navigationController
+            )
+        }
+        composable(
+            EDIT_MEMBER,
+            arguments = listOf(navArgument("memberId") { type = NavType.StringType })
+        ) {
+            MemberEditScreen(
+                memberId = it.arguments?.getString("memberId").toString(),
+                onNavUp = {
+                    navigationController.navigateUp()
+                }
             )
         }
         composable(

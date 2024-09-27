@@ -19,6 +19,7 @@ object Destinations {
     const val MEMBERS = "members"
     const val NEW_MEMBER = "new_member"
     const val MEMBER_DETAIL = "member_detail/{memberId}"
+    const val EDIT_MEMBER = "edit_member/{memberId}"
     const val ASSETS = "assets"
     const val NEW_ASSET = "new_asset"
     const val ASSET_DETAIL = "asset_detail/{assetDocId}"

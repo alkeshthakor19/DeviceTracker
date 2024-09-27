@@ -22,6 +22,7 @@ import com.devicetracker.domain.repository.AddMemberResponse
 import com.devicetracker.domain.repository.GetMembersByIdResponse
 import com.devicetracker.domain.repository.GetMembersResponse
 import com.devicetracker.domain.repository.MemberRepository
+import com.devicetracker.domain.repository.UpdateMemberResponse
 import com.devicetracker.ui.dashbord.member.Member
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue.serverTimestamp
@@ -152,5 +153,91 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
                 // Handle failure
                 Log.w("MemberRepositoryImp", "nkp Error deleting Member", e)
             }
+    }
+
+    override suspend fun updateMember(
+        memberId: String,
+        employeeCode: Int,
+        memberName: String,
+        emailAddress: String,
+        memberEditablePermission: Boolean,
+        assetEditablePermission: Boolean,
+        mobileNumber: String,
+        imageUrl: String?
+    ): UpdateMemberResponse {
+
+        return try {
+            val memberData = hashMapOf(
+                EMPLOYEE_CODE to employeeCode,
+                MEMBER_NAME to memberName,
+                EMAIL_ADDRESS to emailAddress,
+                MEMBER_EDITABLE_PERMISSION to memberEditablePermission,
+                ASSET_EDITABLE_PERMISSION to assetEditablePermission,
+                MOBILE_NUMBER to mobileNumber,
+                CREATED_AT to serverTimestamp()
+            )
+            if (imageUrl != null) {
+                memberData[IMAGE_URL] = imageUrl
+            }
+            db.collection(COLLECTION_MEMBERS).document(memberId).update(memberData).await()
+            Success(true)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Failure(e)
+        }
+    }
+    override suspend fun uploadImageAndUpdateMember(
+        memberId: String,
+        isNeedToUpdateImageUrl: Boolean,
+        imageUri: Uri?,
+        imageBitmap: Bitmap?,
+        employeeCode: Int,
+        memberName: String,
+        emailAddress: String,
+        memberEditablePermission: Boolean,
+        assetEditablePermission: Boolean,
+        mobileNumber: String,
+        onNavUp: () -> Unit
+    ): UpdateMemberResponse {
+        return try {
+            Log.d("check","isNeedToUpdateImageUrl: $isNeedToUpdateImageUrl")
+            val resultUri = if(isNeedToUpdateImageUrl){
+                val imageRef = storageReference.child("$FIRE_STORAGE_IMAGES/${UUID.randomUUID()}.jpg")
+                val uploadTask = if (imageUri != null) {
+                    imageRef.putFile(imageUri)
+                } else {
+                    val data = imageBitmap?.let {
+                        ByteArrayOutputStream().apply {
+                            it.compress(Bitmap.CompressFormat.JPEG, 100, this)
+                        }.toByteArray()
+                    }
+                    imageRef.putBytes(data ?: byteArrayOf())
+                }
+                uploadTask.await()
+                val resultUri = imageRef.downloadUrl.await()
+                resultUri.toString()
+            } else {
+                null
+            }
+
+            // After uploading the image, update the asset
+            val updateResponse = updateMember(
+                memberId,
+                employeeCode,
+                memberName,
+                emailAddress,
+                memberEditablePermission,
+                assetEditablePermission,
+                mobileNumber,
+                resultUri,
+            )
+            if (updateResponse is Success && updateResponse.data) {
+                onNavUp()
+            }
+            updateResponse
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Failure(e)
+        }
     }
 }

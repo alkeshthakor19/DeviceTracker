@@ -60,6 +60,7 @@ import com.devicetracker.R
 import com.devicetracker.core.Constants.INT_SIZE_24
 import com.devicetracker.core.Constants.INT_SIZE_80
 import com.devicetracker.getDateStringFromTimestamp
+import com.devicetracker.singleClick
 import com.devicetracker.ui.DeleteConfirmationDialog
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
@@ -71,6 +72,7 @@ import com.devicetracker.ui.dashbord.assets.AssetPicture
 import com.devicetracker.ui.dashbord.assets.AssetViewModel
 import com.devicetracker.ui.getFontSizeByPercent
 import com.devicetracker.ui.getWidthInPercent
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -95,7 +97,6 @@ fun MemberProfileScreen(
     val onRefreshAssetList: () -> Unit = {
         coroutineScope.launch(Dispatchers.IO) {
             assetListByMemberId.value = assetViewModel.fetchAssetListByMemberId(memberId)
-            Log.d("MemberProfileScreen", "nkp assetListByMemberId1 size ${assetListByMemberId.value.size}")
         }
     }
 
@@ -104,6 +105,7 @@ fun MemberProfileScreen(
     LaunchedEffect(memberId) {
         memberViewModel.fetchMember(memberId)
     }
+    val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
     Scaffold(
         topBar = {
             TopBarWithTitleAndBackNavigation(
@@ -119,8 +121,12 @@ fun MemberProfileScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { }, modifier = Modifier.padding(bottom = 24.dp) ) {
-                Icon(Icons.Filled.Edit, contentDescription ="Edit Member Detail" )
+            if(memberEditablePermission || memberData?.emailAddress == currentUserEmail) {
+                FloatingActionButton(onClick = singleClick {
+                    navHostController.navigate("edit_member/${memberId}")
+                }, modifier = Modifier.padding(bottom = 24.dp)) {
+                    Icon(Icons.Filled.Edit, contentDescription = "Edit Member Detail")
+                }
             }
         }
     ) {

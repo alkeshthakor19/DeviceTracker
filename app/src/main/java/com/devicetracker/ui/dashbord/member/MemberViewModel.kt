@@ -34,6 +34,8 @@ class MemberViewModel @Inject constructor(
     var addedMemberResponse by mutableStateOf<AddMemberResponse>(Response.Success(false))
         private set
 
+    private var updateMemberResponse by mutableStateOf<AddMemberResponse>(Response.Success(false))
+
     var isLoaderShowing by mutableStateOf(true)
         private set
 
@@ -104,6 +106,35 @@ class MemberViewModel @Inject constructor(
                 isLoaderShowing = false
             }
         }
+    }
+
+    fun uploadImageAndUpdateMember(
+        memberId: String,
+       isNeedToUpdateImageUrl: Boolean,
+       imageUri: Uri?,
+       imageBitmap: Bitmap?,
+       employeeCode: Int,
+       memberName: String,
+       emailAddress: String,
+       memberEditablePermission: Boolean,
+       assetEditablePermission: Boolean,
+       mobileNumber: String,
+       onNavUp: () -> Unit
+    ) = viewModelScope.launch {
+        updateMemberResponse = Response.Loading
+        updateMemberResponse = repo.uploadImageAndUpdateMember(
+            memberId,
+            isNeedToUpdateImageUrl,
+            imageUri,
+            imageBitmap,
+            employeeCode,
+            memberName,
+            emailAddress,
+            memberEditablePermission,
+            assetEditablePermission,
+            mobileNumber,
+            onNavUp
+        )
     }
 
     companion object {

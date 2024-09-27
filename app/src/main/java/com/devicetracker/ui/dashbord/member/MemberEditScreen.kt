@@ -2,7 +2,6 @@ package com.devicetracker.ui.dashbord.member
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -23,17 +22,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,76 +57,105 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
-import com.devicetracker.singleClick
+import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetEditableCheckBox
 import com.devicetracker.ui.components.CheckBoxState
 import com.devicetracker.ui.components.EmailField
 import com.devicetracker.ui.components.EmailState
-import com.devicetracker.ui.components.EmployeeCodeField
 import com.devicetracker.ui.components.EmloyeeCodeState
+import com.devicetracker.ui.components.EmployeeCodeField
 import com.devicetracker.ui.components.MemberEditableCheckBox
 import com.devicetracker.ui.components.MemberMobileField
 import com.devicetracker.ui.components.MemberNameField
 import com.devicetracker.ui.components.MemberNameState
 import com.devicetracker.ui.components.MobileNumberState
+import com.devicetracker.ui.dashbord.assets.ImagePickDialog
+
 
 @Composable
-fun NewMemberScreen(onNavUp: () -> Unit) {
+fun MemberEditScreen(memberId: String, onNavUp: () -> Unit) {
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-
+    val memberViewModel: MemberViewModel = hiltViewModel()
+    val memberData by memberViewModel.member.observeAsState()
+    val isMemberEditablePermission by memberViewModel.isMemberEditablePermission().observeAsState(false)
+    LaunchedEffect(memberId) {
+        memberViewModel.fetchMember(memberId)
+    }
     Scaffold(
         topBar = {
-            TopBarWithTitleAndBackNavigation(titleText = "New Member", onNavUp)
-        },
+            TopBarWithTitleAndBackNavigation(titleText = "Edit Member", onNavUp = onNavUp)
+        }
     ) { paddingValues: PaddingValues ->
         Box(
             modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-            .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, rotation ->
-                    focusManager.clearFocus()
-                    keyboardController?.hide()
+                .fillMaxSize()
+                .padding(paddingValues)
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, _, _, _ ->
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+                    }
                 }
-            },
         ) {
-            val memberViewModel: MemberViewModel = hiltViewModel()
-            AddMember(
-                onMemberSaved = { imageUri, imageBitmap, employeeId, memberName, memberEmail, memberEditablePermission, assetEditablePermission, mobileNumber ->
-                    memberViewModel.uploadImageAndAddNewMemberToFirebase(
-                        imageUri,
-                        imageBitmap,
-                        employeeId,
-                        memberName,
-                        memberEmail,
-                        memberEditablePermission,
-                        assetEditablePermission,
-                        mobileNumber,
-                        onNavUp
-                    )
-                },
-                focusManager = focusManager,
-                keyboardController = keyboardController
-            )
+            if(memberViewModel.isLoaderShowing){
+                ProgressBar()
+            } else{
+                UpdateMember(
+                    onMemberSaved = { isNeedToUpdateImageUrl, imageUri, imageBitmap, employeeCode, memberName, emailAddress, memberEditablePermission, assetEditablePermission, mobileNumber ->
+                        memberViewModel.uploadImageAndUpdateMember(
+                            memberId,
+                            isNeedToUpdateImageUrl,
+                            imageUri,
+                            imageBitmap,
+                            employeeCode,
+                            memberName,
+                            emailAddress,
+                            memberEditablePermission,
+                            assetEditablePermission,
+                            mobileNumber,
+                            onNavUp
+                        )
+                    },
+                    focusManager = focusManager,
+                    keyboardController = keyboardController,
+                    initialMemberData = memberData,
+                    isMemberEditablePermission
+                )
+            }
         }
     }
 }
 
 @Composable
-fun AddMember(
-    onMemberSaved: (imageUri: Uri?, imageBitmap: Bitmap?, employeeId: Int, memberName: String, memberEmail: String, memberEditablePermission: Boolean, assetEditablePermission: Boolean, mobileNumber: String) -> Unit,
+fun UpdateMember(
+    onMemberSaved: (isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, employeeCode: Int, memberName: String, emailAddress: String, memberEditablePermission: Boolean, assetEditablePermission: Boolean, mobileNumber: String) -> Unit,
     focusManager: FocusManager,
-    keyboardController: SoftwareKeyboardController?
+    keyboardController: SoftwareKeyboardController?,
+    initialMemberData: Member?,
+    isMemberEditablePermission: Boolean
 ) {
     val emailState = remember { EmailState() }
+    emailState.text = initialMemberData?.emailAddress.toString()
     val employeeCodeState = remember { EmloyeeCodeState() }
+    employeeCodeState.text = initialMemberData?.employeeCode.toString()
     val memberNameState = remember { MemberNameState() }
+    memberNameState.text = initialMemberData?.memberName.toString()
     val mobileNumberState = remember { MobileNumberState() }
+    mobileNumberState.text = initialMemberData?.mobileNumber.toString()
+
     val memberEditablePermission = remember { CheckBoxState() }
+    memberEditablePermission.isChecked = initialMemberData?.memberEditablePermission == true
     val assetEditablePermission = remember { CheckBoxState() }
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    assetEditablePermission.isChecked = initialMemberData?.assetEditablePermission == true
+    val initImageUri = if(initialMemberData?.imageUrl != null) {
+        Uri.parse(initialMemberData.imageUrl)
+    } else{
+        null
+    }
+    var isNeedToUpdateImageUrl by remember { mutableStateOf(false) }
+    var imageUri by remember { mutableStateOf(initImageUri) }
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var showMenu by remember { mutableStateOf(false) }
 
@@ -135,6 +163,7 @@ fun AddMember(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri: Uri? ->
             imageUri = uri
+            isNeedToUpdateImageUrl = true
             imageBitmap = null
         }
     )
@@ -143,6 +172,7 @@ fun AddMember(
         contract = ActivityResultContracts.TakePicturePreview(),
         onResult = { bitmap ->
             imageBitmap = bitmap
+            isNeedToUpdateImageUrl = true
             imageUri = null
         }
     )
@@ -157,7 +187,8 @@ fun AddMember(
             }
         }
     }
-    val onAddNewMemberInAction = {
+
+    val onUpdateMemberInAction = {
         if (!employeeCodeState.isValid) {
             employeeCodeState.enableShowError()
         } else if (!memberNameState.isValid) {
@@ -165,10 +196,7 @@ fun AddMember(
         } else if (!emailState.isValid) {
             emailState.enableShowError()
         } else {
-            Log.d("NewMemberScreen", "nkp imageUri ${imageUri?.path}  ${imageUri}")
-            onMemberSaved(
-                imageUri,
-                imageBitmap,
+            onMemberSaved(isNeedToUpdateImageUrl, imageUri, imageBitmap,
                 employeeCodeState.text.toInt(),
                 memberNameState.text,
                 emailState.text,
@@ -188,6 +216,8 @@ fun AddMember(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -196,7 +226,6 @@ fun AddMember(
                     .align(Alignment.CenterHorizontally)
             ) {
                 val imageModifier = Modifier.fillMaxSize()
-
                 imageBitmap?.let {
                     Image(
                         bitmap = it.asImageBitmap(),
@@ -212,22 +241,22 @@ fun AddMember(
                         contentScale = ContentScale.Crop
                     )
                 } ?: Image(
-                    painter = painterResource(id = R.drawable.ic_person),
+                    painter =  painterResource(id = R.drawable.ic_person),
                     contentDescription = "Profile Picture",
                     modifier = imageModifier,
                     contentScale = ContentScale.Crop
                 )
 
-                FloatingActionButton(
-                    onClick = { showMenu = true },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(8.dp)
-                        .size(32.dp),
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Image")
-                }
+                    FloatingActionButton(
+                        onClick = { showMenu = true },
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(8.dp)
+                            .size(32.dp),
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ) {
+                        Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit Image")
+                    }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -235,13 +264,14 @@ fun AddMember(
             MemberNameField(memberNameState)
             EmailField(emailState)
             MemberMobileField(mobileNumberState)
-            MemberEditableCheckBox(memberEditablePermission)
-            AssetEditableCheckBox(assetEditablePermission)
+            if (isMemberEditablePermission) {
+                MemberEditableCheckBox(memberEditablePermission)
+                AssetEditableCheckBox(assetEditablePermission)
+            }
+
             if (showMenu) {
                 ImagePickDialog(
-                    {
-                        showMenu = false
-                    },
+                    onDismissRequest = { showMenu = false },
                     onCamera = {
                         cameraPicker.launch(null)
                         showMenu = false
@@ -250,62 +280,20 @@ fun AddMember(
                         galleryPicker.launch("image/*")
                         showMenu = false
                     },
-                    "Choose Image",
-                    "Please select image from Gallery or Camera"
+                    dialogTitle = "Choose Image",
+                    dialogText = "Please select image from Gallery or Camera"
                 )
             }
         }
-
-        Button(
-            modifier = Modifier
-                .padding(vertical = 10.dp)
-                .width(200.dp)
-                .align(Alignment.BottomCenter),
-            shape = RoundedCornerShape(5.dp),
-            onClick = singleClick {
-                onAddNewMemberInAction()
-                keyboardController?.hide()
-            }) {
-            Text(stringResource(id = R.string.str_save))
-        }
+            Button(
+                modifier = Modifier
+                    .padding(vertical = 10.dp)
+                    .width(200.dp)
+                    .align(Alignment.BottomCenter),
+                shape = RoundedCornerShape(5.dp),
+                onClick = onUpdateMemberInAction
+            ) {
+                Text(stringResource(R.string.str_update))
+            }
     }
-}
-
-@Composable
-fun ImagePickDialog(
-    onDismissRequest: () -> Unit,
-    onCamera: () -> Unit,
-    onGallery: () -> Unit,
-    dialogTitle: String,
-    dialogText: String
-) {
-    AlertDialog(
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onCamera()
-                }
-            ) {
-                Text("Camera")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onGallery()
-                }
-            ) {
-                Text("Gallery")
-            }
-        }
-    )
 }

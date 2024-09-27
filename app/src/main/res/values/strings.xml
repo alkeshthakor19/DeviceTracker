@@ -30,6 +30,7 @@
     <string name="str_device_type_probe">PROBE</string>
     <string name="str_device_type_other">OTHER</string>
     <string name="str_save">SAVE</string>
+    <string name="str_update">UPDATE</string>
 
     <string name="str_asset_name">Asset Name</string>
     <string name="str_asset_id">Asset Id</string>
