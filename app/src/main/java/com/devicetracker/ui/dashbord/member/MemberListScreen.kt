@@ -32,6 +32,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -74,9 +75,12 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
     val memberViewModel: MemberViewModel = hiltViewModel()
     val isMemberEditablePermission by memberViewModel.isMemberEditablePermission().observeAsState(false)
     val members by memberViewModel.members.observeAsState(initial = emptyList())
-    val state = rememberPullToRefreshState()
+    val pullToRefreshState = rememberPullToRefreshState()
     val onRefresh: () -> Unit = {
         Log.d("MemberList", "nkp onRefresh call")
+        memberViewModel.refreshMembers()
+    }
+    LaunchedEffect(Unit) {
         memberViewModel.refreshMembers()
     }
 
@@ -112,7 +116,7 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
             modifier = Modifier
                 .padding(it)
                 .fillMaxWidth(),
-            state = state,
+            state = pullToRefreshState,
             isRefreshing = memberViewModel.isLoaderShowing,
             onRefresh = onRefresh,
             contentAlignment = Alignment.TopCenter
@@ -121,7 +125,6 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(members) {
                         UserRow(it) { memberId ->
-                            Log.d("MemberListScreen", "nkp itemClick $memberId")
                             navHostController.navigate("member_detail/$memberId")
                         }
                     }

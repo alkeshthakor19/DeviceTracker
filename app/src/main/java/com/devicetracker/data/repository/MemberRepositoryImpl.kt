@@ -3,7 +3,10 @@ package com.devicetracker.data.repository
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import com.devicetracker.core.Constants.ASSET_DOC_ID
 import com.devicetracker.core.Constants.ASSET_EDITABLE_PERMISSION
+import com.devicetracker.core.Constants.COLLECTION_ASSETS
+import com.devicetracker.core.Constants.COLLECTION_ASSETS_HISTORY
 import com.devicetracker.core.Constants.COLLECTION_MEMBERS
 import com.devicetracker.core.Constants.CREATED_AT
 import com.devicetracker.core.Constants.EMAIL_ADDRESS
@@ -85,7 +88,6 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
         val resultUri = imageRef.downloadUrl.await()
         addMember(employeeCode, memberName, emailAddress, resultUri.toString(), memberEditablePermission, assetEditablePermission, mobileNumber)
         onNavUp()
-        Log.d("MemberRepositoryImpl", "nkp uploadImageAndAddNewMemberToFirebase()")
         Success(true)
     } catch (e: Exception) {
         e.printStackTrace()
@@ -94,7 +96,6 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
 
     override suspend fun getMembersFromFirebase() : GetMembersResponse {
         val querySnapshot = db.collection(COLLECTION_MEMBERS).get().await()
-        Log.d("MemberRepositoryImpl", "nkp getMembersFromFirebase()")
         var members : List<Member> = emptyList()
         try {
             if (querySnapshot != null && !querySnapshot.isEmpty) {
@@ -113,16 +114,15 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
 
     override suspend fun getMembersDetailById(memberId: String): GetMembersByIdResponse {
         val document = db.collection(COLLECTION_MEMBERS).document(memberId).get().await()
-        var member : Member? = null
+        var member  = Member()
         try {
-            member = document.toObject(Member::class.java)
-            if (member != null) {
+            if(document.toObject(Member::class.java) != null){
+                member = document.toObject(Member::class.java)!!
                 member.memberId = document.id
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        Log.d("MemberRepositoryImpl", "nkp getMembersDetailById()")
         return member
     }
 
@@ -141,5 +141,16 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
             e.printStackTrace()
         }
         return isMemberEditableUser
+    }
+
+    override suspend fun deleteMember(memberId: String, onSuccess: () -> Unit) {
+        db.collection(COLLECTION_MEMBERS).document(memberId).delete()
+            .addOnSuccessListener {
+                onSuccess()
+            }
+            .addOnFailureListener { e ->
+                // Handle failure
+                Log.w("MemberRepositoryImp", "nkp Error deleting Member", e)
+            }
     }
 }

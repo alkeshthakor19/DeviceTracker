@@ -2,6 +2,7 @@ package com.devicetracker.ui.dashbord.member
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,21 +22,25 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,6 +60,7 @@ import com.devicetracker.R
 import com.devicetracker.core.Constants.INT_SIZE_24
 import com.devicetracker.core.Constants.INT_SIZE_80
 import com.devicetracker.getDateStringFromTimestamp
+import com.devicetracker.ui.DeleteConfirmationDialog
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.LabelAndTextWithColor
@@ -76,8 +82,9 @@ fun MemberProfileScreen(
     onNavUp: () -> Unit,
     navHostController: NavHostController
 ) {
+    val context = LocalContext.current
     val memberViewModel : MemberViewModel = hiltViewModel()
-    val memberData by memberViewModel.fetchMember(memberId).observeAsState()
+    val memberData by memberViewModel.member.observeAsState()
 
     val assetViewModel: AssetViewModel = hiltViewModel()
     val assetListByMemberId = remember { mutableStateOf<List<Asset>>(emptyList()) }
@@ -91,16 +98,29 @@ fun MemberProfileScreen(
             Log.d("MemberProfileScreen", "nkp assetListByMemberId1 size ${assetListByMemberId.value.size}")
         }
     }
-    val isEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
+
+    val memberEditablePermission by memberViewModel.isMemberEditablePermission().observeAsState(false)
+    var isDialogOpen by remember { mutableStateOf(false) }
+    LaunchedEffect(memberId) {
+        memberViewModel.fetchMember(memberId)
+    }
     Scaffold(
         topBar = {
-            TopBarWithTitleAndBackNavigation(titleText = memberData?.memberName?: "NA", onNavUp)
+            TopBarWithTitleAndBackNavigation(
+                titleText = memberData?.memberName?: "NA",
+                onNavUp = onNavUp,
+                actions = {
+                    if(memberEditablePermission) {
+                        IconButton(onClick = { isDialogOpen = true }) {
+                            Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete Asset")
+                        }
+                    }
+                }
+            )
         },
         floatingActionButton = {
-            if(isEditablePermission) {
-                FloatingActionButton(onClick = { }, modifier = Modifier.padding(bottom = 24.dp) ) {
-                    Icon(Icons.Filled.Edit, contentDescription ="Edit Member Detail" )
-                }
+            FloatingActionButton(onClick = { }, modifier = Modifier.padding(bottom = 24.dp) ) {
+                Icon(Icons.Filled.Edit, contentDescription ="Edit Member Detail" )
             }
         }
     ) {
@@ -139,6 +159,18 @@ fun MemberProfileScreen(
                     }
                 }
             }
+            DeleteConfirmationDialog(
+                title = "Member Deletion",
+                message = "Are you sure you want to delete this member?",
+                isDialogOpen = isDialogOpen,
+                onDismiss = { isDialogOpen = false },
+                onConfirm = {
+                    memberViewModel.deleteMemberByMemberDocId(memberId){
+                        Toast.makeText(context, R.string.member_delete_success_message, Toast.LENGTH_LONG).show()
+                        navHostController.popBackStack()
+                    }
+                }
+            )
         }
     }
 }

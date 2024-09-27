@@ -26,8 +26,9 @@ class MemberViewModel @Inject constructor(
     private val repo: MemberRepository
 ) :  ViewModel() {
     private val _members = MutableLiveData<List<Member>>()
+    val members: LiveData<List<Member>> get() = _members
+
     private val _member = MutableLiveData<Member>()
-    var members: LiveData<List<Member>> = _members
     val member: LiveData<Member> get() = _member
 
     var addedMemberResponse by mutableStateOf<AddMemberResponse>(Response.Success(false))
@@ -35,10 +36,6 @@ class MemberViewModel @Inject constructor(
 
     var isLoaderShowing by mutableStateOf(true)
         private set
-
-    init {
-        refreshMembers()
-    }
 
     fun addNewMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, memberEditablePermission: Boolean, assetEditablePermission: Boolean, mobileNumber: String) = viewModelScope.launch {
         addedMemberResponse = Response.Loading
@@ -76,8 +73,11 @@ class MemberViewModel @Inject constructor(
         return result
     }
 
-    fun fetchMember(memberId: String) = liveData(Dispatchers.IO) {
-        emit(getMemberDetailById(memberId))
+    fun fetchMember(memberId: String) {
+        viewModelScope.launch {
+            val newMember = getMemberDetailById(memberId)
+            _member.postValue(newMember)
+        }
     }
 
     private suspend fun getMemberDetailById(memberId: String) : GetMembersByIdResponse {
@@ -94,6 +94,16 @@ class MemberViewModel @Inject constructor(
     private suspend fun getMemberEditablePermission(): Boolean {
         val result = repo.isMemberEditablePermission()
         return result
+    }
+
+    fun deleteMemberByMemberDocId(memberId: String, onSuccess: () -> Unit) {
+        isLoaderShowing = true
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.deleteMember(memberId){
+                onSuccess()
+                isLoaderShowing = false
+            }
+        }
     }
 
     companion object {

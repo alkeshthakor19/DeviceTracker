@@ -7,7 +7,7 @@ import com.devicetracker.ui.dashbord.member.Member
 
 typealias AddMemberResponse = Response<Boolean>
 typealias GetMembersResponse = List<Member>
-typealias GetMembersByIdResponse = Member?
+typealias GetMembersByIdResponse = Member
 
 interface MemberRepository {
     suspend fun addMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, memberEditablePermission: Boolean, assetEditablePermission: Boolean, mobileNumber: String): AddMemberResponse
@@ -29,4 +29,6 @@ interface MemberRepository {
     suspend fun getMembersDetailById(memberId: String) : GetMembersByIdResponse
 
     suspend fun isMemberEditablePermission() : Boolean
+
+    suspend fun deleteMember(memberId: String, onSuccess: () -> Unit)
 }

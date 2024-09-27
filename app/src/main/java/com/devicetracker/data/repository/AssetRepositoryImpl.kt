@@ -177,12 +177,11 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
     }
     override suspend fun getAssetsDetailById(assetDocId: String): GetAssetsByIdResponse {
         val document = db.collection(COLLECTION_ASSETS).document(assetDocId).get().await()
-        var asset : Asset? = null
+        var asset : Asset = Asset()
         try {
-            asset = document.toObject(Asset::class.java)
-            if (asset != null) {
+            if( document.toObject(Asset::class.java) != null) {
+                asset = document.toObject(Asset::class.java)!!
                 asset.assetDocId = document.id
-                Log.d("AssetRepo", "nkp id ${asset.assetId} workingStatus : ${asset.assetWorkingStatus}")
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -395,6 +394,32 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             e.printStackTrace()
         }
         return isAssetEditablePermission
+    }
+
+    override suspend fun deleteAsset(assetDocId: String, onSuccess: () -> Unit) {
+        db.collection(COLLECTION_ASSETS).document(assetDocId).delete()
+        .addOnSuccessListener {
+            db.collection(COLLECTION_ASSETS_HISTORY).whereEqualTo(ASSET_DOC_ID, assetDocId).get().addOnSuccessListener { querySnapshot ->
+                if(!querySnapshot.isEmpty){
+                    for((index, document) in querySnapshot.documents.withIndex()) {
+                        document.reference.delete().addOnSuccessListener {
+                            if( index == (querySnapshot.size().minus(1)) ) {
+                                onSuccess()
+                            }
+                        }
+                        .addOnFailureListener { e ->
+                            Log.w("AssetRepositoryImp", "nkp Error deleting assetHistory by assetDocId: ${e.message}")
+                        }
+                    }
+                } else {
+                    onSuccess()
+                }
+            }
+        }
+        .addOnFailureListener { e ->
+            // Handle failure
+            Log.w("AssetRepositoryImp", "nkp Error deleting Asset", e)
+        }
     }
 
 }

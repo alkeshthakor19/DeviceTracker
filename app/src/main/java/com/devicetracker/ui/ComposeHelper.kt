@@ -1,11 +1,13 @@
 package com.devicetracker.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -13,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -32,7 +35,8 @@ import com.devicetracker.ui.theme.AssetTrackerTheme
 @Composable
 fun TopBarWithTitleAndBackNavigation(
     titleText: String,
-    onNavUp: () -> Unit
+    onNavUp: () -> Unit,
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
         title = { Text(text = titleText, style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
@@ -48,6 +52,7 @@ fun TopBarWithTitleAndBackNavigation(
             containerColor = MaterialTheme.colorScheme.secondaryContainer,
             titleContentColor = Color.Black,
         ),
+        actions = actions
     )
 }
 
@@ -80,4 +85,34 @@ fun getWidthInPercent(widthInPercent: Float): Dp {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp
     return (screenWidth * (widthInPercent/100)).dp
+}
+
+@Composable
+fun DeleteConfirmationDialog(
+    title: String,
+    message: String,
+    isDialogOpen: Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    if (isDialogOpen) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = title, fontSize = getFontSizeByPercent(fontSizeInPercent = 4f)) },
+            text = { Text(text = message, fontSize = getFontSizeByPercent(fontSizeInPercent = 3.5f)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    onConfirm()
+                    onDismiss()
+                }) {
+                    Text(stringResource(id = R.string.str_delete), fontSize = getFontSizeByPercent(fontSizeInPercent = 4f), color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(id = R.string.str_cancel), fontSize = getFontSizeByPercent(fontSizeInPercent = 4f))
+                }
+            }
+        )
+    }
 }

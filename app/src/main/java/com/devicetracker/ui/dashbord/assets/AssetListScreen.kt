@@ -31,6 +31,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -72,12 +73,15 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
     // Observe LiveData from ViewModel
     val assets by assetViewModel.assets.observeAsState(initial = emptyList())
     Log.d("AssetListScreen", "nkp 1 size of assets  ${assets.size}")
-    val state = rememberPullToRefreshState()
+    val pullToRefreshState = rememberPullToRefreshState()
     val onRefreshAsset: () -> Unit = {
         Log.d("MemberList", "nkp onRefresh call")
         assetViewModel.refreshAssets()
     }
     val isEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
+    LaunchedEffect(Unit) {
+        assetViewModel.refreshAssets()
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -112,7 +116,7 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
                 .fillMaxWidth(),
             isRefreshing = assetViewModel.isLoaderShowing,
             onRefresh = onRefreshAsset,
-            state = state,
+            state = pullToRefreshState,
             contentAlignment = Alignment.TopCenter
         ) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {

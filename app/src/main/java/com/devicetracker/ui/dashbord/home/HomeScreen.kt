@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -31,13 +32,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.devicetracker.R
 import com.devicetracker.core.Constants.UNASSIGN_ID
-import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.dashbord.assets.Asset
 import com.devicetracker.ui.dashbord.assets.AssetType
+import com.devicetracker.ui.getFontSizeByPercent
+import com.devicetracker.ui.getWidthInPercent
 import com.devicetracker.ui.theme.AssetTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,26 +107,25 @@ fun AssetShortInfo(assetType: String, assignedAsset: Int, unAssignedAsset: Int){
         border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Column(
-            modifier = Modifier
-                .padding(top = 4.dp, bottom = 8.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.padding(top = 4.dp, bottom = 8.dp).fillMaxWidth(),
+            horizontalAlignment = Alignment.Start
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.padding(start = 20.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Start
             ) {
                 Text(
-                    text = "Total number of $assetType : ",
-                    fontSize = 18.sp,
+                    modifier = Modifier.width(getWidthInPercent(45f)),
+                    text = "Total $assetType : ",
+                    fontSize = getFontSizeByPercent(fontSizeInPercent = 4.5f),
                     fontStyle = FontStyle.Italic,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = (assignedAsset + unAssignedAsset).toString(),
-                    fontSize = 24.sp,
+                    fontSize = getFontSizeByPercent(fontSizeInPercent = 5f),
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary
@@ -133,28 +133,33 @@ fun AssetShortInfo(assetType: String, assignedAsset: Int, unAssignedAsset: Int){
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(start = 20.dp)
             ) {
                 Text(
+                    modifier = Modifier.width(getWidthInPercent(45f)),
                     text = "Assigned $assetType : " ,
-                    fontSize = 16.sp,
+                    fontSize = getFontSizeByPercent(fontSizeInPercent = 4f),
                     color = Color.Gray
                 )
-                Text(text = assignedAsset.toString(),
-                    fontSize = 18.sp,
+                Text(
+                    text = assignedAsset.toString(),
+                    fontSize = getFontSizeByPercent(fontSizeInPercent = 4.5f),
                     color = AssetTrackerTheme.colors.textColor,
                 )
             }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.padding(start = 20.dp)
             ) {
                 Text(
+                    modifier = Modifier.width(getWidthInPercent(45f)),
                     text = "Un Assigned $assetType : " ,
-                    fontSize = 16.sp,
+                    fontSize = getFontSizeByPercent(fontSizeInPercent = 4f),
                     color = Color.Gray
                 )
-                Text(text = unAssignedAsset.toString(),
-                    fontSize = 18.sp,
+                Text(
+                    text = unAssignedAsset.toString(),
+                    fontSize = getFontSizeByPercent(fontSizeInPercent = 4.5f),
                     color = AssetTrackerTheme.colors.textColor,
                 )
             }

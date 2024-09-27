@@ -2,6 +2,7 @@ package com.devicetracker.ui.dashbord.assets
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,21 +20,29 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,6 +60,8 @@ import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.getDateStringFromTimestamp
 import com.devicetracker.singleClick
+import com.devicetracker.ui.DeleteConfirmationDialog
+import com.devicetracker.ui.Destinations.ASSET_SEARCH
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.BlackLabelText
@@ -64,12 +75,28 @@ import com.devicetracker.ui.getWidthInPercent
 @Composable
 fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController: NavHostController) {
     val assetViewModel : AssetViewModel = hiltViewModel()
-    val assetData = remember(assetDocId) { assetViewModel.fetchAssetDetailById(assetDocId) }.observeAsState()
-    val assignedHistories by assetViewModel.getAssetHistories(assetDocId).observeAsState(emptyList())
-    val isEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
+    val assetData = assetViewModel.asset.observeAsState()
+    val assignedHistories by assetViewModel.assetHistories.observeAsState(initial = emptyList())
+    val assetEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
+    var isDialogOpen by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    LaunchedEffect(assetDocId) {
+        assetViewModel.fetchAssetDetailById(assetDocId)
+        assetViewModel.getAssetHistories(assetDocId)
+    }
     Scaffold(
         topBar = {
-            TopBarWithTitleAndBackNavigation(titleText = assetData.value?.assetName ?: "NA", onNavUp)
+            TopBarWithTitleAndBackNavigation(
+                titleText = assetData.value?.assetName ?: "NA",
+                onNavUp= onNavUp,
+                actions = {
+                    if(assetEditablePermission) {
+                        IconButton(onClick = { isDialogOpen = true }) {
+                            Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete Asset")
+                        }
+                    }
+                }
+            )
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -96,6 +123,18 @@ fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController
                     DescriptionSection(assetData.value?.description)
                     Spacer(modifier = Modifier.height(15.dp))
                     BlackLabelText("Assigned Histories")
+                    DeleteConfirmationDialog(
+                        title = "Asset Deletion",
+                        message = "Are you sure you want to delete this asset?",
+                        isDialogOpen = isDialogOpen,
+                        onDismiss = { isDialogOpen = false },
+                        onConfirm = {
+                            assetViewModel.deleteAssetByAssetDocId(assetDocId){
+                                Toast.makeText(context, R.string.asset_delete_success_message, Toast.LENGTH_LONG).show()
+                                navHostController.popBackStack()
+                            }
+                        }
+                    )
                 }
                 assetHistorySection(assignedHistories)
             }

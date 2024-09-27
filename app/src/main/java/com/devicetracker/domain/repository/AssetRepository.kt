@@ -10,7 +10,7 @@ import com.devicetracker.ui.dashbord.member.Member
 
 typealias AddAssetResponse = Response<Boolean>
 typealias GetAssetsResponse = List<Asset>
-typealias GetAssetsByIdResponse = Asset?
+typealias GetAssetsByIdResponse = Asset
 typealias GetAssignHistoriesResponse = List<AssetHistory>
 typealias UpdateAssetResponse = Response<Boolean>
 typealias AddModelResponse = Response<Boolean>
@@ -82,4 +82,6 @@ interface AssetRepository {
     suspend fun getAssetsByAssetType(assetType: String) : List<Asset>
 
     suspend fun isAssetEditablePermission() : Boolean
+
+    suspend fun deleteAsset(assetDocId: String, onSuccess: () -> Unit)
 }

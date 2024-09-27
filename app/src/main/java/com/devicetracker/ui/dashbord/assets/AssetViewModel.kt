@@ -32,7 +32,10 @@ class AssetViewModel @Inject constructor(
     val assets: LiveData<List<Asset>> get() = _assets
 
     private val _asset = MutableLiveData<Asset>()
-    val asset: LiveData<Asset> = _asset
+    val asset: LiveData<Asset> get() = _asset
+
+    private val _assetHistories = MutableLiveData<List<AssetHistory>>()
+    val assetHistories: LiveData<List<AssetHistory>> get() = _assetHistories
 
     private val _models = MutableLiveData<List<String>>()
     val models: LiveData<List<String>> = _models
@@ -47,10 +50,6 @@ class AssetViewModel @Inject constructor(
         private set
 
     private var updateAssetResponse by mutableStateOf<AddAssetResponse>(Response.Success(false))
-
-    init {
-        refreshAssets()
-    }
 
     fun uploadImageAndAddNewAssetToFirebase(
         imageUri: Uri?,
@@ -108,8 +107,11 @@ class AssetViewModel @Inject constructor(
         return result
     }
 
-    fun fetchAssetDetailById(assetDocId: String) = liveData(Dispatchers.IO) {
-        emit(getAssetDetailById(assetDocId))
+    fun fetchAssetDetailById(assetDocId: String) {
+        viewModelScope.launch {
+            val newAsset = getAssetDetailById(assetDocId)
+            _asset.postValue(newAsset)
+        }
     }
 
     private suspend fun getAssetDetailById(assetDocId: String) : GetAssetsByIdResponse {
@@ -119,8 +121,11 @@ class AssetViewModel @Inject constructor(
         return result
     }
 
-    fun getAssetHistories(assetDocId: String) = liveData(Dispatchers.IO) {
-        emit(fetchAssetHistories(assetDocId))
+    fun getAssetHistories(assetDocId: String) {
+        viewModelScope.launch {
+            val newAssetHistories = fetchAssetHistories(assetDocId)
+            _assetHistories.postValue(newAssetHistories)
+        }
     }
 
     private suspend fun fetchAssetHistories(assetDocId: String): GetAssignHistoriesResponse {
@@ -171,6 +176,22 @@ class AssetViewModel @Inject constructor(
     private suspend fun getAssetEditablePermission(): Boolean {
         val result = repo.isAssetEditablePermission()
         return result
+    }
+
+    /**
+     * For Delete the asset details by assetDocId
+     *
+     * @param assetDocId
+     * @param onSuccess
+     */
+    fun deleteAssetByAssetDocId(assetDocId: String, onSuccess: () -> Unit) {
+        isLoaderShowing = true
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.deleteAsset(assetDocId){
+                onSuccess()
+                isLoaderShowing = false
+            }
+        }
     }
 
     companion object {

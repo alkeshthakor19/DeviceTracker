@@ -46,4 +46,8 @@
     <string name="str_working_status">Working Status</string>
     <string name="str_yes">Yes</string>
     <string name="str_no">No</string>
+    <string name="asset_delete_success_message">Asset successfully deleted!</string>
+    <string name="member_delete_success_message">Member successfully deleted!</string>
+    <string name="str_delete">Delete</string>
+    <string name="str_cancel">Cancel</string>
 </resources>
