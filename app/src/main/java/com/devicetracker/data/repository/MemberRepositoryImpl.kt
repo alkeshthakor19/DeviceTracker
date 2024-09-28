@@ -3,10 +3,7 @@ package com.devicetracker.data.repository
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
-import com.devicetracker.core.Constants.ASSET_DOC_ID
 import com.devicetracker.core.Constants.ASSET_EDITABLE_PERMISSION
-import com.devicetracker.core.Constants.COLLECTION_ASSETS
-import com.devicetracker.core.Constants.COLLECTION_ASSETS_HISTORY
 import com.devicetracker.core.Constants.COLLECTION_MEMBERS
 import com.devicetracker.core.Constants.CREATED_AT
 import com.devicetracker.core.Constants.EMAIL_ADDRESS

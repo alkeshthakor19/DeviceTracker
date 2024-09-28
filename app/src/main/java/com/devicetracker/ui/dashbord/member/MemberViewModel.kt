@@ -31,6 +31,9 @@ class MemberViewModel @Inject constructor(
     private val _member = MutableLiveData<Member>()
     val member: LiveData<Member> get() = _member
 
+    private val _memberEmail = MutableLiveData<String>()
+    val memberEmail: LiveData<String> get() = _memberEmail
+
     var addedMemberResponse by mutableStateOf<AddMemberResponse>(Response.Success(false))
         private set
 

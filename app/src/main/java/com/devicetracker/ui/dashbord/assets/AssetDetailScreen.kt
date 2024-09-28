@@ -22,8 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,7 +32,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,7 +58,6 @@ import com.devicetracker.R
 import com.devicetracker.getDateStringFromTimestamp
 import com.devicetracker.singleClick
 import com.devicetracker.ui.DeleteConfirmationDialog
-import com.devicetracker.ui.Destinations.ASSET_SEARCH
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.BlackLabelText
@@ -70,6 +66,7 @@ import com.devicetracker.ui.components.TextWithLabel
 import com.devicetracker.ui.dashbord.member.MemberViewModel
 import com.devicetracker.ui.getFontSizeByPercent
 import com.devicetracker.ui.getWidthInPercent
+import com.google.firebase.auth.FirebaseAuth
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -80,6 +77,9 @@ fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController
     val assetEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
     var isDialogOpen by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val memberViewModel : MemberViewModel = hiltViewModel()
+    val assetOwnerDetail by memberViewModel.member.observeAsState()
+
     LaunchedEffect(assetDocId) {
         assetViewModel.fetchAssetDetailById(assetDocId)
         assetViewModel.getAssetHistories(assetDocId)
@@ -99,13 +99,18 @@ fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = singleClick{
-                    navHostController.navigate("edit_asset/${assetDocId}")
-                },
-                modifier = Modifier.padding(bottom = 24.dp)
-            ) {
-                Icon(Icons.Filled.Edit, contentDescription ="Edit Asset Detail" )
+            LaunchedEffect(assetData.value?.assetOwnerId) {
+                assetData.value?.assetOwnerId?.let { memberViewModel.fetchMember(it) }
+            }
+            if( assetEditablePermission || (FirebaseAuth.getInstance().currentUser?.email == assetOwnerDetail?.emailAddress)) {
+                FloatingActionButton(
+                    onClick = singleClick {
+                        navHostController.navigate("edit_asset/${assetDocId}")
+                    },
+                    modifier = Modifier.padding(bottom = 24.dp)
+                ) {
+                    Icon(Icons.Filled.Edit, contentDescription = "Edit Asset Detail")
+                }
             }
         }
     ) {

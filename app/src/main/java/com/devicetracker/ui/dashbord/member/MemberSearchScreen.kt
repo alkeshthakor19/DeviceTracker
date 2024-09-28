@@ -19,7 +19,9 @@ import androidx.compose.material3.*
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -36,14 +38,18 @@ import com.devicetracker.ui.components.CustomSearchTextField
 fun MemberSearchScreen(navHostController: NavHostController, onNavUp: () -> Unit){
     val memberViewModel: MemberViewModel = hiltViewModel()
     var text by rememberSaveable { mutableStateOf(Constants.EMPTY_STR) }
-    var members = emptyList<Member>()
+    val members by memberViewModel.members.observeAsState(emptyList())
     var membersFilter: List<Member>
-    memberViewModel.members.observe(LocalLifecycleOwner.current) {
-        members = it
+
+    LaunchedEffect(Unit) {
+        memberViewModel.refreshMembers()
     }
     Scaffold (
         topBar = {
-            Row(modifier = Modifier.fillMaxWidth().height(TopAppBarDefaults.LargeAppBarCollapsedHeight).background(color = MaterialTheme.colorScheme.secondaryContainer), verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .height(TopAppBarDefaults.LargeAppBarCollapsedHeight)
+                .background(color = MaterialTheme.colorScheme.secondaryContainer), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onNavUp) {
                     Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
                 }

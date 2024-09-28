@@ -177,7 +177,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
     }
     override suspend fun getAssetsDetailById(assetDocId: String): GetAssetsByIdResponse {
         val document = db.collection(COLLECTION_ASSETS).document(assetDocId).get().await()
-        var asset : Asset = Asset()
+        var asset = Asset()
         try {
             if( document.toObject(Asset::class.java) != null) {
                 asset = document.toObject(Asset::class.java)!!
@@ -186,7 +186,6 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        Log.d("AssetRepositoryImpl", "getAssetsDetailById()")
         return asset
     }
 
