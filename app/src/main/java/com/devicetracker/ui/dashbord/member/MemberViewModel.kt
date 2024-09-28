@@ -67,8 +67,7 @@ class MemberViewModel @Inject constructor(
         }
     }
 
-    suspend fun fetchMembers(): GetMembersResponse {
-        Log.d("MemberViewModel", "nkp call fetchMembers()")
+    private suspend fun fetchMembers(): GetMembersResponse {
         isLoaderShowing = true
         val result = repo.getMembersFromFirebase()
         isLoaderShowing = false

@@ -35,7 +35,6 @@ fun LoaderShowHide(showErrorMessage: (errorMessage: String?) -> Unit) {
             val isAddedMember = addedMemberResponse.data
             if (isAddedMember) {
                 showMessage(context, "Added new member successfully!!")
-                coroutineScope.launch(Dispatchers.IO) { memberViewModel.fetchMembers() }
             }
             Unit
         }

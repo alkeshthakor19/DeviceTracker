@@ -32,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -141,7 +142,9 @@ fun AddAsset(
     val noOwnerMember = Member(memberId = UNASSIGN_ID, memberName = UNASSIGN_NAME)
     memberList.add(noOwnerMember)
     memberList.addAll(members)
-
+    LaunchedEffect(Unit){
+        memberViewModel.refreshMembers()
+    }
     val assetNameState = remember { AssetNameState() }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }

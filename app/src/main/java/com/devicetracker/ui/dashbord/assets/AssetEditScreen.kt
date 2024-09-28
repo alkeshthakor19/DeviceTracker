@@ -165,12 +165,16 @@ fun UpdateAsset(
     val noOwnerMember = Member(memberId = UNASSIGN_ID, memberName = UNASSIGN_NAME)
     memberList.add(noOwnerMember)
     memberList.addAll(members)
+    LaunchedEffect(Unit){
+        memberViewModel.refreshMembers()
+    }
     val initOwner = if(initialAssetData?.assetOwnerId != null && memberList.isNotEmpty()){
         memberList.find { it.memberId == initialAssetData.assetOwnerId }
     } else {
         memberList.first()
     }
     val selectedOwner = remember { mutableStateOf(initOwner)}
+    selectedOwner.value = initOwner
 
     Log.d("AssetEditScreen","nkp asset name: $initialAssetData")
     val assetNameState = remember { AssetNameState() }
