@@ -1,6 +1,5 @@
 package com.devicetracker.ui.dashbord
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,15 +28,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.devicetracker.R
+import com.devicetracker.ui.AuthViewModel
 import com.devicetracker.ui.Destinations.ASSETS
 import com.devicetracker.ui.Destinations.ASSET_MODEL
 import com.devicetracker.ui.Destinations.HOME
 import com.devicetracker.ui.Destinations.LOGIN_ROUTE
 import com.devicetracker.ui.Destinations.LOGOUT
 import com.devicetracker.ui.Destinations.MEMBERS
-import com.devicetracker.ui.AuthViewModel
 import com.devicetracker.ui.dashbord.assets.AssetViewModel
-import com.devicetracker.ui.dashbord.member.MemberViewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -141,9 +139,7 @@ fun DashboardRoute(mainNavHostController: NavHostController) {
                     }
                }
           }
-          Log.d("DashRoute", "nkp DashboardNavHostContent call")
+          //Log.d("DashRoute", "DashboardNavHostContent call")
           DashboardNavHostContent(navigationController, drawerState)
-
-
      }
 }

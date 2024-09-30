@@ -51,4 +51,8 @@
     <string name="member_delete_success_message">Member successfully deleted!</string>
     <string name="str_delete">Delete</string>
     <string name="str_cancel">Cancel</string>
+
+    <string name="str_member_list">Member List</string>
+    <string name="str_search">Search</string>
+    <string name="str_menu">Menu</string>
 </resources>

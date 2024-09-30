@@ -2,7 +2,6 @@ package com.devicetracker.ui.dashbord.member
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -31,9 +30,6 @@ class MemberViewModel @Inject constructor(
     private val _member = MutableLiveData<Member>()
     val member: LiveData<Member> get() = _member
 
-    private val _memberEmail = MutableLiveData<String>()
-    val memberEmail: LiveData<String> get() = _memberEmail
-
     var addedMemberResponse by mutableStateOf<AddMemberResponse>(Response.Success(false))
         private set
 
@@ -41,12 +37,6 @@ class MemberViewModel @Inject constructor(
 
     var isLoaderShowing by mutableStateOf(true)
         private set
-
-    fun addNewMember(employeeCode: Int, memberName: String, emailAddress: String, imageUrl: String, memberEditablePermission: Boolean, assetEditablePermission: Boolean, mobileNumber: String) = viewModelScope.launch {
-        addedMemberResponse = Response.Loading
-        Log.d("MemberVM", "nkp employeeCode $employeeCode, memberName $memberName, emailAddress $emailAddress memberEditablePermission $memberEditablePermission")
-        addedMemberResponse = repo.addMember(employeeCode,memberName, emailAddress, imageUrl, memberEditablePermission, assetEditablePermission, mobileNumber)
-    }
 
     fun uploadImageAndAddNewMemberToFirebase(
         imageUri: Uri?,
@@ -137,9 +127,5 @@ class MemberViewModel @Inject constructor(
             mobileNumber,
             onNavUp
         )
-    }
-
-    companion object {
-        private const val TAG = "NewMemberViewModel"
     }
 }

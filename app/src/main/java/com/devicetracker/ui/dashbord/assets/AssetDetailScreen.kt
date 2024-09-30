@@ -1,7 +1,6 @@
 package com.devicetracker.ui.dashbord.assets
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -257,9 +256,9 @@ fun AssignHistoryContent(assetHistory: AssetHistory) {
 }
 
 fun LazyListScope.assetHistorySection(assignedHistories: List<AssetHistory>) {
-    Log.d("AssetDetailScreen", "nkp previousHistories ${assignedHistories.size}")
     items(assignedHistories.size) { index ->
         AssignHistoryRow(assetHistory = assignedHistories[index]) {
+            // TODO for click event
         }
     }
 }

@@ -148,7 +148,7 @@ class MemberRepositoryImpl @Inject constructor(private val db: FirebaseFirestore
             }
             .addOnFailureListener { e ->
                 // Handle failure
-                Log.w("MemberRepositoryImp", "nkp Error deleting Member", e)
+                Log.w("MemberRepositoryImpl", "Error deleting Member", e)
             }
     }
 

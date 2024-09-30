@@ -77,7 +77,6 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
     val members by memberViewModel.members.observeAsState(initial = emptyList())
     val pullToRefreshState = rememberPullToRefreshState()
     val onRefresh: () -> Unit = {
-        Log.d("MemberList", "nkp onRefresh call")
         memberViewModel.refreshMembers()
     }
     LaunchedEffect(Unit) {
@@ -87,15 +86,17 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
     Scaffold (
         topBar = {
             TopAppBar(
-                title = { Text("Member List",  style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
+                title = { Text(stringResource(id = R.string.str_member_list),  style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
-                        Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        Icon(imageVector = Icons.Filled.Menu, contentDescription = stringResource(id = R.string.str_menu))
                     }
                 },
                 actions = {
                     IconButton(onClick = { navHostController.navigate(MEMBER_SEARCH) }) {
-                        Icon(imageVector = Icons.Filled.Search, contentDescription = "Search")
+                        Icon(imageVector = Icons.Filled.Search, contentDescription = stringResource(
+                            id = R.string.str_search
+                        ))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

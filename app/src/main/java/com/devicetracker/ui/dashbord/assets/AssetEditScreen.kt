@@ -89,8 +89,12 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
     val assetViewModel: AssetViewModel = hiltViewModel()
     val assetData by assetViewModel.asset.observeAsState()
     val assetEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
+    val memberViewModel: MemberViewModel = hiltViewModel()
+    val members by memberViewModel.members.observeAsState(emptyList())
+
     LaunchedEffect(assetDocId) {
         assetViewModel.fetchAssetDetailById(assetDocId)
+        memberViewModel.refreshMembers()
     }
     Scaffold(
             topBar = {
@@ -134,7 +138,8 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
                         focusManager = focusManager,
                         keyboardController = keyboardController,
                         initialAssetData = assetData,
-                        assetEditablePermission
+                        assetEditablePermission,
+                        members
                     )
                 }
             }
@@ -147,7 +152,8 @@ fun UpdateAsset(
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?,
     initialAssetData: Asset?,
-    assetEditablePermission: Boolean
+    assetEditablePermission: Boolean,
+    members: List<Member>
 ) {
     val selectedModelName = if(initialAssetData?.modelName != null){
         initialAssetData.modelName
@@ -159,24 +165,21 @@ fun UpdateAsset(
     } else {
         AssetType.TAB.name
     }
-    val memberViewModel: MemberViewModel = hiltViewModel()
-    val members by memberViewModel.members.observeAsState(emptyList())
+
     val memberList = mutableListOf<Member>()
     val noOwnerMember = Member(memberId = UNASSIGN_ID, memberName = UNASSIGN_NAME)
     memberList.add(noOwnerMember)
     memberList.addAll(members)
-    LaunchedEffect(Unit){
-        memberViewModel.refreshMembers()
-    }
     val initOwner = if(initialAssetData?.assetOwnerId != null && memberList.isNotEmpty()){
         memberList.find { it.memberId == initialAssetData.assetOwnerId }
     } else {
         memberList.first()
     }
     val selectedOwner = remember { mutableStateOf(initOwner)}
-    selectedOwner.value = initOwner
+    if(selectedOwner.value == null || (selectedOwner.value?.memberId == initialAssetData?.assetOwnerId)){
+        selectedOwner.value = initOwner
+    }
 
-    Log.d("AssetEditScreen","nkp asset name: $initialAssetData")
     val assetNameState = remember { AssetNameState() }
     assetNameState.text = initialAssetData?.assetName ?: Constants.EMPTY_STR
     val initImageUri = if(initialAssetData?.imageUrl != null) {
@@ -312,7 +315,6 @@ fun UpdateAsset(
             )
             AssetSerialNumberField(assetSerialNumber = serialNumberState, isEditable = assetEditablePermission)
             OwnerSpinner(memberList = memberList, selectedOwner = selectedOwner.value) {
-                Log.d("AssetEdit", "nkp selected click name ${it.memberName}")
                 selectedOwner.value = it
             }
             AssetQuantityField(quantity = assetQuantityState, isEditable = assetEditablePermission)

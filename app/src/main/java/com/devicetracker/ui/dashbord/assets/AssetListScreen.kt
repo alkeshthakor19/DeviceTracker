@@ -72,10 +72,8 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
     val assetViewModel: AssetViewModel = hiltViewModel()
     // Observe LiveData from ViewModel
     val assets by assetViewModel.assets.observeAsState(initial = emptyList())
-    Log.d("AssetListScreen", "nkp 1 size of assets  ${assets.size}")
     val pullToRefreshState = rememberPullToRefreshState()
     val onRefreshAsset: () -> Unit = {
-        Log.d("MemberList", "nkp onRefresh call")
         assetViewModel.refreshAssets()
     }
     val isEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)

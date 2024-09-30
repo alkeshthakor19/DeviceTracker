@@ -1,7 +1,6 @@
 package com.devicetracker.ui.dashbord.member
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -227,7 +226,6 @@ fun LazyListScope.assignAssetListSection(
     assetListByMemberId: List<Asset>,
     navHostController: NavHostController
 ) {
-    Log.d("MemberProfileScreen", "nkp list assetListByMemberId size ${assetListByMemberId.size}")
     items(assetListByMemberId) {
         AssignedAssetRow(asset = it) { assetId ->
             navHostController.navigate("asset_detail/${assetId}")

@@ -2,7 +2,6 @@ package com.devicetracker.ui.dashbord.member
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -64,8 +63,8 @@ import com.devicetracker.ui.components.AssetEditableCheckBox
 import com.devicetracker.ui.components.CheckBoxState
 import com.devicetracker.ui.components.EmailField
 import com.devicetracker.ui.components.EmailState
-import com.devicetracker.ui.components.EmployeeCodeField
 import com.devicetracker.ui.components.EmloyeeCodeState
+import com.devicetracker.ui.components.EmployeeCodeField
 import com.devicetracker.ui.components.MemberEditableCheckBox
 import com.devicetracker.ui.components.MemberMobileField
 import com.devicetracker.ui.components.MemberNameField
@@ -165,7 +164,6 @@ fun AddMember(
         } else if (!emailState.isValid) {
             emailState.enableShowError()
         } else {
-            Log.d("NewMemberScreen", "nkp imageUri ${imageUri?.path}  ${imageUri}")
             onMemberSaved(
                 imageUri,
                 imageBitmap,

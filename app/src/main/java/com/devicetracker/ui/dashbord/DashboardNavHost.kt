@@ -1,6 +1,5 @@
 package com.devicetracker.ui.dashbord
 
-import android.util.Log
 import androidx.compose.material3.DrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,32 +40,32 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
     val coroutineScope = rememberCoroutineScope()
     NavHost(navController = navigationController, startDestination = HOME) {
         composable(HOME) {
-            Log.d("DashNavHost", "nkp Navigating to Home")
+            //Log.d("DashNavHost", "Navigating to Home")
             HomeScreen {
                 coroutineScope.launch { drawerState.open() }
             }
         }
         composable(MEMBERS) {
-            Log.d("DashNavHost", "nkp Navigating to Members")
+            //Log.d("DashNavHost", "Navigating to Members")
             MemberListScreen(
                 { coroutineScope.launch { drawerState.open() } }, navigationController
             )
         }
         composable(ASSETS) {
-            Log.d("DashNavHost", "nkp Navigating to Assets")
+            //Log.d("DashNavHost", "Navigating to Assets")
             AssetListScreen(
                 { coroutineScope.launch { drawerState.open() } }, navigationController
             )
         }
         composable(ASSET_MODEL) {
-            Log.d("DashNavHost", "nkp Navigating to Assets")
+            //Log.d("DashNavHost", "Navigating to Assets")
             AssetModelRoute {
                 coroutineScope.launch { drawerState.open() }
             }
 
         }
         composable(NEW_MEMBER) {
-            Log.d("DashNavHost", "nkp Navigating to New Member")
+            //Log.d("DashNavHost", "Navigating to New Member")
             AddMemberRoute {
                 navigationController.navigateUp()
             }
@@ -80,7 +79,7 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
             MEMBER_DETAIL,
             arguments = listOf(navArgument("memberId") { type = NavType.StringType })
         ) {
-            Log.d("DashNavHost", "nkp Navigating to Member Detail")
+            //Log.d("DashNavHost", "Navigating to Member Detail")
             MemberProfileScreen(
                 memberId = it.arguments?.getString("memberId") ?: Constants.EMPTY_STR,
                 onNavUp = { navigationController.navigateUp() },
@@ -102,7 +101,7 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
             ASSET_DETAIL,
             arguments = listOf(navArgument("assetDocId") { type = NavType.StringType })
         ) {
-            Log.d("DashNavHost", "nkp Navigating to Asset Detail")
+            //Log.d("DashNavHost", "Navigating to Asset Detail")
             AssetDetailScreen(
                 assetDocId = it.arguments?.getString("assetDocId")?:Constants.EMPTY_STR,
                 onNavUp = {
@@ -115,7 +114,7 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
             EDIT_ASSET,
             arguments = listOf(navArgument("assetDocId") { type = NavType.StringType })
         ) {
-            Log.d("DashNavHost", "nkp Navigating to Edit Asset")
+            //Log.d("DashNavHost", "Navigating to Edit Asset")
             AssetEditScreen(
                 assetDocId = it.arguments?.getString("assetDocId").toString(),
                 onNavUp = {

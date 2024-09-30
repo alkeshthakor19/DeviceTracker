@@ -23,8 +23,6 @@ class LoginViewModel @Inject constructor(
 
     fun login(email: String, password: String) = viewModelScope.launch {
         loginInResponse = Response.Loading
-        val currentUser = repo.currentUser
-        Log.d("LoginViewModel", "nkp currentUser ${currentUser?.email}")
         loginInResponse = repo.firebaseSignInWithEmailAndPassword(email, password)
     }
 

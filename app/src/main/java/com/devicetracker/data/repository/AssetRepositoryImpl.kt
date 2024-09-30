@@ -246,7 +246,6 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
                 assetData[IMAGE_URL] = imageUrl
             }
             val result = db.collection(COLLECTION_ASSETS).document(assetDocId).update(assetData).await()
-            Log.d("AssetRepo", "nkp update result $result")
             if(assetOwnerName.isNotEmpty()) {
                 val assetHistory = hashMapOf(
                     ASSET_DOC_ID to assetDocId,
@@ -407,7 +406,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
                             }
                         }
                         .addOnFailureListener { e ->
-                            Log.w("AssetRepositoryImp", "nkp Error deleting assetHistory by assetDocId: ${e.message}")
+                            Log.w("AssetRepositoryImp", "Error deleting assetHistory by assetDocId: ${e.message}")
                         }
                     }
                 } else {
@@ -417,7 +416,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         }
         .addOnFailureListener { e ->
             // Handle failure
-            Log.w("AssetRepositoryImp", "nkp Error deleting Asset", e)
+            Log.w("AssetRepositoryImp", "Error deleting Asset", e)
         }
     }
 
