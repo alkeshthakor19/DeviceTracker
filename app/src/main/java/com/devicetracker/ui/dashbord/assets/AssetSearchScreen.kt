@@ -27,8 +27,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.devicetracker.R
 import com.devicetracker.core.Constants
 import com.devicetracker.ui.components.CustomSearchTextField
 
@@ -49,7 +51,7 @@ fun AssetSearchScreen(navHostController: NavHostController, onNavUp: () -> Unit)
                 .height(TopAppBarDefaults.LargeAppBarCollapsedHeight)
                 .background(color = MaterialTheme.colorScheme.secondaryContainer), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onNavUp) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.str_back))
                 }
                 CustomSearchTextField(
                     value = text,
@@ -57,7 +59,7 @@ fun AssetSearchScreen(navHostController: NavHostController, onNavUp: () -> Unit)
                     leadingIcon = {
                         Icon(
                             imageVector = Icons.Default.Search,
-                            contentDescription = "Search Icon"
+                            contentDescription = stringResource(id = R.string.str_search)
                         )
                     },
                     trailingIcon = {
@@ -65,7 +67,7 @@ fun AssetSearchScreen(navHostController: NavHostController, onNavUp: () -> Unit)
                             IconButton(onClick = { text = Constants.EMPTY_STR }) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Clear Text Icon"
+                                    contentDescription = stringResource(id = R.string.str_clear_text_icon)
                                 )
                             }
                         }

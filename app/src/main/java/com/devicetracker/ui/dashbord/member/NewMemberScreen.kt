@@ -58,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
 import com.devicetracker.singleClick
+import com.devicetracker.ui.ImagePickUpDialog
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetEditableCheckBox
 import com.devicetracker.ui.components.CheckBoxState
@@ -78,19 +79,19 @@ fun NewMemberScreen(onNavUp: () -> Unit) {
 
     Scaffold(
         topBar = {
-            TopBarWithTitleAndBackNavigation(titleText = "New Member", onNavUp)
+            TopBarWithTitleAndBackNavigation(titleText = stringResource(id = R.string.str_new_member), onNavUp)
         },
     ) { paddingValues: PaddingValues ->
         Box(
             modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
-            .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, rotation ->
-                    focusManager.clearFocus()
-                    keyboardController?.hide()
-                }
-            },
+                .fillMaxSize()
+                .padding(paddingValues)
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, rotation ->
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+                    }
+                },
         ) {
             val memberViewModel: MemberViewModel = hiltViewModel()
             AddMember(
@@ -128,7 +129,7 @@ fun AddMember(
     val assetEditablePermission = remember { CheckBoxState() }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var showMenu by remember { mutableStateOf(false) }
+    var showImagePickDialog by remember { mutableStateOf(false) }
 
     val galleryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -211,20 +212,20 @@ fun AddMember(
                     )
                 } ?: Image(
                     painter = painterResource(id = R.drawable.ic_person),
-                    contentDescription = "Profile Picture",
+                    contentDescription = stringResource(id = R.string.str_profile_picture),
                     modifier = imageModifier,
                     contentScale = ContentScale.Crop
                 )
 
                 FloatingActionButton(
-                    onClick = { showMenu = true },
+                    onClick = { showImagePickDialog = true },
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(8.dp)
                         .size(32.dp),
                     containerColor = MaterialTheme.colorScheme.primary
                 ) {
-                    Icon(imageVector = Icons.Filled.Add, contentDescription = "Add Image")
+                    Icon(imageVector = Icons.Filled.Add, contentDescription = stringResource(id = R.string.str_add_image))
                 }
             }
 
@@ -235,23 +236,14 @@ fun AddMember(
             MemberMobileField(mobileNumberState)
             MemberEditableCheckBox(memberEditablePermission)
             AssetEditableCheckBox(assetEditablePermission)
-            if (showMenu) {
-                ImagePickDialog(
-                    {
-                        showMenu = false
-                    },
-                    onCamera = {
-                        cameraPicker.launch(null)
-                        showMenu = false
-                    },
-                    onGallery = {
-                        galleryPicker.launch("image/*")
-                        showMenu = false
-                    },
-                    "Choose Image",
-                    "Please select image from Gallery or Camera"
-                )
-            }
+            ImagePickUpDialog(
+                title = stringResource(id = R.string.str_choose_image),
+                message = stringResource(id = R.string.str_image_pickup_message),
+                isDialogOpen = showImagePickDialog,
+                onDismiss = { showImagePickDialog = false },
+                onCamera = { cameraPicker.launch(null) },
+                onGallery = { galleryPicker.launch("image/*") }
+            )
         }
 
         Button(

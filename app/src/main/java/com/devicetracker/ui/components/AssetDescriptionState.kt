@@ -7,5 +7,5 @@ private fun isAssetDescriptionValid(assetDescription: String): Boolean {
 }
 
 private fun assetDescriptionValidationError(assetDescription: String): String {
-    return "Please enter asset name."
+    return "Please enter description."
 }

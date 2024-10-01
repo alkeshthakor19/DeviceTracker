@@ -94,9 +94,7 @@ fun MemberListScreen(openDrawer: () -> Unit, navHostController: NavHostControlle
                 },
                 actions = {
                     IconButton(onClick = { navHostController.navigate(MEMBER_SEARCH) }) {
-                        Icon(imageVector = Icons.Filled.Search, contentDescription = stringResource(
-                            id = R.string.str_search
-                        ))
+                        Icon(imageVector = Icons.Filled.Search, contentDescription = stringResource(id = R.string.str_search))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

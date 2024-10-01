@@ -86,12 +86,14 @@ fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController
     Scaffold(
         topBar = {
             TopBarWithTitleAndBackNavigation(
-                titleText = assetData.value?.assetName ?: "NA",
+                titleText = assetData.value?.assetName.toString(),
                 onNavUp= onNavUp,
                 actions = {
                     if(assetEditablePermission) {
                         IconButton(onClick = { isDialogOpen = true }) {
-                            Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete Asset")
+                            Icon(imageVector = Icons.Filled.Delete, contentDescription = stringResource(
+                                id = R.string.str_delete_asset
+                            ))
                         }
                     }
                 }

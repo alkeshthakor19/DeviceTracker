@@ -116,3 +116,45 @@ fun DeleteConfirmationDialog(
         )
     }
 }
+
+@Composable
+fun ImagePickUpDialog(
+    title: String,
+    message: String,
+    isDialogOpen: Boolean,
+    onDismiss: () -> Unit,
+    onCamera: () -> Unit,
+    onGallery: () -> Unit
+) {
+    if (isDialogOpen) {
+        AlertDialog(
+            title = {
+                Text(text = title, fontSize = getFontSizeByPercent(fontSizeInPercent = 4f))
+            },
+            text = {
+                Text(text = message, fontSize = getFontSizeByPercent(fontSizeInPercent = 3.5f))
+            },
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onCamera()
+                        onDismiss()
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.str_camera), fontSize = getFontSizeByPercent(fontSizeInPercent = 4f))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        onGallery()
+                        onDismiss()
+                    }
+                ) {
+                    Text(text = stringResource(id = R.string.str_gallery), fontSize = getFontSizeByPercent(fontSizeInPercent = 4f))
+                }
+            }
+        )
+    }
+}

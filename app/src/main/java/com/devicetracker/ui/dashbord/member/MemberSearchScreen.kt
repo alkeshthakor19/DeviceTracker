@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -27,11 +27,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import com.devicetracker.core.Constants
 import com.devicetracker.ui.components.CustomSearchTextField
+import com.devicetracker.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +52,7 @@ fun MemberSearchScreen(navHostController: NavHostController, onNavUp: () -> Unit
                 .height(TopAppBarDefaults.LargeAppBarCollapsedHeight)
                 .background(color = MaterialTheme.colorScheme.secondaryContainer), verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onNavUp) {
-                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(id = R.string.str_back))
                 }
                 CustomSearchTextField(
                     value = text,
@@ -77,12 +78,12 @@ fun MemberSearchScreen(navHostController: NavHostController, onNavUp: () -> Unit
         }
     ) {
         membersFilter = members
-        membersFilter = members.filter { it.memberName.lowercase().contains(text, ignoreCase = true) || it.employeeCode.toString().lowercase().contains(text, ignoreCase = true) || it.emailAddress.lowercase().contains(text, ignoreCase = true)}
+        membersFilter = members.filter { member -> member.memberName.lowercase().contains(text, ignoreCase = true) || member.employeeCode.toString().lowercase().contains(text, ignoreCase = true) || member.emailAddress.lowercase().contains(text, ignoreCase = true)}
         LazyColumn(modifier = Modifier
             .padding(it)
             .fillMaxSize()) {
-            items(membersFilter) {
-                UserRow(it) { memberId ->
+            items(membersFilter) { member ->
+                UserRow(member) { memberId ->
                     navHostController.navigate("member_detail/$memberId")
                 }
             }

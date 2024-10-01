@@ -63,6 +63,7 @@ import com.devicetracker.core.Constants
 import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UNASSIGN_NAME
 import com.devicetracker.singleClick
+import com.devicetracker.ui.ImagePickUpDialog
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetDescriptionField
 import com.devicetracker.ui.components.AssetDescriptionState
@@ -90,7 +91,7 @@ fun NewAssetScreen(onNavUp: () -> Unit) {
 
     Scaffold(
         topBar = {
-            TopBarWithTitleAndBackNavigation(titleText = "New Asset", onNavUp = onNavUp )
+            TopBarWithTitleAndBackNavigation(titleText = stringResource(id = R.string.str_add_asset), onNavUp = onNavUp )
         },
     ) { paddingValues: PaddingValues ->
         Box(
@@ -148,7 +149,7 @@ fun AddAsset(
     val assetNameState = remember { AssetNameState() }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var showMenu by remember { mutableStateOf(false) }
+    var showImagePickDialog by remember { mutableStateOf(false) }
     var selectedAssetType by remember { mutableStateOf(AssetType.TAB) }
     var selectedModel by remember { mutableStateOf(Constants.EMPTY_STR) }
     val description = remember { AssetDescriptionState() }
@@ -235,7 +236,7 @@ fun AddAsset(
                 )
 
                 FloatingActionButton(
-                    onClick = { showMenu = true },
+                    onClick = { showImagePickDialog = true },
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .padding(8.dp)
@@ -272,27 +273,21 @@ fun AddAsset(
                 description = description
             )
             Spacer(modifier = Modifier.height(15.dp))
-            if (showMenu) {
-                ImagePickDialog(
-                    {
-                        showMenu = false
-                    },
-                    onCamera = {
-                        cameraPicker.launch(null)
-                        showMenu = false
-                    },
-                    onGallery = {
-                        galleryPicker.launch("image/*")
-                        showMenu = false
-                    },
-                    "Choose Image",
-                    "Please select image from Gallery or Camera"
-                )
-            }
+            ImagePickUpDialog(
+                title = stringResource(id = R.string.str_choose_image),
+                message = stringResource(id = R.string.str_image_pickup_message),
+                isDialogOpen = showImagePickDialog,
+                onDismiss = { showImagePickDialog = false },
+                onCamera = { cameraPicker.launch(null) },
+                onGallery = { galleryPicker.launch("image/*") }
+            )
         }
         // Save Button
         Button(
-            modifier = Modifier.padding(vertical = 10.dp).width(200.dp).align(Alignment.BottomCenter),
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+                .width(200.dp)
+                .align(Alignment.BottomCenter),
             shape = RoundedCornerShape(5.dp),
             onClick = singleClick {
                 onAddNewAssetInAction()
@@ -302,45 +297,6 @@ fun AddAsset(
             Text(stringResource(id = R.string.str_save))
         }
     }
-}
-
-@Composable
-fun ImagePickDialog(
-    onDismissRequest: () -> Unit,
-    onCamera: () -> Unit,
-    onGallery: () -> Unit,
-    dialogTitle: String,
-    dialogText: String
-) {
-    AlertDialog(
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onCamera()
-                }
-            ) {
-                Text("Camera")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onGallery()
-                }
-            ) {
-                Text("Gallery")
-            }
-        }
-    )
 }
 
 

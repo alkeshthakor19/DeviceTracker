@@ -83,15 +83,15 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Asset List",  style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
+                title = { Text(stringResource(id = R.string.str_asset_list),  style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
-                        Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        Icon(imageVector = Icons.Filled.Menu, contentDescription = stringResource(id = R.string.str_menu))
                     }
                 },
                 actions = {
                     IconButton(onClick = { navHostController.navigate(ASSET_SEARCH) }) {
-                        Icon(imageVector = Icons.Filled.Search, contentDescription = "Search")
+                        Icon(imageVector = Icons.Filled.Search, contentDescription = stringResource(id = R.string.str_search))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -209,9 +209,5 @@ fun AssetContent(asset: Asset) {
         )
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_type), normalText = assetTypeName, color = Color.Gray)
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_label_asset_model_name), normalText = asset.modelName.toString(), color = Color.Gray)
-        /*Row {
-            Text(text = stringResource(id = R.string.str_label_asset_serial_number), color = Color.Gray)
-            Text(text = asset.serialNumber.toString())
-        }*/
     }
 }

@@ -3,7 +3,9 @@ package com.devicetracker.ui.dashbord.assets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.devicetracker.R
 import com.devicetracker.core.Utils.Companion.showMessage
 import com.devicetracker.domain.models.Response
 import com.devicetracker.ui.ProgressBar
@@ -28,7 +30,9 @@ fun LoaderShowHide(showErrorMessage: (errorMessage: String?) -> Unit) {
         is Response.Success -> {
             val isAddedAsset = addedAssetResponse.data
             if (isAddedAsset) {
-                showMessage(context, "Added new asset successfully!!")
+                LaunchedEffect(isAddedAsset) {
+                    showMessage(context, context.getString(R.string.str_asset_added_message))
+                }
             }
             Unit
         }

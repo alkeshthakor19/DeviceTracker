@@ -57,10 +57,10 @@ fun AssetModelScreen(openDrawer: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Asset Model",  style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
+                title = { Text(stringResource(id = R.string.str_asset_model),  style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
-                        Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                        Icon(imageVector = Icons.Filled.Menu, contentDescription = stringResource(id = R.string.str_menu))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

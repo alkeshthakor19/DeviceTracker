@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
+import com.devicetracker.ui.ImagePickUpDialog
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetEditableCheckBox
@@ -70,7 +71,6 @@ import com.devicetracker.ui.components.MemberMobileField
 import com.devicetracker.ui.components.MemberNameField
 import com.devicetracker.ui.components.MemberNameState
 import com.devicetracker.ui.components.MobileNumberState
-import com.devicetracker.ui.dashbord.assets.ImagePickDialog
 
 
 @Composable
@@ -85,7 +85,7 @@ fun MemberEditScreen(memberId: String, onNavUp: () -> Unit) {
     }
     Scaffold(
         topBar = {
-            TopBarWithTitleAndBackNavigation(titleText = "Edit Member", onNavUp = onNavUp)
+            TopBarWithTitleAndBackNavigation(titleText = stringResource(id = R.string.str_edit_member), onNavUp = onNavUp)
         }
     ) { paddingValues: PaddingValues ->
         Box(
@@ -157,7 +157,7 @@ fun UpdateMember(
     var isNeedToUpdateImageUrl by remember { mutableStateOf(false) }
     var imageUri by remember { mutableStateOf(initImageUri) }
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var showMenu by remember { mutableStateOf(false) }
+    var showImagePickDialog by remember { mutableStateOf(false) }
 
     val galleryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -242,20 +242,20 @@ fun UpdateMember(
                     )
                 } ?: Image(
                     painter =  painterResource(id = R.drawable.ic_person),
-                    contentDescription = "Profile Picture",
+                    contentDescription = stringResource(id = R.string.str_profile_picture),
                     modifier = imageModifier,
                     contentScale = ContentScale.Crop
                 )
 
                     FloatingActionButton(
-                        onClick = { showMenu = true },
+                        onClick = { showImagePickDialog = true },
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(8.dp)
                             .size(32.dp),
                         containerColor = MaterialTheme.colorScheme.primary
                     ) {
-                        Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit Image")
+                        Icon(imageVector = Icons.Filled.Edit, contentDescription = stringResource(id = R.string.str_edit_image))
                     }
             }
 
@@ -269,31 +269,24 @@ fun UpdateMember(
                 AssetEditableCheckBox(assetEditablePermission)
             }
 
-            if (showMenu) {
-                ImagePickDialog(
-                    onDismissRequest = { showMenu = false },
-                    onCamera = {
-                        cameraPicker.launch(null)
-                        showMenu = false
-                    },
-                    onGallery = {
-                        galleryPicker.launch("image/*")
-                        showMenu = false
-                    },
-                    dialogTitle = "Choose Image",
-                    dialogText = "Please select image from Gallery or Camera"
-                )
-            }
+            ImagePickUpDialog(
+                title = stringResource(id = R.string.str_choose_image),
+                message = stringResource(id = R.string.str_image_pickup_message),
+                isDialogOpen = showImagePickDialog,
+                onDismiss = { showImagePickDialog = false },
+                onCamera = { cameraPicker.launch(null) },
+                onGallery = { galleryPicker.launch("image/*") }
+            )
         }
-            Button(
-                modifier = Modifier
-                    .padding(vertical = 10.dp)
-                    .width(200.dp)
-                    .align(Alignment.BottomCenter),
-                shape = RoundedCornerShape(5.dp),
-                onClick = onUpdateMemberInAction
-            ) {
-                Text(stringResource(R.string.str_update))
-            }
+        Button(
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+                .width(200.dp)
+                .align(Alignment.BottomCenter),
+            shape = RoundedCornerShape(5.dp),
+            onClick = onUpdateMemberInAction
+        ) {
+            Text(stringResource(R.string.str_update))
+        }
     }
 }

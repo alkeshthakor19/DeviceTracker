@@ -2,7 +2,6 @@ package com.devicetracker.ui.dashbord.assets
 
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -61,6 +60,7 @@ import com.devicetracker.R
 import com.devicetracker.core.Constants
 import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UNASSIGN_NAME
+import com.devicetracker.ui.ImagePickUpDialog
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetDescriptionField
@@ -89,16 +89,13 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
     val assetViewModel: AssetViewModel = hiltViewModel()
     val assetData by assetViewModel.asset.observeAsState()
     val assetEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
-    val memberViewModel: MemberViewModel = hiltViewModel()
-    val members by memberViewModel.members.observeAsState(emptyList())
 
     LaunchedEffect(assetDocId) {
         assetViewModel.fetchAssetDetailById(assetDocId)
-        memberViewModel.refreshMembers()
     }
     Scaffold(
             topBar = {
-                TopBarWithTitleAndBackNavigation(titleText = "Edit Asset", onNavUp = onNavUp)
+                TopBarWithTitleAndBackNavigation(titleText = stringResource(id = R.string.str_edit_asset), onNavUp = onNavUp)
             }
         ) { paddingValues: PaddingValues ->
             Box(
@@ -138,8 +135,7 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
                         focusManager = focusManager,
                         keyboardController = keyboardController,
                         initialAssetData = assetData,
-                        assetEditablePermission,
-                        members
+                        assetEditablePermission
                     )
                 }
             }
@@ -152,8 +148,7 @@ fun UpdateAsset(
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?,
     initialAssetData: Asset?,
-    assetEditablePermission: Boolean,
-    members: List<Member>
+    assetEditablePermission: Boolean
 ) {
     val selectedModelName = if(initialAssetData?.modelName != null){
         initialAssetData.modelName
@@ -166,18 +161,30 @@ fun UpdateAsset(
         AssetType.TAB.name
     }
 
-    val memberList = mutableListOf<Member>()
+    // Observe the members from the ViewModel
+    val memberViewModel: MemberViewModel = hiltViewModel()
+    val members by memberViewModel.members.observeAsState(emptyList())
+
+    // Prepare the member list and unassigned member
     val noOwnerMember = Member(memberId = UNASSIGN_ID, memberName = UNASSIGN_NAME)
-    memberList.add(noOwnerMember)
-    memberList.addAll(members)
-    val initOwner = if(initialAssetData?.assetOwnerId != null && memberList.isNotEmpty()){
-        memberList.find { it.memberId == initialAssetData.assetOwnerId }
-    } else {
-        memberList.first()
+    val memberList = remember(members) { listOf(noOwnerMember) + members }
+
+    // State to hold the selected owner
+    val selectedOwner = remember { mutableStateOf<Member?>(null) }
+
+    // LaunchedEffect to refresh members
+    LaunchedEffect(Unit) {
+        memberViewModel.refreshMembers()
     }
-    val selectedOwner = remember { mutableStateOf(initOwner)}
-    if(selectedOwner.value == null || (selectedOwner.value?.memberId == initialAssetData?.assetOwnerId)){
-        selectedOwner.value = initOwner
+
+    // Update selectedOwner when members change
+    LaunchedEffect(members) {
+        selectedOwner.value = when {
+            initialAssetData?.assetOwnerId != null -> {
+                memberList.find { it.memberId == initialAssetData.assetOwnerId } ?: noOwnerMember
+            }
+            else -> noOwnerMember
+        }
     }
 
     val assetNameState = remember { AssetNameState() }
@@ -190,7 +197,7 @@ fun UpdateAsset(
     var isNeedToUpdateImageUrl by remember { mutableStateOf(false) }
     var imageUri by remember { mutableStateOf(initImageUri) }
     var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var showMenu by remember { mutableStateOf(false) }
+    var showImagePickDialog by remember { mutableStateOf(false) }
 
     val selectedAssetType = remember { mutableStateOf(assetType) }
     val selectedModel = remember { mutableStateOf(selectedModelName) }
@@ -290,14 +297,14 @@ fun UpdateAsset(
                 )
                 if (assetEditablePermission) {
                     FloatingActionButton(
-                        onClick = { showMenu = true },
+                        onClick = { showImagePickDialog = true },
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
                             .padding(8.dp)
                             .size(32.dp),
                         containerColor = MaterialTheme.colorScheme.primary
                     ) {
-                        Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit Image")
+                        Icon(imageVector = Icons.Filled.Edit, contentDescription = stringResource(id = R.string.str_edit_image))
                     }
                 }
             }
@@ -327,21 +334,14 @@ fun UpdateAsset(
 
             Spacer(modifier = Modifier.height(15.dp))
 
-            if (showMenu) {
-                ImagePickDialog(
-                    onDismissRequest = { showMenu = false },
-                    onCamera = {
-                        cameraPicker.launch(null)
-                        showMenu = false
-                    },
-                    onGallery = {
-                        galleryPicker.launch("image/*")
-                        showMenu = false
-                    },
-                    dialogTitle = "Choose Image",
-                    dialogText = "Please select image from Gallery or Camera"
-                )
-            }
+            ImagePickUpDialog(
+                title = stringResource(id = R.string.str_choose_image),
+                message = stringResource(id = R.string.str_image_pickup_message),
+                isDialogOpen = showImagePickDialog, 
+                onDismiss = { showImagePickDialog = false },
+                onCamera = { cameraPicker.launch(null) }, 
+                onGallery = { galleryPicker.launch("image/*") }
+            )
         }
         // Save Button
         Button(

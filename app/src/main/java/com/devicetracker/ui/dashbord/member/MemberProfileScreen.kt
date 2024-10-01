@@ -108,12 +108,14 @@ fun MemberProfileScreen(
     Scaffold(
         topBar = {
             TopBarWithTitleAndBackNavigation(
-                titleText = memberData?.memberName?: "NA",
+                titleText = memberData?.memberName.toString(),
                 onNavUp = onNavUp,
                 actions = {
                     if(memberEditablePermission) {
                         IconButton(onClick = { isDialogOpen = true }) {
-                            Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete Asset")
+                            Icon(imageVector = Icons.Filled.Delete, contentDescription = stringResource(
+                                id = R.string.str_delete_member
+                            ))
                         }
                     }
                 }
@@ -124,7 +126,7 @@ fun MemberProfileScreen(
                 FloatingActionButton(onClick = singleClick {
                     navHostController.navigate("edit_member/${memberId}")
                 }, modifier = Modifier.padding(bottom = 24.dp)) {
-                    Icon(Icons.Filled.Edit, contentDescription = "Edit Member Detail")
+                    Icon(Icons.Filled.Edit, contentDescription = stringResource(id = R.string.str_edit_member))
                 }
             }
         }
@@ -142,12 +144,12 @@ fun MemberProfileScreen(
                     Spacer(modifier = Modifier.height(25.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(
-                            text = "Currently Assigned Assets",
+                            text = stringResource(id = R.string.str_currently_assigned_assets),
                             style = MaterialTheme.typography.titleMedium,
                             fontStyle = FontStyle.Italic
                         )
                         Spacer(modifier = Modifier.width(50.dp))
-                        Text(text = "Refresh List", modifier = Modifier
+                        Text(text = stringResource(id = R.string.str_refresh_list), modifier = Modifier
                             .padding(bottom = 2.dp)
                             .clickable { onRefreshAssetList() } )
                     }
@@ -165,8 +167,8 @@ fun MemberProfileScreen(
                 }
             }
             DeleteConfirmationDialog(
-                title = "Member Deletion",
-                message = "Are you sure you want to delete this member?",
+                title = stringResource(id = R.string.member_delete_title),
+                message = stringResource(id = R.string.member_delete_message),
                 isDialogOpen = isDialogOpen,
                 onDismiss = { isDialogOpen = false },
                 onConfirm = {
@@ -274,10 +276,6 @@ fun AssignAssetContent(asset: Asset) {
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_type), normalText = asset.assetType.toString(), color = Color.Gray)
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_label_asset_model_name), normalText = asset.modelName.toString(), color = Color.Gray)
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_assign_date), normalText = getDateStringFromTimestamp(asset.createdAt), color = Color.Gray, fontSize = getFontSizeByPercent(3.5f))
-        /*Row {
-            Text(text = stringResource(id = R.string.str_label_asset_serial_number), color = Color.Gray)
-            Text(text = asset.serialNumber.toString())
-        }*/
     }
 }
 
