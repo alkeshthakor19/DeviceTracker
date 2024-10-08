@@ -55,6 +55,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.getDateStringFromTimestamp
+import com.devicetracker.noDoubleClick
 import com.devicetracker.singleClick
 import com.devicetracker.ui.DeleteConfirmationDialog
 import com.devicetracker.ui.ProgressBar
@@ -162,7 +163,7 @@ fun AssetDetailSection(assetData: Asset?){
             .padding(top = TopAppBarDefaults.TopAppBarExpandedHeight, bottom = 18.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AssetPhoto(assetData?.imageUrl)
+        AssetPhoto(assetData)
         Spacer(modifier = Modifier.height(4.dp))
         assetData?.assetName?.let {
             Text(
@@ -223,7 +224,7 @@ fun AssignHistoryRow(assetHistory: AssetHistory, navigateDeviceDetailCallBack: (
             .padding(top = 8.dp, bottom = 8.dp)
             .fillMaxWidth()
             .wrapContentHeight(align = Alignment.Top)
-            .clickable {
+            .noDoubleClick {
                 assetHistory.id?.let { navigateDeviceDetailCallBack.invoke(it) }
             },
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
@@ -266,7 +267,7 @@ fun LazyListScope.assetHistorySection(assignedHistories: List<AssetHistory>) {
 }
 
 @Composable
-fun AssetPhoto(imageUrl : String?){
+fun AssetPhoto(asset: Asset?){
     Card(
         shape = RoundedCornerShape(5.dp),
         border = BorderStroke(
@@ -278,12 +279,18 @@ fun AssetPhoto(imageUrl : String?){
             defaultElevation = 6.dp
         )
     ) {
+        val resourceId = when(asset?.assetType) {
+            AssetType.TAB.name -> R.drawable.ic_devices
+            AssetType.CABLE.name -> R.drawable.ic_baseline_cable
+            else -> R.drawable.ic_devices_other
+        }
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(imageUrl)
+                .data(asset?.imageUrl)
                 .crossfade(true)
                 .build(),
-            placeholder = painterResource(R.drawable.ic_devices),
+            placeholder = painterResource(id = resourceId),
+            error = painterResource(id = resourceId),
             contentDescription = stringResource(R.string.app_name),
             contentScale = ContentScale.Crop,
             modifier = Modifier

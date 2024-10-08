@@ -174,6 +174,7 @@ fun UserPicture(member: Member) {
                 .crossfade(true)
                 .build(),
             placeholder = painterResource(R.drawable.ic_baseline_users),
+            error = painterResource(id = R.drawable.ic_baseline_users),
             contentDescription = stringResource(R.string.app_name),
             contentScale = ContentScale.Crop,
             modifier = Modifier.size(72.dp)

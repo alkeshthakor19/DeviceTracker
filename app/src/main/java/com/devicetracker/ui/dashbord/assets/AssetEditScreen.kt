@@ -274,6 +274,11 @@ fun UpdateAsset(
                     .align(Alignment.CenterHorizontally)
             ) {
                 val imageModifier = Modifier.fillMaxSize()
+                val resourceId = when(selectedAssetType.value) {
+                    AssetType.TAB.name -> R.drawable.ic_devices
+                    AssetType.CABLE.name -> R.drawable.ic_baseline_cable
+                    else -> R.drawable.ic_devices_other
+                }
 
                 imageBitmap?.let {
                     Image(
@@ -290,7 +295,7 @@ fun UpdateAsset(
                         contentScale = ContentScale.Crop
                     )
                 } ?: Image(
-                    painter = painterResource(id = R.drawable.ic_person),
+                    painter = painterResource(id = resourceId),
                     contentDescription = "Profile Picture",
                     modifier = imageModifier,
                     contentScale = ContentScale.Crop

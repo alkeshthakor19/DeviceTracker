@@ -100,6 +100,20 @@ class AssetViewModel @Inject constructor(
         }
     }
 
+    fun refreshAssetsByAssetType(assetType: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val newAssets = getAssetsByAssetType(assetType)
+            _assets.postValue(newAssets)
+        }
+    }
+
+    private suspend fun getAssetsByAssetType(assetType: String): List<Asset> {
+        isLoaderShowing = true
+        val result = repo.getAssetsByAssetType(assetType)
+        isLoaderShowing = false
+        return result
+    }
+
     private suspend fun fetchAssets(): GetAssetsResponse {
         isLoaderShowing = true
         val result = repo.getAssetsFromFirebase()

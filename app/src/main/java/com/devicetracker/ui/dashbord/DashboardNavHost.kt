@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.devicetracker.core.Constants
 import com.devicetracker.ui.Destinations.ASSETS
+import com.devicetracker.ui.Destinations.ASSETS_BY_TYPE
 import com.devicetracker.ui.Destinations.ASSET_DETAIL
 import com.devicetracker.ui.Destinations.ASSET_MODEL
 import com.devicetracker.ui.Destinations.ASSET_SEARCH
@@ -24,6 +25,7 @@ import com.devicetracker.ui.Destinations.NEW_MEMBER
 import com.devicetracker.ui.dashbord.assets.AddAssetRoute
 import com.devicetracker.ui.dashbord.assets.AssetDetailScreen
 import com.devicetracker.ui.dashbord.assets.AssetEditScreen
+import com.devicetracker.ui.dashbord.assets.AssetListByTypeScreen
 import com.devicetracker.ui.dashbord.assets.AssetListScreen
 import com.devicetracker.ui.dashbord.assets.AssetModelRoute
 import com.devicetracker.ui.dashbord.assets.AssetSearchScreen
@@ -41,7 +43,7 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
     NavHost(navController = navigationController, startDestination = HOME) {
         composable(HOME) {
             //Log.d("DashNavHost", "Navigating to Home")
-            HomeScreen {
+            HomeScreen(navHostController = navigationController) {
                 coroutineScope.launch { drawerState.open() }
             }
         }
@@ -56,6 +58,18 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
             AssetListScreen(
                 { coroutineScope.launch { drawerState.open() } }, navigationController
             )
+        }
+        composable(
+            ASSETS_BY_TYPE,
+            arguments = listOf(navArgument("assetType") { type = NavType.StringType })
+        ) {
+            //Log.d("DashNavHost", "Navigating to Assets by AssetType")
+            AssetListByTypeScreen(
+                assetType = it.arguments?.getString("assetType") ?: Constants.EMPTY_STR,
+                navHostController = navigationController
+            ) {
+                navigationController.navigateUp()
+            }
         }
         composable(ASSET_MODEL) {
             //Log.d("DashNavHost", "Navigating to Assets")

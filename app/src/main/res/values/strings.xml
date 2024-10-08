@@ -77,4 +77,7 @@
     <string name="str_currently_assigned_assets">Currently Assigned Assets</string>
     <string name="str_refresh_list">Refresh List</string>
     <string name="str_add_image">Add Image</string>
+    <string name="str_assigned_with_count">Assigned: %1$d</string>
+    <string name="str_unassigned_with_count">Unassigned: %1$d</string>
+    <string name="str_total_with_count">Total: %1$d</string>
 </resources>
