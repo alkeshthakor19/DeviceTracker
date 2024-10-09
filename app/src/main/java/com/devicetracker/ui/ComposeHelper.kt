@@ -1,24 +1,31 @@
 package com.devicetracker.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -156,5 +163,54 @@ fun ImagePickUpDialog(
                 }
             }
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun <T>CustomDropDownMenu(
+    label: String,
+    selectedString: String,
+    isEditable: Boolean,
+    itemList: List<T>,
+    isExpanded: MutableState<Boolean>,
+    itemToString: (T) -> String,
+    onSelectedItem: (T) -> Unit
+) {
+    ExposedDropdownMenuBox(
+        expanded = isExpanded.value,
+        onExpandedChange = {
+            if (isEditable) {
+                isExpanded.value = !isExpanded.value
+            }
+        }
+    ) {
+        OutlinedTextField(
+            value = selectedString,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(label) },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded.value)
+            },
+            modifier = Modifier.fillMaxWidth(0.95f)
+                .menuAnchor(),
+            enabled = isEditable
+        )
+        ExposedDropdownMenu(
+            expanded = isExpanded.value,
+            onDismissRequest = { isExpanded.value = false }
+        ) {
+            itemList.forEach { item ->
+                DropdownMenuItem(
+                    text = { Text(itemToString(item)) },
+                    onClick = {
+                        onSelectedItem(item)
+                        isExpanded.value = false
+                    },
+                    enabled = isEditable
+                )
+            }
+        }
     }
 }

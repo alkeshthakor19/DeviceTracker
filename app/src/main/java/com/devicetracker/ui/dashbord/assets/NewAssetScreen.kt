@@ -23,14 +23,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -79,8 +77,7 @@ import com.devicetracker.ui.components.AssetStatusRadioButtons
 import com.devicetracker.ui.components.AssetTypeSpinner
 import com.devicetracker.ui.components.ModelDropdown
 import com.devicetracker.ui.components.OwnerSpinner
-import com.devicetracker.ui.components.ProjectNameField
-import com.devicetracker.ui.components.ProjectNameState
+import com.devicetracker.ui.dashbord.assets.components.ProjectDropdown
 import com.devicetracker.ui.dashbord.member.Member
 import com.devicetracker.ui.dashbord.member.MemberViewModel
 
@@ -107,7 +104,7 @@ fun NewAssetScreen(onNavUp: () -> Unit) {
         ) {
             val newAssetViewModel: AssetViewModel = hiltViewModel()
             AddAsset(
-                onAssetSaved = { imageUri, imageBitmap, assetName, assetType, model, serialNumber, description, selectedMember, assetId, assetQuatinty, projectName, assetWorkingStatus->
+                onAssetSaved = { imageUri, imageBitmap, assetName, assetType, model, serialNumber, description, selectedMember, assetId, assetQuantity, projectName, assetWorkingStatus->
                     newAssetViewModel.uploadImageAndAddNewAssetToFirebase(
                         imageUri,
                         imageBitmap,
@@ -118,7 +115,7 @@ fun NewAssetScreen(onNavUp: () -> Unit) {
                         description,
                         selectedMember,
                         assetId,
-                        assetQuatinty,
+                        assetQuantity,
                         projectName,
                         assetWorkingStatus,
                         onNavUp
@@ -157,7 +154,7 @@ fun AddAsset(
     var selectedOwner by remember { mutableStateOf(memberList.first()) }
     val assetIdState = remember { AssetIdState() }
     val assetQuantityState = remember { AssetQuantityState() }
-    val projectNameState = remember { ProjectNameState() }
+    var selectedProjectName by remember { mutableStateOf(Constants.EMPTY_STR) }
     var assetWorkingStatus by remember { mutableStateOf(true) }
 
     val galleryPicker = rememberLauncherForActivityResult(
@@ -191,7 +188,7 @@ fun AddAsset(
         } else if (selectedModel.isEmpty()) {
             // Show error or handle model not selected
         } else {
-            onAssetSaved(imageUri, imageBitmap, assetNameState.text, selectedAssetType.name, selectedModel, serialNumberState.text, description.text, selectedOwner, assetIdState.text, assetQuantityState.text, projectNameState.text, assetWorkingStatus)
+            onAssetSaved(imageUri, imageBitmap, assetNameState.text, selectedAssetType.name, selectedModel, serialNumberState.text, description.text, selectedOwner, assetIdState.text, assetQuantityState.text, selectedProjectName, assetWorkingStatus)
         }
     }
 
@@ -264,7 +261,7 @@ fun AddAsset(
                 selectedOwner = it
             }
             AssetQuantityField(quantity = assetQuantityState)
-            ProjectNameField(projectName = projectNameState)
+            ProjectDropdown(selectedProjectName = selectedProjectName, onProjectSelected = {selectedProjectName = it})
             AssetStatusRadioButtons(
                 assetWorkingStatus = assetWorkingStatus,
                 onStatusChange = { status -> assetWorkingStatus = status }

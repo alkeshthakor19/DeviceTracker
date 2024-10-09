@@ -18,7 +18,9 @@ import com.devicetracker.core.Constants.ASSET_WORKING_STATUS
 import com.devicetracker.core.Constants.COLLECTION_ASSETS
 import com.devicetracker.core.Constants.COLLECTION_ASSETS_HISTORY
 import com.devicetracker.core.Constants.COLLECTION_ASSETS_MODELS
+import com.devicetracker.core.Constants.COLLECTION_ASSET_OWNER_HISTORY
 import com.devicetracker.core.Constants.COLLECTION_MEMBERS
+import com.devicetracker.core.Constants.COLLECTION_PROJECTS
 import com.devicetracker.core.Constants.CREATED_AT
 import com.devicetracker.core.Constants.EMAIL_ADDRESS
 import com.devicetracker.core.Constants.EMPTY_STR
@@ -39,6 +41,7 @@ import com.devicetracker.domain.repository.GetAssignHistoriesResponse
 import com.devicetracker.domain.repository.UpdateAssetResponse
 import com.devicetracker.ui.dashbord.assets.Asset
 import com.devicetracker.ui.dashbord.assets.AssetHistory
+import com.devicetracker.ui.dashbord.assets.Project
 import com.devicetracker.ui.dashbord.member.Member
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue.serverTimestamp
@@ -66,11 +69,11 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         projectName: String,
         assetWorkingStatus: Boolean
     ): AddAssetResponse = try {
-        val assetOwnerName = if(selectedMember.memberId == UNASSIGN_ID) {
+        /*val assetOwnerName = if(selectedMember.memberId == UNASSIGN_ID) {
             EMPTY_STR
         } else {
             selectedMember.memberName
-        }
+        }*/
         val asset = hashMapOf(
             ASSET_NAME to assetName,
             ASSET_ID to assetId,
@@ -81,7 +84,8 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             PROJECT_NAME to projectName,
             ASSET_DESCRIPTION to description,
             ASSET_OWNER_ID to selectedMember.memberId,
-            ASSET_OWNER_NAME to assetOwnerName,
+            //ASSET_OWNER_NAME to assetOwnerName,
+            ASSET_OWNER_NAME to selectedMember.memberName,
             IMAGE_URL to imageUrl,
             ASSET_WORKING_STATUS to assetWorkingStatus,
             LAST_VERIFICATION_AT to serverTimestamp(),
@@ -89,17 +93,18 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             UPDATED_AT to serverTimestamp()
         )
         val result = db.collection(COLLECTION_ASSETS).add(asset).await()
-        if(assetOwnerName.isNotEmpty()) {
-            val assetHistory = hashMapOf(
-                ASSET_DOC_ID to result.id,
-                ASSET_ID to assetId,
-                ASSET_OWNER_ID to selectedMember.memberId,
-                ASSET_OWNER_NAME to selectedMember.memberName,
-                ADMIN_EMAIL to FirebaseAuth.getInstance().currentUser?.email,
-                CREATED_AT to serverTimestamp()
-            )
-            db.collection(COLLECTION_ASSETS_HISTORY).add(assetHistory).await()
-        }
+        val assetHistory = hashMapOf(
+            ASSET_DOC_ID to result.id,
+            ASSET_ID to assetId,
+            ASSET_OWNER_ID to selectedMember.memberId,
+            ASSET_OWNER_NAME to selectedMember.memberName,
+            ADMIN_EMAIL to FirebaseAuth.getInstance().currentUser?.email,
+            CREATED_AT to serverTimestamp()
+        )
+        //if(assetOwnerName.isNotEmpty()) {
+            db.collection(COLLECTION_ASSET_OWNER_HISTORY).add(assetHistory).await()
+        //}
+        db.collection(COLLECTION_ASSETS_HISTORY).add(assetHistory).await()
         Success(true)
     } catch (e: Exception) {
         e.printStackTrace()
@@ -190,7 +195,8 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
     }
 
     override suspend fun getPreviousAssignHistoriesByAssetId(assetDocId: String): GetAssignHistoriesResponse {
-        val collectionRef = db.collection(COLLECTION_ASSETS_HISTORY)
+        //val collectionRef = db.collection(COLLECTION_ASSETS_HISTORY)
+        val collectionRef = db.collection(COLLECTION_ASSET_OWNER_HISTORY)
         val query = collectionRef.whereEqualTo(ASSET_DOC_ID, assetDocId)
         val querySnapshot = query.orderBy(CREATED_AT, Query.Direction.DESCENDING).get().await()
         val assetHistories = mutableListOf<AssetHistory>()
@@ -209,6 +215,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
     }
     override suspend fun updateAsset(
         assetDocId: String,
+        isNeedToAddAssetOwnerHistory: Boolean,
         assetName: String,
         assetType: String,
         modelName: String,
@@ -221,11 +228,11 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         projectName: String,
         assetWorkingStatus: Boolean
     ): UpdateAssetResponse {
-        val assetOwnerName = if(selectedOwner != null && selectedOwner.memberId != UNASSIGN_ID) {
+        /*val assetOwnerName = if(selectedOwner != null && selectedOwner.memberId != UNASSIGN_ID) {
             selectedOwner.memberName
         } else {
             EMPTY_STR
-        }
+        }*/
         val assetOwnerId = selectedOwner?.memberId ?: EMPTY_STR
         return try {
             val assetData = hashMapOf(
@@ -238,7 +245,8 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
                 PROJECT_NAME to projectName,
                 ASSET_DESCRIPTION to description,
                 ASSET_OWNER_ID to assetOwnerId,
-                ASSET_OWNER_NAME to assetOwnerName,
+                //ASSET_OWNER_NAME to assetOwnerName,
+                ASSET_OWNER_NAME to selectedOwner?.memberName,
                 ASSET_WORKING_STATUS to assetWorkingStatus,
                 UPDATED_AT to serverTimestamp()
             )
@@ -246,17 +254,19 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
                 assetData[IMAGE_URL] = imageUrl
             }
             val result = db.collection(COLLECTION_ASSETS).document(assetDocId).update(assetData).await()
-            if(assetOwnerName.isNotEmpty()) {
-                val assetHistory = hashMapOf(
-                    ASSET_DOC_ID to assetDocId,
-                    ASSET_ID to assetId,
-                    ASSET_OWNER_ID to assetOwnerId,
-                    ASSET_OWNER_NAME to assetOwnerName,
-                    ADMIN_EMAIL to FirebaseAuth.getInstance().currentUser?.email,
-                    CREATED_AT to serverTimestamp()
-                )
-                db.collection(COLLECTION_ASSETS_HISTORY).add(assetHistory).await()
+            val assetHistory = hashMapOf(
+                ASSET_DOC_ID to assetDocId,
+                ASSET_ID to assetId,
+                ASSET_OWNER_ID to assetOwnerId,
+                //ASSET_OWNER_NAME to assetOwnerName,
+                ASSET_OWNER_NAME to selectedOwner?.memberName,
+                ADMIN_EMAIL to FirebaseAuth.getInstance().currentUser?.email,
+                CREATED_AT to serverTimestamp()
+            )
+            if(isNeedToAddAssetOwnerHistory) {
+                db.collection(COLLECTION_ASSET_OWNER_HISTORY).add(assetHistory).await()
             }
+            db.collection(COLLECTION_ASSETS_HISTORY).add(assetHistory).await()
             Success(true)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -266,6 +276,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
     override suspend fun uploadImageAndUpdateAsset(
         assetDocId: String,
         isNeedToUpdateImageUrl: Boolean,
+        isNeedToAddAssetOwnerHistory: Boolean,
         imageUri: Uri?,
         imageBitmap: Bitmap?,
         assetName: String,
@@ -303,6 +314,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
             // After uploading the image, update the asset
             val updateResponse = updateAsset(
                 assetDocId,
+                isNeedToAddAssetOwnerHistory,
                 assetName,
                 assetType,
                 modelName,
@@ -420,4 +432,19 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         }
     }
 
+    override suspend fun getProjectList(): List<Project> {
+        val querySnapshot = db.collection(COLLECTION_PROJECTS).get().await()
+        val projects = mutableListOf<Project>()
+        try {
+            for (document in querySnapshot.documents) {
+                val project = document.toObject(Project::class.java)
+                if (project != null) {
+                    projects.add(project)
+                }
+            }
+        } catch (e: Exception){
+            e.printStackTrace()
+        }
+        return projects
+    }
 }

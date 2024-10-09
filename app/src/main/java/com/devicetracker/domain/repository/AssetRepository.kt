@@ -5,6 +5,7 @@ import android.net.Uri
 import com.devicetracker.domain.models.Response
 import com.devicetracker.ui.dashbord.assets.Asset
 import com.devicetracker.ui.dashbord.assets.AssetHistory
+import com.devicetracker.ui.dashbord.assets.Project
 import com.devicetracker.ui.dashbord.member.Member
 
 
@@ -42,6 +43,7 @@ interface AssetRepository {
 
     suspend fun updateAsset(
         assetDocId: String,
+        isNeedToAddAssetOwnerHistory: Boolean,
         assetName: String,
         assetType: String,
         modelName: String,
@@ -58,6 +60,7 @@ interface AssetRepository {
     suspend fun uploadImageAndUpdateAsset(
         assetDocId: String,
         isNeedToUpdateImageUrl: Boolean,
+        isNeedToAddAssetOwnerHistory: Boolean,
         imageUri: Uri?,
         imageBitmap: Bitmap?,
         assetName: String,
@@ -84,4 +87,6 @@ interface AssetRepository {
     suspend fun isAssetEditablePermission() : Boolean
 
     suspend fun deleteAsset(assetDocId: String, onSuccess: () -> Unit)
+
+    suspend fun getProjectList() : List<Project>
 }

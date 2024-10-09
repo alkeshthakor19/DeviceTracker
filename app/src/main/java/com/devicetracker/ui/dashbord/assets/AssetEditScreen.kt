@@ -77,8 +77,7 @@ import com.devicetracker.ui.components.AssetStatusRadioButtons
 import com.devicetracker.ui.components.AssetTypeSpinner
 import com.devicetracker.ui.components.ModelDropdown
 import com.devicetracker.ui.components.OwnerSpinner
-import com.devicetracker.ui.components.ProjectNameField
-import com.devicetracker.ui.components.ProjectNameState
+import com.devicetracker.ui.dashbord.assets.components.ProjectDropdown
 import com.devicetracker.ui.dashbord.member.Member
 import com.devicetracker.ui.dashbord.member.MemberViewModel
 
@@ -113,10 +112,11 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
                     ProgressBar()
                 } else{
                     UpdateAsset(
-                        onAssetSaved = { isNeedToUpdateImageUrl, imageUri, imageBitmap, assetName, assetType, assetModelName, serialNumber, description, selectedOwner, assetId, assetQuantity, projectName, assetWorkingStatus ->
+                        onAssetSaved = { isNeedToUpdateImageUrl, isNeedToAddAssetOwnerHistory, imageUri, imageBitmap, assetName, assetType, assetModelName, serialNumber, description, selectedOwner, assetId, assetQuantity, projectName, assetWorkingStatus ->
                             assetViewModel.uploadImageAndUpdateAsset(
                                 assetDocId,
                                 isNeedToUpdateImageUrl,
+                                isNeedToAddAssetOwnerHistory,
                                 imageUri,
                                 imageBitmap,
                                 assetName,
@@ -144,7 +144,7 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
 
 @Composable
 fun UpdateAsset(
-    onAssetSaved: (isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean) -> Unit,
+    onAssetSaved: (isNeedToUpdateImageUrl: Boolean, isNeedToAddAssetOwnerHistory: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?,
     initialAssetData: Asset?,
@@ -211,8 +211,7 @@ fun UpdateAsset(
     assetIdState.text = initialAssetData?.assetId ?: Constants.EMPTY_STR
     val assetQuantityState = remember { AssetQuantityState() }
     assetQuantityState.text = initialAssetData?.quantity ?: Constants.EMPTY_STR
-    val projectNameState = remember { ProjectNameState() }
-    projectNameState.text = initialAssetData?.projectName ?: Constants.EMPTY_STR
+    val selectedProjectName = remember { mutableStateOf(initialAssetData?.projectName ?: Constants.EMPTY_STR) }
 
     var assetWorkingStatus by remember { mutableStateOf(initialAssetData?.assetWorkingStatus ?: true) }
 
@@ -249,9 +248,9 @@ fun UpdateAsset(
         } else if (selectedModel.value.isEmpty()) {
             // Show error or handle model not selected
         } else {
-            onAssetSaved(isNeedToUpdateImageUrl, imageUri, imageBitmap, assetNameState.text,
+            onAssetSaved(isNeedToUpdateImageUrl, (selectedOwner.value?.memberId != initialAssetData?.assetOwnerId), imageUri, imageBitmap, assetNameState.text,
                 selectedAssetType.value, selectedModel.value, serialNumberState.text, description.text, selectedOwner.value,
-                assetIdState.text, assetQuantityState.text, projectNameState.text, assetWorkingStatus
+                assetIdState.text, assetQuantityState.text, selectedProjectName.value, assetWorkingStatus
             )
         }
     }
@@ -330,7 +329,7 @@ fun UpdateAsset(
                 selectedOwner.value = it
             }
             AssetQuantityField(quantity = assetQuantityState, isEditable = assetEditablePermission)
-            ProjectNameField(projectName = projectNameState, isEditable = assetEditablePermission)
+            ProjectDropdown(selectedProjectName = selectedProjectName.value, onProjectSelected = {selectedProjectName.value = it}, isEditable = assetEditablePermission)
             AssetStatusRadioButtons(
                 assetWorkingStatus = assetWorkingStatus,
                 onStatusChange = { status -> assetWorkingStatus = status }

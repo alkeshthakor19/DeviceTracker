@@ -11,6 +11,8 @@ object Constants {
     const val COLLECTION_ASSETS = "assets"
     const val COLLECTION_ASSETS_MODELS = "assetModels"
     const val COLLECTION_ASSETS_HISTORY = "assetsHistory"
+    const val COLLECTION_PROJECTS = "projects"
+    const val COLLECTION_ASSET_OWNER_HISTORY = "assetsOwnerHistory"
     const val FIRE_STORAGE_IMAGES = "images"
 
     // Asset field name

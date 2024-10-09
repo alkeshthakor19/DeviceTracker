@@ -40,6 +40,9 @@ class AssetViewModel @Inject constructor(
     private val _models = MutableLiveData<List<String>>()
     val models: LiveData<List<String>> = _models
 
+    private val _projects = MutableLiveData<List<Project>>()
+    val projects: LiveData<List<Project>> = _projects
+
     var addedAssetResponse by mutableStateOf<AddAssetResponse>(Response.Success(false))
         private set
 
@@ -91,6 +94,10 @@ class AssetViewModel @Inject constructor(
 
     fun fetchModels(assetType: String) = viewModelScope.launch {
         _models.value = repo.getModelsForAssetType(assetType)
+    }
+
+    fun fetchProjects() = viewModelScope.launch {
+        _projects.value = repo.getProjectList()
     }
 
     fun refreshAssets() {
@@ -162,11 +169,12 @@ class AssetViewModel @Inject constructor(
     }
 
     // Function to upload image and update the asset in Firebase
-    fun uploadImageAndUpdateAsset(assetDocId: String, isNeedToUpdateImageUrl: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, assetModelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean, onNavUp: () -> Unit) = viewModelScope.launch {
+    fun uploadImageAndUpdateAsset(assetDocId: String, isNeedToUpdateImageUrl: Boolean, isNeedToAddAssetOwnerHistory: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, assetModelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean, onNavUp: () -> Unit) = viewModelScope.launch {
         updateAssetResponse = Response.Loading
         updateAssetResponse = repo.uploadImageAndUpdateAsset(
             assetDocId,
             isNeedToUpdateImageUrl,
+            isNeedToAddAssetOwnerHistory,
             imageUri,
             imageBitmap,
             assetName,
