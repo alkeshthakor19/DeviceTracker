@@ -409,7 +409,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
     override suspend fun deleteAsset(assetDocId: String, onSuccess: () -> Unit) {
         db.collection(COLLECTION_ASSETS).document(assetDocId).delete()
         .addOnSuccessListener {
-            db.collection(COLLECTION_ASSETS_HISTORY).whereEqualTo(ASSET_DOC_ID, assetDocId).get().addOnSuccessListener { querySnapshot ->
+            db.collection(COLLECTION_ASSET_OWNER_HISTORY).whereEqualTo(ASSET_DOC_ID, assetDocId).get().addOnSuccessListener { querySnapshot ->
                 if(!querySnapshot.isEmpty){
                     for((index, document) in querySnapshot.documents.withIndex()) {
                         document.reference.delete().addOnSuccessListener {
@@ -424,6 +424,22 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
                 } else {
                     onSuccess()
                 }
+            }
+            db.collection(COLLECTION_ASSETS_HISTORY).whereEqualTo(ASSET_DOC_ID, assetDocId).get().addOnSuccessListener { querySnapshot ->
+                if(!querySnapshot.isEmpty){
+                    for((index, document) in querySnapshot.documents.withIndex()) {
+                        document.reference.delete().addOnSuccessListener {
+                            /*if( index == (querySnapshot.size().minus(1)) ) {
+                                onSuccess()
+                            }*/
+                        }
+                            .addOnFailureListener { e ->
+                                Log.w("AssetRepositoryImp", "Error deleting assetHistory by assetDocId: ${e.message}")
+                            }
+                    }
+                }/* else {
+                    onSuccess()
+                }*/
             }
         }
         .addOnFailureListener { e ->
