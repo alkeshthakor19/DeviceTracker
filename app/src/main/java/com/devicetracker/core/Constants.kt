@@ -49,6 +49,9 @@ object Constants {
 
     const val INT_SIZE_20 = 20
     const val INT_SIZE_24 = 24
+    const val INT_SIZE_32 = 32
     const val INT_SIZE_72 = 72
     const val INT_SIZE_80 = 80
+    const val INT_SIZE_120 = 120
+    const val INT_SIZE_130 = 130
 }

@@ -50,13 +50,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
+import com.devicetracker.core.Constants.INT_SIZE_120
 import com.devicetracker.core.Constants.INT_SIZE_24
+import com.devicetracker.core.Constants.INT_SIZE_72
 import com.devicetracker.core.Constants.INT_SIZE_80
 import com.devicetracker.getDateStringFromTimestamp
 import com.devicetracker.singleClick
@@ -71,6 +74,7 @@ import com.devicetracker.ui.dashbord.assets.AssetPicture
 import com.devicetracker.ui.dashbord.assets.AssetViewModel
 import com.devicetracker.ui.getFontSizeByPercent
 import com.devicetracker.ui.getWidthInPercent
+import com.devicetracker.ui.isLandScapeMode
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -218,7 +222,7 @@ fun ProfileDetailSection(memberData: Member?){
 
 @Composable
 fun MemberFieldRow(labelText: String, bodyText: String){
-    Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.Center) {
+    Row( horizontalArrangement = Arrangement.Center) {
         Text(modifier = Modifier.width(getWidthInPercent(50f)), text = "$labelText: ", textAlign = TextAlign.End, fontSize = getFontSizeByPercent(fontSizeInPercent = 4f), color = Color.Gray)
         Text(modifier = Modifier.width(getWidthInPercent(50f)), text = bodyText, textAlign = TextAlign.Start, fontSize = getFontSizeByPercent(fontSizeInPercent = 4f))
     }
@@ -256,7 +260,13 @@ fun AssignedAssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
-            AssetPicture(asset, INT_SIZE_80)
+            AssetPicture(
+                asset, 
+                if (isLandScapeMode()) {
+                    (INT_SIZE_80 * 1.7).toInt()
+                } else 
+                    INT_SIZE_80
+            )
             AssignAssetContent(asset)
         }
     }
@@ -272,6 +282,7 @@ fun AssignAssetContent(asset: Asset) {
         Text(
             text = asset.assetName,
             style = MaterialTheme.typography.titleMedium,
+            fontSize = getFontSizeByPercent(fontSizeInPercent = 3.6f)
         )
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_type), normalText = asset.assetType.toString(), color = Color.Gray)
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_label_asset_model_name), normalText = asset.modelName.toString(), color = Color.Gray)
@@ -292,6 +303,11 @@ fun ProfilePhoto(imageUrl : String?){
             defaultElevation = 6.dp
         )
     ) {
+        val imageSize = if (isLandScapeMode()) {
+            (INT_SIZE_120 *1.7).toInt()
+        } else {
+            INT_SIZE_120
+        }
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(imageUrl)
@@ -301,7 +317,7 @@ fun ProfilePhoto(imageUrl : String?){
             error = painterResource(id = R.drawable.ic_baseline_users),
             contentDescription = stringResource(R.string.app_name),
             contentScale = ContentScale.Crop,
-            modifier = Modifier.size(120.dp)
+            modifier = Modifier.size(imageSize.dp)
         )
     }
 }

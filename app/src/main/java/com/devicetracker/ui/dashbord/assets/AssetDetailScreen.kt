@@ -54,6 +54,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
+import com.devicetracker.core.Constants.INT_SIZE_130
 import com.devicetracker.getDateStringFromTimestamp
 import com.devicetracker.noDoubleClick
 import com.devicetracker.singleClick
@@ -66,6 +67,7 @@ import com.devicetracker.ui.components.TextWithLabel
 import com.devicetracker.ui.dashbord.member.MemberViewModel
 import com.devicetracker.ui.getFontSizeByPercent
 import com.devicetracker.ui.getWidthInPercent
+import com.devicetracker.ui.isLandScapeMode
 import com.google.firebase.auth.FirebaseAuth
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -251,7 +253,8 @@ fun AssignHistoryContent(assetHistory: AssetHistory) {
     ) {
         Text(
             text = assetHistory.assetOwnerName.toString(),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
+            fontSize = getFontSizeByPercent(fontSizeInPercent = 3.5f)
         )
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_assigned_by), normalText = assetHistory.adminEmail.toString(), color = Color.Gray)
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_assign_date), normalText = getDateStringFromTimestamp(assetHistory.createdAt), color = Color.Gray)
@@ -284,6 +287,11 @@ fun AssetPhoto(asset: Asset?){
             AssetType.CABLE.name -> R.drawable.ic_baseline_cable
             else -> R.drawable.ic_devices_other
         }
+        val imageSize = if (isLandScapeMode()) {
+            (INT_SIZE_130*1.7).toInt()
+        } else {
+            INT_SIZE_130
+        }
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(asset?.imageUrl)
@@ -295,7 +303,7 @@ fun AssetPhoto(asset: Asset?){
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth(0.6f)
-                .height(130.dp)
+                .height(imageSize.dp)
         )
     }
 }

@@ -58,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
 import com.devicetracker.core.Constants
+import com.devicetracker.core.Constants.INT_SIZE_130
 import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UNASSIGN_NAME
 import com.devicetracker.ui.ImagePickUpDialog
@@ -80,6 +81,7 @@ import com.devicetracker.ui.components.OwnerSpinner
 import com.devicetracker.ui.dashbord.assets.components.ProjectDropdown
 import com.devicetracker.ui.dashbord.member.Member
 import com.devicetracker.ui.dashbord.member.MemberViewModel
+import com.devicetracker.ui.isLandScapeMode
 
 @Composable
 fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
@@ -264,10 +266,15 @@ fun UpdateAsset(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val imageSize = if (isLandScapeMode()) {
+                (INT_SIZE_130 *1.7).toInt()
+            } else {
+                INT_SIZE_130
+            }
             Box(
                 modifier = Modifier
                     .fillMaxWidth(0.6f)
-                    .height(130.dp)
+                    .height(imageSize.dp)
                     .clip(RoundedCornerShape(5.dp))
                     .background(Color.Gray)
                     .align(Alignment.CenterHorizontally)

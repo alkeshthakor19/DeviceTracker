@@ -1,6 +1,7 @@
 package com.devicetracker.ui.dashbord.assets
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,6 +54,9 @@ import com.devicetracker.ui.Destinations.ASSET_SEARCH
 import com.devicetracker.ui.Destinations.NEW_ASSET
 import com.devicetracker.ui.components.LabelAndTextWithColor
 import com.devicetracker.ui.components.NoDataMessage
+import com.devicetracker.ui.getFontSizeByPercent
+import com.devicetracker.ui.getWidthInPercent
+import com.devicetracker.ui.isLandScapeMode
 import com.devicetracker.ui.theme.AssetTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -144,7 +148,10 @@ fun AssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            AssetPicture(asset, INT_SIZE_72)
+            AssetPicture(asset,
+                if (isLandScapeMode()) {
+                    (INT_SIZE_72 * 1.7).toInt()
+                } else INT_SIZE_72)
             AssetContent(asset)
         }
     }
@@ -196,7 +203,8 @@ fun AssetContent(asset: Asset) {
     ) {
         Text(
          text = asset.assetName,
-         style = MaterialTheme.typography.titleMedium
+         style = MaterialTheme.typography.titleMedium,
+         fontSize = getFontSizeByPercent(fontSizeInPercent = 3.6f)
         )
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_type), normalText = assetTypeName, color = Color.Gray)
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_label_asset_model_name), normalText = asset.modelName.toString(), color = Color.Gray)

@@ -55,7 +55,9 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
+import com.devicetracker.core.Constants.INT_SIZE_130
 import com.devicetracker.core.Constants.INT_SIZE_20
+import com.devicetracker.core.Constants.INT_SIZE_72
 import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
 import com.devicetracker.ui.Destinations.MEMBER_SEARCH
@@ -64,6 +66,7 @@ import com.devicetracker.ui.components.LabelAndTextWithColor
 import com.devicetracker.ui.components.MemberEmailRowSection
 import com.devicetracker.ui.dashbord.assets.Asset
 import com.devicetracker.ui.getFontSizeByPercent
+import com.devicetracker.ui.isLandScapeMode
 import com.devicetracker.ui.theme.AssetTrackerTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -168,6 +171,11 @@ fun UserPicture(member: Member) {
             color = MaterialTheme.colorScheme.secondary
         )
     ) {
+        val imageSize = if (isLandScapeMode()) {
+            (INT_SIZE_72 *1.7).toInt()
+        } else {
+            INT_SIZE_72
+        }
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(member.imageUrl)
@@ -177,7 +185,7 @@ fun UserPicture(member: Member) {
             error = painterResource(id = R.drawable.ic_baseline_users),
             contentDescription = stringResource(R.string.app_name),
             contentScale = ContentScale.Crop,
-            modifier = Modifier.size(72.dp)
+            modifier = Modifier.size(imageSize.dp)
         )
     }
 }
@@ -191,13 +199,14 @@ fun UserContent(member: Member) {
     ) {
         Text(
             text = member.memberName,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            fontSize = getFontSizeByPercent(fontSizeInPercent = 4.5f)
         )
         LabelAndTextWithColor(
             labelText = stringResource(id = R.string.str_emp_code),
             normalText = member.employeeCode.toString(),
             color = Color.Gray,
-            fontSize = getFontSizeByPercent(fontSizeInPercent = 4f)
+            fontSize = getFontSizeByPercent(fontSizeInPercent = 3.5f)
         )
         MemberEmailRowSection(labelText = stringResource(id = R.string.str_email), valueText = member.emailAddress, iconSize = INT_SIZE_20, fontSize = getFontSizeByPercent(fontSizeInPercent = 3.5f))
     }

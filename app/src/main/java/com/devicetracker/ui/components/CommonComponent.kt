@@ -51,7 +51,8 @@ fun TextWithLabel(labelText: String, normalText: String) {
             }
             append(normalText)
         },
-        fontSize = getFontSizeByPercent(fontSizeInPercent = 4f)
+        fontSize = getFontSizeByPercent(fontSizeInPercent = 4f),
+        lineHeight = 1.3.em
     )
 }
 
