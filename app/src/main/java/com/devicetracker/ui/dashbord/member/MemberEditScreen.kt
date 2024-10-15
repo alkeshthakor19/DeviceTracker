@@ -57,7 +57,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
-import com.devicetracker.core.Constants.INT_SIZE_120
 import com.devicetracker.ui.ImagePickUpDialog
 import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
@@ -72,7 +71,6 @@ import com.devicetracker.ui.components.MemberMobileField
 import com.devicetracker.ui.components.MemberNameField
 import com.devicetracker.ui.components.MemberNameState
 import com.devicetracker.ui.components.MobileNumberState
-import com.devicetracker.ui.isLandScapeMode
 
 
 @Composable

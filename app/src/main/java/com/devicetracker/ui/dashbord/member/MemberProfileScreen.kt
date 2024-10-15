@@ -50,7 +50,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
@@ -59,7 +58,6 @@ import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.core.Constants.INT_SIZE_120
 import com.devicetracker.core.Constants.INT_SIZE_24
-import com.devicetracker.core.Constants.INT_SIZE_72
 import com.devicetracker.core.Constants.INT_SIZE_80
 import com.devicetracker.getDateStringFromTimestamp
 import com.devicetracker.singleClick

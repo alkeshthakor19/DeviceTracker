@@ -1,7 +1,6 @@
 package com.devicetracker.ui.dashbord.assets
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -55,7 +54,6 @@ import com.devicetracker.ui.Destinations.NEW_ASSET
 import com.devicetracker.ui.components.LabelAndTextWithColor
 import com.devicetracker.ui.components.NoDataMessage
 import com.devicetracker.ui.getFontSizeByPercent
-import com.devicetracker.ui.getWidthInPercent
 import com.devicetracker.ui.isLandScapeMode
 import com.devicetracker.ui.theme.AssetTrackerTheme
 

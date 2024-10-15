@@ -3,7 +3,6 @@ package com.devicetracker.ui.dashbord.assets
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.devicetracker.R
 import com.devicetracker.core.Utils.Companion.showMessage

@@ -23,14 +23,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,8 +55,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
-import com.devicetracker.core.Constants.INT_SIZE_120
-import com.devicetracker.core.Constants.INT_SIZE_32
 import com.devicetracker.singleClick
 import com.devicetracker.ui.ImagePickUpDialog
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
@@ -73,7 +69,6 @@ import com.devicetracker.ui.components.MemberMobileField
 import com.devicetracker.ui.components.MemberNameField
 import com.devicetracker.ui.components.MemberNameState
 import com.devicetracker.ui.components.MobileNumberState
-import com.devicetracker.ui.isLandScapeMode
 
 @Composable
 fun NewMemberScreen(onNavUp: () -> Unit) {
@@ -262,43 +257,4 @@ fun AddMember(
             Text(stringResource(id = R.string.str_save))
         }
     }
-}
-
-@Composable
-fun ImagePickDialog(
-    onDismissRequest: () -> Unit,
-    onCamera: () -> Unit,
-    onGallery: () -> Unit,
-    dialogTitle: String,
-    dialogText: String
-) {
-    AlertDialog(
-        title = {
-            Text(text = dialogTitle)
-        },
-        text = {
-            Text(text = dialogText)
-        },
-        onDismissRequest = {
-            onDismissRequest()
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onCamera()
-                }
-            ) {
-                Text("Camera")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = {
-                    onGallery()
-                }
-            ) {
-                Text("Gallery")
-            }
-        }
-    )
 }

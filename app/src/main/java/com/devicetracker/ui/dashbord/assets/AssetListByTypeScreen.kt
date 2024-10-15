@@ -20,8 +20,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.devicetracker.R
-import com.devicetracker.ui.AppFloatingButton
-import com.devicetracker.ui.Destinations.NEW_ASSET
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.NoDataMessage
 
