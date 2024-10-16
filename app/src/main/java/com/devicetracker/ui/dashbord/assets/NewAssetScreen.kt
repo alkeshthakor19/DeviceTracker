@@ -2,6 +2,7 @@ package com.devicetracker.ui.dashbord.assets
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -35,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,20 +68,26 @@ import com.devicetracker.ui.ImagePickUpDialog
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetDescriptionField
 import com.devicetracker.ui.components.AssetDescriptionState
+import com.devicetracker.ui.components.AssetDescriptionStateSaver
 import com.devicetracker.ui.components.AssetIdField
 import com.devicetracker.ui.components.AssetIdState
+import com.devicetracker.ui.components.AssetIdStateSaver
 import com.devicetracker.ui.components.AssetNameField
 import com.devicetracker.ui.components.AssetNameState
+import com.devicetracker.ui.components.AssetNameStateSaver
 import com.devicetracker.ui.components.AssetQuantityField
 import com.devicetracker.ui.components.AssetQuantityState
+import com.devicetracker.ui.components.AssetQuantityStateSaver
 import com.devicetracker.ui.components.AssetSerialNumberField
 import com.devicetracker.ui.components.AssetSerialNumberState
+import com.devicetracker.ui.components.AssetSerialNumberStateSaver
 import com.devicetracker.ui.components.AssetStatusRadioButtons
 import com.devicetracker.ui.components.AssetTypeSpinner
 import com.devicetracker.ui.components.ModelDropdown
 import com.devicetracker.ui.components.OwnerSpinner
 import com.devicetracker.ui.dashbord.assets.components.ProjectDropdown
 import com.devicetracker.ui.dashbord.member.Member
+import com.devicetracker.ui.dashbord.member.MemberSaver
 import com.devicetracker.ui.dashbord.member.MemberViewModel
 import com.devicetracker.ui.isLandScapeMode
 
@@ -138,26 +146,35 @@ fun AddAsset(
 ) {
     val memberViewModel : MemberViewModel = hiltViewModel()
     val members by memberViewModel.members.observeAsState(emptyList())
-    val memberList = mutableListOf<Member>()
-    val noOwnerMember = Member(memberId = UNASSIGN_ID, memberName = UNASSIGN_NAME)
-    memberList.add(noOwnerMember)
-    memberList.addAll(members)
+    // Use rememberSaveable for the additional state
+    val noOwnerMember by rememberSaveable(stateSaver = MemberSaver) {
+        mutableStateOf(Member(memberId = UNASSIGN_ID, memberName = UNASSIGN_NAME))
+    }
+
+    // Combine the local state with observed state
+    val memberList = remember(members, noOwnerMember) {
+        mutableListOf(noOwnerMember).apply {
+            addAll(members)
+        }
+    }
     LaunchedEffect(Unit){
         memberViewModel.refreshMembers()
     }
-    val assetNameState = remember { AssetNameState() }
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var showImagePickDialog by remember { mutableStateOf(false) }
-    var selectedAssetType by remember { mutableStateOf(AssetType.TAB) }
-    var selectedModel by remember { mutableStateOf(Constants.EMPTY_STR) }
-    val description = remember { AssetDescriptionState() }
-    val serialNumberState = remember { AssetSerialNumberState() }
-    var selectedOwner by remember { mutableStateOf(memberList.first()) }
-    val assetIdState = remember { AssetIdState() }
-    val assetQuantityState = remember { AssetQuantityState() }
-    var selectedProjectName by remember { mutableStateOf(Constants.EMPTY_STR) }
-    var assetWorkingStatus by remember { mutableStateOf(true) }
+    val assetNameState by rememberSaveable(stateSaver = AssetNameStateSaver) {  mutableStateOf(AssetNameState()) }
+    Log.d("AssetNew", "nkp state : ${assetNameState.text}")
+
+    var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var imageBitmap by rememberSaveable { mutableStateOf<Bitmap?>(null) }
+    var showImagePickDialog by rememberSaveable { mutableStateOf(false) }
+    var selectedAssetType by rememberSaveable { mutableStateOf(AssetType.TAB) }
+    var selectedModel by rememberSaveable { mutableStateOf(Constants.EMPTY_STR) }
+    val description by rememberSaveable(stateSaver = AssetDescriptionStateSaver) { mutableStateOf(AssetDescriptionState()) }
+    val serialNumberState by rememberSaveable(stateSaver = AssetSerialNumberStateSaver) { mutableStateOf(AssetSerialNumberState()) }
+    var selectedOwner by rememberSaveable(stateSaver = MemberSaver) { mutableStateOf(memberList.first()) }
+    val assetIdState by rememberSaveable(stateSaver = AssetIdStateSaver) { mutableStateOf(AssetIdState()) }
+    val assetQuantityState by rememberSaveable(stateSaver = AssetQuantityStateSaver) { mutableStateOf(AssetQuantityState()) }
+    var selectedProjectName by rememberSaveable { mutableStateOf(Constants.EMPTY_STR) }
+    var assetWorkingStatus by rememberSaveable { mutableStateOf(true) }
 
     val galleryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -277,15 +294,16 @@ fun AddAsset(
                 description = description
             )
             Spacer(modifier = Modifier.height(15.dp))
-            ImagePickUpDialog(
-                title = stringResource(id = R.string.str_choose_image),
-                message = stringResource(id = R.string.str_image_pickup_message),
-                isDialogOpen = showImagePickDialog,
-                onDismiss = { showImagePickDialog = false },
-                onCamera = { cameraPicker.launch(null) },
-                onGallery = { galleryPicker.launch("image/*") }
-            )
+
         }
+        ImagePickUpDialog(
+            title = stringResource(id = R.string.str_choose_image),
+            message = stringResource(id = R.string.str_image_pickup_message),
+            isDialogOpen = showImagePickDialog,
+            onDismiss = { showImagePickDialog = false },
+            onCamera = { cameraPicker.launch(null) },
+            onGallery = { galleryPicker.launch("image/*") }
+        )
         // Save Button
         Button(
             modifier = Modifier

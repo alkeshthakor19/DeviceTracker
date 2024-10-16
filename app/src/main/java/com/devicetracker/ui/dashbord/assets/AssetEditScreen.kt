@@ -2,6 +2,7 @@ package com.devicetracker.ui.dashbord.assets
 
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -35,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,18 +64,22 @@ import com.devicetracker.core.Constants.INT_SIZE_130
 import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UNASSIGN_NAME
 import com.devicetracker.ui.ImagePickUpDialog
-import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetDescriptionField
 import com.devicetracker.ui.components.AssetDescriptionState
+import com.devicetracker.ui.components.AssetDescriptionStateSaver
 import com.devicetracker.ui.components.AssetIdField
 import com.devicetracker.ui.components.AssetIdState
+import com.devicetracker.ui.components.AssetIdStateSaver
 import com.devicetracker.ui.components.AssetNameField
 import com.devicetracker.ui.components.AssetNameState
+import com.devicetracker.ui.components.AssetNameStateSaver
 import com.devicetracker.ui.components.AssetQuantityField
 import com.devicetracker.ui.components.AssetQuantityState
+import com.devicetracker.ui.components.AssetQuantityStateSaver
 import com.devicetracker.ui.components.AssetSerialNumberField
 import com.devicetracker.ui.components.AssetSerialNumberState
+import com.devicetracker.ui.components.AssetSerialNumberStateSaver
 import com.devicetracker.ui.components.AssetStatusRadioButtons
 import com.devicetracker.ui.components.AssetTypeSpinner
 import com.devicetracker.ui.components.ModelDropdown
@@ -110,36 +116,32 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
                         }
                     }
             ) {
-                if(assetViewModel.isLoaderShowing){
-                    ProgressBar()
-                } else{
-                    UpdateAsset(
-                        onAssetSaved = { isNeedToUpdateImageUrl, isNeedToAddAssetOwnerHistory, imageUri, imageBitmap, assetName, assetType, assetModelName, serialNumber, description, selectedOwner, assetId, assetQuantity, projectName, assetWorkingStatus ->
-                            assetViewModel.uploadImageAndUpdateAsset(
-                                assetDocId,
-                                isNeedToUpdateImageUrl,
-                                isNeedToAddAssetOwnerHistory,
-                                imageUri,
-                                imageBitmap,
-                                assetName,
-                                assetType,
-                                assetModelName,
-                                serialNumber,
-                                description,
-                                selectedOwner,
-                                assetId,
-                                assetQuantity,
-                                projectName,
-                                assetWorkingStatus,
-                                onNavUp
-                            )
-                        },
-                        focusManager = focusManager,
-                        keyboardController = keyboardController,
-                        initialAssetData = assetData,
-                        assetEditablePermission
-                    )
-                }
+                UpdateAsset(
+                    onAssetSaved = { isNeedToUpdateImageUrl, isNeedToAddAssetOwnerHistory, imageUri, imageBitmap, assetName, assetType, assetModelName, serialNumber, description, selectedOwner, assetId, assetQuantity, projectName, assetWorkingStatus ->
+                        assetViewModel.uploadImageAndUpdateAsset(
+                            assetDocId,
+                            isNeedToUpdateImageUrl,
+                            isNeedToAddAssetOwnerHistory,
+                            imageUri,
+                            imageBitmap,
+                            assetName,
+                            assetType,
+                            assetModelName,
+                            serialNumber,
+                            description,
+                            selectedOwner,
+                            assetId,
+                            assetQuantity,
+                            projectName,
+                            assetWorkingStatus,
+                            onNavUp
+                        )
+                    },
+                    focusManager = focusManager,
+                    keyboardController = keyboardController,
+                    initialAssetData = assetData,
+                    assetEditablePermission
+                )
             }
         }
 }
@@ -189,33 +191,59 @@ fun UpdateAsset(
         }
     }
 
-    val assetNameState = remember { AssetNameState() }
-    assetNameState.text = initialAssetData?.assetName ?: Constants.EMPTY_STR
+    val assetNameState by rememberSaveable(stateSaver = AssetNameStateSaver) {  mutableStateOf(AssetNameState()) }
+    if((assetNameState.text.isBlank()) || assetNameState.text == initialAssetData?.assetName) {
+        assetNameState.text = initialAssetData?.assetName ?: Constants.EMPTY_STR
+    }
     val initImageUri = if(initialAssetData?.imageUrl != null) {
         Uri.parse(initialAssetData.imageUrl)
     } else{
         null
     }
-    var isNeedToUpdateImageUrl by remember { mutableStateOf(false) }
-    var imageUri by remember { mutableStateOf(initImageUri) }
-    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var showImagePickDialog by remember { mutableStateOf(false) }
+    var isNeedToUpdateImageUrl by rememberSaveable { mutableStateOf(false) }
+    var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    if(imageUri==null || imageUri == Uri.parse(initialAssetData?.imageUrl)){
+        imageUri = initImageUri
+    }
+    var imageBitmap by rememberSaveable { mutableStateOf<Bitmap?>(null) }
+    var showImagePickDialog by rememberSaveable { mutableStateOf(false) }
 
-    val selectedAssetType = remember { mutableStateOf(assetType) }
-    val selectedModel = remember { mutableStateOf(selectedModelName) }
-    val serialNumberState = remember { AssetSerialNumberState() }
-    serialNumberState.text = initialAssetData?.serialNumber?:Constants.EMPTY_STR
+    val selectedAssetType = rememberSaveable { mutableStateOf(Constants.EMPTY_STR) }
+    Log.d("AssetEdit", "nkp selectedAssetType ${selectedAssetType.value} assetType ${initialAssetData?.assetType}")
+    if((selectedAssetType.value.isBlank() && initialAssetData?.assetType != null) || selectedAssetType.value == initialAssetData?.assetType) {
+        selectedAssetType.value = assetType
+    }
+    val selectedModel = rememberSaveable { mutableStateOf(Constants.EMPTY_STR) }
+    if((selectedModel.value.isBlank()) || selectedModel.value == initialAssetData?.modelName) {
+        selectedModel.value = selectedModelName
+    }
+    val serialNumberState by rememberSaveable(stateSaver = AssetSerialNumberStateSaver) { mutableStateOf(AssetSerialNumberState()) }
+    if((serialNumberState.text.isBlank()) || serialNumberState.text == initialAssetData?.serialNumber) {
+        serialNumberState.text = initialAssetData?.serialNumber?:Constants.EMPTY_STR
+    }
 
-    val description = remember { AssetDescriptionState() }
-    description.text = initialAssetData?.description ?: Constants.EMPTY_STR
+    val description by rememberSaveable(stateSaver = AssetDescriptionStateSaver) { mutableStateOf(AssetDescriptionState()) }
+    if((description.text.isBlank()) || description.text == initialAssetData?.description) {
+        description.text = initialAssetData?.description ?: Constants.EMPTY_STR
+    }
 
-    val assetIdState = remember { AssetIdState() }
-    assetIdState.text = initialAssetData?.assetId ?: Constants.EMPTY_STR
-    val assetQuantityState = remember { AssetQuantityState() }
-    assetQuantityState.text = initialAssetData?.quantity ?: Constants.EMPTY_STR
-    val selectedProjectName = remember { mutableStateOf(initialAssetData?.projectName ?: Constants.EMPTY_STR) }
+    val assetIdState by rememberSaveable(stateSaver = AssetIdStateSaver) { mutableStateOf(AssetIdState()) }
+    if((assetIdState.text.isBlank()) || assetIdState.text == initialAssetData?.assetId) {
+        assetIdState.text = initialAssetData?.assetId ?: Constants.EMPTY_STR
+    }
+    val assetQuantityState by rememberSaveable(stateSaver = AssetQuantityStateSaver) { mutableStateOf(AssetQuantityState()) }
+    if((assetQuantityState.text.isBlank()) || assetQuantityState.text == initialAssetData?.quantity) {
+        assetQuantityState.text = initialAssetData?.quantity ?: Constants.EMPTY_STR
+    }
+    val selectedProjectName = rememberSaveable { mutableStateOf(Constants.EMPTY_STR) }
+    if((selectedProjectName.value.isBlank()) || selectedProjectName.value == initialAssetData?.projectName) {
+        selectedProjectName.value = initialAssetData?.projectName ?: Constants.EMPTY_STR
+    }
 
-    var assetWorkingStatus by remember { mutableStateOf(initialAssetData?.assetWorkingStatus ?: true) }
+    var assetWorkingStatus by rememberSaveable { mutableStateOf<Boolean?>(null) }
+    if((assetWorkingStatus == null) || assetWorkingStatus == initialAssetData?.assetWorkingStatus) {
+        assetWorkingStatus = initialAssetData?.assetWorkingStatus ?: true
+    }
 
     val galleryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -252,7 +280,7 @@ fun UpdateAsset(
         } else {
             onAssetSaved(isNeedToUpdateImageUrl, (selectedOwner.value?.memberId != initialAssetData?.assetOwnerId), imageUri, imageBitmap, assetNameState.text,
                 selectedAssetType.value, selectedModel.value, serialNumberState.text, description.text, selectedOwner.value,
-                assetIdState.text, assetQuantityState.text, selectedProjectName.value, assetWorkingStatus
+                assetIdState.text, assetQuantityState.text, selectedProjectName.value, assetWorkingStatus==true
             )
         }
     }
@@ -338,7 +366,7 @@ fun UpdateAsset(
             AssetQuantityField(quantity = assetQuantityState, isEditable = assetEditablePermission)
             ProjectDropdown(selectedProjectName = selectedProjectName.value, onProjectSelected = {selectedProjectName.value = it}, isEditable = assetEditablePermission)
             AssetStatusRadioButtons(
-                assetWorkingStatus = assetWorkingStatus,
+                assetWorkingStatus = assetWorkingStatus == true,
                 onStatusChange = { status -> assetWorkingStatus = status }
             )
             AssetDescriptionField(description = description, isEditable = assetEditablePermission)

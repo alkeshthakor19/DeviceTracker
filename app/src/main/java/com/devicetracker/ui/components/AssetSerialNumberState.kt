@@ -9,3 +9,5 @@ private fun isAssetSerialNumberValid(assetSerialNumber: String): Boolean {
 private fun assetSerialNumberValidationError(assetSerialNumber: String): String {
     return "Please enter asset serial number."
 }
+
+val AssetSerialNumberStateSaver = textFiledStateSaver(AssetSerialNumberState())

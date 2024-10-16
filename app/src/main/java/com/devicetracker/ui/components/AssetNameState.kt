@@ -9,3 +9,5 @@ private fun isAssetNameValid(assetName: String): Boolean {
 private fun assetNameValidationError(assetName: String): String {
     return "Please enter asset name."
 }
+
+var AssetNameStateSaver = textFiledStateSaver(AssetNameState())

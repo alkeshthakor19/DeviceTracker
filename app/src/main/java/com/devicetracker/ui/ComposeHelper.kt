@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.devicetracker.R
 import com.devicetracker.ui.theme.AssetTrackerTheme
@@ -145,7 +146,7 @@ fun ImagePickUpDialog(
                 Text(text = title, fontSize = getFontSizeByPercent(fontSizeInPercent = 4f))
             },
             text = {
-                Text(text = message, fontSize = getFontSizeByPercent(fontSizeInPercent = 3.5f))
+                Text(text = message, fontSize = getFontSizeByPercent(fontSizeInPercent = 3.5f), lineHeight = 1.2.em)
             },
             onDismissRequest = onDismiss,
             confirmButton = {
@@ -199,7 +200,8 @@ fun <T>CustomDropDownMenu(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded.value)
             },
-            modifier = Modifier.fillMaxWidth(0.95f)
+            modifier = Modifier
+                .fillMaxWidth(0.95f)
                 .menuAnchor(),
             enabled = isEditable
         )

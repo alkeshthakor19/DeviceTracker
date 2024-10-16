@@ -9,3 +9,5 @@ private fun isAssetDescriptionValid(assetDescription: String): Boolean {
 private fun assetDescriptionValidationError(assetDescription: String): String {
     return "Please enter description."
 }
+
+val AssetDescriptionStateSaver = textFiledStateSaver(AssetDescriptionState())

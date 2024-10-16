@@ -9,3 +9,5 @@ private fun isAssetQuantityValid(assetQuantity: String): Boolean {
 private fun assetQuantityValidationError(assetQuantity: String): String {
     return "Please enter asset quantity."
 }
+
+val AssetQuantityStateSaver = textFiledStateSaver(AssetQuantityState())

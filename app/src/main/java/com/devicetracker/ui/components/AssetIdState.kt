@@ -9,3 +9,5 @@ private fun isAssetIdValid(assetId: String): Boolean {
 private fun assetIdValidationError(assetId: String): String {
     return "Please enter asset id."
 }
+
+val AssetIdStateSaver = textFiledStateSaver(AssetIdState())
