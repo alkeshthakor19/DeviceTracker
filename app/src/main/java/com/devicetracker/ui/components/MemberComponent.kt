@@ -60,7 +60,7 @@ fun EmailField(emailState: TextFieldState) {
         singleLine = true
     )
     emailState.getError(stringResource(R.string.str_email_address))?.let { error ->
-        TextFieldError(textError = error, )
+        TextFieldError(textError = error)
     }
 }
 
@@ -85,7 +85,7 @@ fun PasswordTextField(
         visualTransformation = PasswordVisualTransformation()
     )
     passwordState.getError(stringResource(R.string.str_password))?.let { error ->
-        TextFieldError(textError = error, )
+        TextFieldError(textError = error)
     }
 }
 
@@ -112,7 +112,7 @@ fun EmployeeCodeField(employeeCode: TextFieldState) {
         singleLine = true
     )
     employeeCode.getError(stringResource(R.string.str_employee_code))?.let { error ->
-        TextFieldError(textError = error, )
+        TextFieldError(textError = error)
     }
 }
 
@@ -138,7 +138,7 @@ fun MemberNameField(memberName: TextFieldState) {
         singleLine = true
     )
     memberName.getError(stringResource(R.string.str_member_name))?.let { error ->
-        TextFieldError(textError = error, )
+        TextFieldError(textError = error)
     }
 }
 
@@ -150,7 +150,7 @@ fun MemberEditableCheckBox(memberEditablePermission: BooleanFieldState){
         modifier = Modifier.offset(x = (-10).dp).fillMaxWidth(0.95f)
     ) {
         Checkbox(
-            checked = memberEditablePermission.isChecked,
+            checked = memberEditablePermission.isChecked == true,
             onCheckedChange = { memberEditablePermission.isChecked = it },
             colors = CheckboxDefaults.colors(Color.Green)
         )
@@ -166,7 +166,7 @@ fun AssetEditableCheckBox(assetEditablePermission: BooleanFieldState){
         modifier = Modifier.offset(x = (-10).dp, y = (-20).dp).fillMaxWidth(0.95f)
     ) {
         Checkbox(
-            checked = assetEditablePermission.isChecked,
+            checked = assetEditablePermission.isChecked == true,
             onCheckedChange = { assetEditablePermission.isChecked = it },
             colors = CheckboxDefaults.colors(Color.Green)
         )
@@ -194,7 +194,7 @@ fun MemberMobileField(empMobileNo: TextFieldState) {
         singleLine = true
     )
     empMobileNo.getError(stringResource(R.string.str_mobile_number))?.let { error ->
-        TextFieldError(textError = error, )
+        TextFieldError(textError = error)
     }
 }
 

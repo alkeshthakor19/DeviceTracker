@@ -14,3 +14,5 @@ private fun mobileNumberValidationError(mobileNumber: String): String {
         Constants.EMPTY_STR
     }
 }
+
+val MobileNumberStateSaver = textFiledStateSaver(MobileNumberState())

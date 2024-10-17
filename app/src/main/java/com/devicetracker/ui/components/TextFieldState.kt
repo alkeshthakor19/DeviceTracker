@@ -17,13 +17,12 @@ open class TextFieldState(
 
     var isFocusedDirty: Boolean by mutableStateOf(false)
 
-    private var displayError: Boolean by mutableStateOf(false)
+    var displayError: Boolean by mutableStateOf(false)
 
 
     open val isValid: Boolean
         get() = text.isNotBlank() && validator(text)
-
-
+    
     fun onFocusChange(focused: Boolean) {
         isFocused = focused
     }
@@ -43,11 +42,13 @@ open class TextFieldState(
 }
 
 fun textFiledStateSaver(state: TextFieldState) = listSaver<TextFieldState, Any>(
-    save = { listOf(it.text, it.isFocused) },
+    save = { listOf(it.text, it.isFocused, state.isFocusedDirty, state.displayError) },
     restore = {
         state.apply {
             text = it[0] as String
             isFocused = it[1] as Boolean
+            isFocusedDirty = it[2] as Boolean
+            displayError = it[3] as Boolean
         }
     }
 )

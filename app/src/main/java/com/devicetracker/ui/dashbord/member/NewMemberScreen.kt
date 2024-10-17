@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,13 +63,18 @@ import com.devicetracker.ui.components.AssetEditableCheckBox
 import com.devicetracker.ui.components.CheckBoxState
 import com.devicetracker.ui.components.EmailField
 import com.devicetracker.ui.components.EmailState
-import com.devicetracker.ui.components.EmloyeeCodeState
+import com.devicetracker.ui.components.EmailStateSaver
+import com.devicetracker.ui.components.EmployeeCodeState
 import com.devicetracker.ui.components.EmployeeCodeField
+import com.devicetracker.ui.components.EmployeeCodeStateSaver
 import com.devicetracker.ui.components.MemberEditableCheckBox
 import com.devicetracker.ui.components.MemberMobileField
 import com.devicetracker.ui.components.MemberNameField
 import com.devicetracker.ui.components.MemberNameState
+import com.devicetracker.ui.components.MemberNameStateSaver
 import com.devicetracker.ui.components.MobileNumberState
+import com.devicetracker.ui.components.MobileNumberStateSaver
+import com.devicetracker.ui.components.rememberCheckBoxState
 
 @Composable
 fun NewMemberScreen(onNavUp: () -> Unit) {
@@ -119,15 +125,15 @@ fun AddMember(
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?
 ) {
-    val emailState = remember { EmailState() }
-    val employeeCodeState = remember { EmloyeeCodeState() }
-    val memberNameState = remember { MemberNameState() }
-    val mobileNumberState = remember { MobileNumberState() }
-    val memberEditablePermission = remember { CheckBoxState() }
-    val assetEditablePermission = remember { CheckBoxState() }
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
-    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var showImagePickDialog by remember { mutableStateOf(false) }
+    val emailState by rememberSaveable(stateSaver = EmailStateSaver) { mutableStateOf(EmailState()) }
+    val employeeCodeState by rememberSaveable(stateSaver = EmployeeCodeStateSaver) { mutableStateOf(EmployeeCodeState()) }
+    val memberNameState by rememberSaveable(stateSaver = MemberNameStateSaver) { mutableStateOf(MemberNameState()) }
+    val mobileNumberState by rememberSaveable(stateSaver = MobileNumberStateSaver) { mutableStateOf(MobileNumberState()) }
+    val memberEditablePermission = rememberCheckBoxState()
+    val assetEditablePermission = rememberCheckBoxState()
+    var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var imageBitmap by rememberSaveable { mutableStateOf<Bitmap?>(null) }
+    var showImagePickDialog by rememberSaveable { mutableStateOf(false) }
 
     val galleryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -169,8 +175,8 @@ fun AddMember(
                 employeeCodeState.text.toInt(),
                 memberNameState.text,
                 emailState.text,
-                memberEditablePermission.isChecked,
-                assetEditablePermission.isChecked,
+                memberEditablePermission.isChecked == true,
+                assetEditablePermission.isChecked == true,
                 mobileNumberState.text
             )
         }

@@ -13,7 +13,7 @@ class EmailState (val email: String? = null) : TextFieldState(validator = :: isE
 }
 
 private fun emailValidationError(email: String): String {
-    return "Invalid email: ${email}"
+    return "Invalid email: $email"
 }
 
 private fun isEmailValid(email: String): Boolean {

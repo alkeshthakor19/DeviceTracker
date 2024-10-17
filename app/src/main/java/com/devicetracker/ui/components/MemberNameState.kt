@@ -9,3 +9,5 @@ private fun isMemberNameValid(memberName: String): Boolean {
 private fun memberNameValidationError(memberName: String): String {
     return "Please enter member name."
 }
+
+val MemberNameStateSaver = textFiledStateSaver(MemberNameState())

@@ -35,6 +35,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,20 +58,24 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
+import com.devicetracker.core.Constants
 import com.devicetracker.ui.ImagePickUpDialog
-import com.devicetracker.ui.ProgressBar
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetEditableCheckBox
-import com.devicetracker.ui.components.CheckBoxState
 import com.devicetracker.ui.components.EmailField
 import com.devicetracker.ui.components.EmailState
-import com.devicetracker.ui.components.EmloyeeCodeState
+import com.devicetracker.ui.components.EmailStateSaver
 import com.devicetracker.ui.components.EmployeeCodeField
+import com.devicetracker.ui.components.EmployeeCodeState
+import com.devicetracker.ui.components.EmployeeCodeStateSaver
 import com.devicetracker.ui.components.MemberEditableCheckBox
 import com.devicetracker.ui.components.MemberMobileField
 import com.devicetracker.ui.components.MemberNameField
 import com.devicetracker.ui.components.MemberNameState
+import com.devicetracker.ui.components.MemberNameStateSaver
 import com.devicetracker.ui.components.MobileNumberState
+import com.devicetracker.ui.components.MobileNumberStateSaver
+import com.devicetracker.ui.components.rememberCheckBoxState
 
 
 @Composable
@@ -99,31 +104,27 @@ fun MemberEditScreen(memberId: String, onNavUp: () -> Unit) {
                     }
                 }
         ) {
-            if(memberViewModel.isLoaderShowing){
-                ProgressBar()
-            } else{
-                UpdateMember(
-                    onMemberSaved = { isNeedToUpdateImageUrl, imageUri, imageBitmap, employeeCode, memberName, emailAddress, memberEditablePermission, assetEditablePermission, mobileNumber ->
-                        memberViewModel.uploadImageAndUpdateMember(
-                            memberId,
-                            isNeedToUpdateImageUrl,
-                            imageUri,
-                            imageBitmap,
-                            employeeCode,
-                            memberName,
-                            emailAddress,
-                            memberEditablePermission,
-                            assetEditablePermission,
-                            mobileNumber,
-                            onNavUp
-                        )
-                    },
-                    focusManager = focusManager,
-                    keyboardController = keyboardController,
-                    initialMemberData = memberData,
-                    isMemberEditablePermission
-                )
-            }
+            UpdateMember(
+                onMemberSaved = { isNeedToUpdateImageUrl, imageUri, imageBitmap, employeeCode, memberName, emailAddress, memberEditablePermission, assetEditablePermission, mobileNumber ->
+                    memberViewModel.uploadImageAndUpdateMember(
+                        memberId,
+                        isNeedToUpdateImageUrl,
+                        imageUri,
+                        imageBitmap,
+                        employeeCode,
+                        memberName,
+                        emailAddress,
+                        memberEditablePermission,
+                        assetEditablePermission,
+                        mobileNumber,
+                        onNavUp
+                    )
+                },
+                focusManager = focusManager,
+                keyboardController = keyboardController,
+                initialMemberData = memberData,
+                isMemberEditablePermission
+            )
         }
     }
 }
@@ -136,28 +137,43 @@ fun UpdateMember(
     initialMemberData: Member?,
     isMemberEditablePermission: Boolean
 ) {
-    val emailState = remember { EmailState() }
-    emailState.text = initialMemberData?.emailAddress.toString()
-    val employeeCodeState = remember { EmloyeeCodeState() }
-    employeeCodeState.text = initialMemberData?.employeeCode.toString()
-    val memberNameState = remember { MemberNameState() }
-    memberNameState.text = initialMemberData?.memberName.toString()
-    val mobileNumberState = remember { MobileNumberState() }
-    mobileNumberState.text = initialMemberData?.mobileNumber.toString()
+    val emailState by rememberSaveable(stateSaver = EmailStateSaver) { mutableStateOf(EmailState()) }
+    if ((emailState.text.isEmpty()) || (emailState.text == initialMemberData?.emailAddress)) {
+        emailState.text = initialMemberData?.emailAddress ?: Constants.EMPTY_STR
+    }
+    val employeeCodeState by rememberSaveable(stateSaver = EmployeeCodeStateSaver) { mutableStateOf(EmployeeCodeState()) }
+    if((employeeCodeState.text.isBlank() || employeeCodeState.text == "null") || employeeCodeState.text == initialMemberData?.employeeCode.toString()) {
+        employeeCodeState.text = initialMemberData?.employeeCode.toString()
+    }
+    val memberNameState by rememberSaveable(stateSaver = MemberNameStateSaver) { mutableStateOf(MemberNameState()) }
+    if(memberNameState.text.isBlank() || memberNameState.text == initialMemberData?.memberName) {
+        memberNameState.text = initialMemberData?.memberName ?: Constants.EMPTY_STR
+    }
+    val mobileNumberState by rememberSaveable(stateSaver = MobileNumberStateSaver) { mutableStateOf(MobileNumberState()) }
+    if(mobileNumberState.text.isBlank() || mobileNumberState.text == initialMemberData?.mobileNumber) {
+        mobileNumberState.text = initialMemberData?.mobileNumber ?: Constants.EMPTY_STR
+    }
 
-    val memberEditablePermission = remember { CheckBoxState() }
-    memberEditablePermission.isChecked = initialMemberData?.memberEditablePermission == true
-    val assetEditablePermission = remember { CheckBoxState() }
-    assetEditablePermission.isChecked = initialMemberData?.assetEditablePermission == true
+    val memberEditablePermission = rememberCheckBoxState()
+    if (memberEditablePermission.isChecked == null || (memberEditablePermission.isChecked == initialMemberData?.memberEditablePermission)) {
+        memberEditablePermission.isChecked = initialMemberData?.memberEditablePermission
+    }
+    val assetEditablePermission = rememberCheckBoxState()
+    if (assetEditablePermission.isChecked == null || assetEditablePermission.isChecked == initialMemberData?.assetEditablePermission) {
+        assetEditablePermission.isChecked = initialMemberData?.assetEditablePermission
+    }
     val initImageUri = if(initialMemberData?.imageUrl != null) {
         Uri.parse(initialMemberData.imageUrl)
     } else{
         null
     }
-    var isNeedToUpdateImageUrl by remember { mutableStateOf(false) }
-    var imageUri by remember { mutableStateOf(initImageUri) }
-    var imageBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var showImagePickDialog by remember { mutableStateOf(false) }
+    var isNeedToUpdateImageUrl by rememberSaveable { mutableStateOf(false) }
+    var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    if(imageUri==null || imageUri == Uri.parse(initialMemberData?.imageUrl)){
+        imageUri = initImageUri
+    }
+    var imageBitmap by rememberSaveable { mutableStateOf<Bitmap?>(null) }
+    var showImagePickDialog by rememberSaveable { mutableStateOf(false) }
 
     val galleryPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -200,8 +216,8 @@ fun UpdateMember(
                 employeeCodeState.text.toInt(),
                 memberNameState.text,
                 emailState.text,
-                memberEditablePermission.isChecked,
-                assetEditablePermission.isChecked,
+                memberEditablePermission.isChecked == true,
+                assetEditablePermission.isChecked == true,
                 mobileNumberState.text
             )
         }

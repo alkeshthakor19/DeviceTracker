@@ -2,7 +2,7 @@ package com.devicetracker.ui.components
 
 import com.devicetracker.core.Constants
 
-class EmloyeeCodeState : TextFieldState(validator = ::isEmployeeIdValid, errorFor = ::employeeIdValidationError)
+class EmployeeCodeState : TextFieldState(validator = ::isEmployeeIdValid, errorFor = ::employeeIdValidationError)
 private fun isEmployeeIdValid(employeeCode: String): Boolean {
     return employeeCode.isNotEmpty() && (employeeCode.length == 6)
 }
@@ -16,3 +16,5 @@ private fun employeeIdValidationError(employeeCode: String): String {
         Constants.EMPTY_STR
     }
 }
+
+val EmployeeCodeStateSaver = textFiledStateSaver(EmployeeCodeState())
