@@ -64,6 +64,7 @@ import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.core.Constants
 import com.devicetracker.core.Constants.INT_SIZE_130
+import com.devicetracker.core.Constants.INT_SIZE_170
 import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UNASSIGN_NAME
 import com.devicetracker.ui.ImagePickUpDialog
@@ -298,9 +299,9 @@ fun UpdateAsset(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val imageSize = if (isLandScapeMode()) {
-                (INT_SIZE_130 *1.7).toInt()
+                (INT_SIZE_170 *1.7).toInt()
             } else {
-                INT_SIZE_130
+                INT_SIZE_170
             }
             Box(
                 modifier = Modifier

@@ -28,7 +28,6 @@ import com.devicetracker.core.Constants.FIRE_STORAGE_IMAGES
 import com.devicetracker.core.Constants.IMAGE_URL
 import com.devicetracker.core.Constants.LAST_VERIFICATION_AT
 import com.devicetracker.core.Constants.PROJECT_NAME
-import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UPDATED_AT
 import com.devicetracker.domain.models.Response.Failure
 import com.devicetracker.domain.models.Response.Success
@@ -148,7 +147,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         } else {
             val data = imageBitmap?.let {
                 ByteArrayOutputStream().apply {
-                    it.compress(Bitmap.CompressFormat.JPEG, 100, this)
+                    it.compress(Bitmap.CompressFormat.PNG, 100, this)
                 }.toByteArray()
             }
             imageRef.putBytes(data ?: byteArrayOf())
@@ -299,7 +298,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
                 } else {
                     val data = imageBitmap?.let {
                         ByteArrayOutputStream().apply {
-                            it.compress(Bitmap.CompressFormat.JPEG, 100, this)
+                            it.compress(Bitmap.CompressFormat.PNG, 100, this)
                         }.toByteArray()
                     }
                     imageRef.putBytes(data ?: byteArrayOf())

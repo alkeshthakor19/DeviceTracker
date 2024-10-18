@@ -206,5 +206,6 @@ fun AssetContent(asset: Asset) {
         )
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_asset_type), normalText = assetTypeName, color = Color.Gray)
         LabelAndTextWithColor(labelText = stringResource(id = R.string.str_label_asset_model_name), normalText = asset.modelName.toString(), color = Color.Gray)
+        LabelAndTextWithColor(labelText = stringResource(id = R.string.str_current_owner), normalText = asset.assetOwnerName.toString(), color = Color.Gray)
     }
 }

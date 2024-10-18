@@ -56,6 +56,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.core.Constants.INT_SIZE_130
+import com.devicetracker.core.Constants.INT_SIZE_170
 import com.devicetracker.getDateStringFromTimestamp
 import com.devicetracker.noDoubleClick
 import com.devicetracker.singleClick
@@ -291,9 +292,9 @@ fun AssetPhoto(asset: Asset?, navController: NavHostController){
             else -> R.drawable.ic_devices_other
         }
         val imageSize = if (isLandScapeMode()) {
-            (INT_SIZE_130*1.7).toInt()
+            (INT_SIZE_170*1.7).toInt()
         } else {
-            INT_SIZE_130
+            INT_SIZE_170
         }
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)

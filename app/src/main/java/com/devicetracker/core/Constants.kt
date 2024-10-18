@@ -54,4 +54,5 @@ object Constants {
     const val INT_SIZE_80 = 80
     const val INT_SIZE_120 = 120
     const val INT_SIZE_130 = 130
+    const val INT_SIZE_170 = 170
 }
