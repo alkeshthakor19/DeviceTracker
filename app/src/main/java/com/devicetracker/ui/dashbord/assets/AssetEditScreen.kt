@@ -50,6 +50,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -57,7 +58,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.core.Constants
 import com.devicetracker.core.Constants.INT_SIZE_130
@@ -301,7 +304,7 @@ fun UpdateAsset(
             }
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.6f)
+                    .fillMaxWidth(0.95f)
                     .height(imageSize.dp)
                     .clip(RoundedCornerShape(5.dp))
                     .background(Color.Gray)
@@ -319,20 +322,18 @@ fun UpdateAsset(
                         bitmap = it.asImageBitmap(),
                         contentDescription = null,
                         modifier = imageModifier,
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.FillBounds
                     )
-                } ?: imageUri?.let {
-                    Image(
-                        painter = rememberAsyncImagePainter(it),
-                        contentDescription = null,
-                        modifier = imageModifier,
-                        contentScale = ContentScale.Crop
-                    )
-                } ?: Image(
-                    painter = painterResource(id = resourceId),
-                    contentDescription = "Profile Picture",
-                    modifier = imageModifier,
-                    contentScale = ContentScale.Crop
+                } ?: AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(imageUri)
+                        .crossfade(true)
+                        .build(),
+                    placeholder = painterResource(resourceId),
+                    error = painterResource(resourceId),
+                    contentDescription = stringResource(R.string.app_name),
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.fillMaxWidth()
                 )
                 if (assetEditablePermission) {
                     FloatingActionButton(

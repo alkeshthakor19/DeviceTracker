@@ -140,7 +140,7 @@ fun AssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit) {
     ){
         Row(
             modifier = Modifier
-                .padding(start = 16.dp)
+                .padding(start = 5.dp)
                 .fillMaxWidth()
                 .noDoubleClick { navigateDeviceDetailCallBack.invoke(asset.assetDocId.toString()) },
             verticalAlignment = Alignment.CenterVertically,

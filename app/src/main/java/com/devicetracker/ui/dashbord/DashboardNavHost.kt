@@ -8,6 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.devicetracker.R
 import com.devicetracker.core.Constants
 import com.devicetracker.ui.Destinations.ASSETS
 import com.devicetracker.ui.Destinations.ASSETS_BY_TYPE
@@ -16,12 +17,14 @@ import com.devicetracker.ui.Destinations.ASSET_MODEL
 import com.devicetracker.ui.Destinations.ASSET_SEARCH
 import com.devicetracker.ui.Destinations.EDIT_ASSET
 import com.devicetracker.ui.Destinations.EDIT_MEMBER
+import com.devicetracker.ui.Destinations.FULL_IMAGE
 import com.devicetracker.ui.Destinations.HOME
 import com.devicetracker.ui.Destinations.MEMBERS
 import com.devicetracker.ui.Destinations.MEMBER_DETAIL
 import com.devicetracker.ui.Destinations.MEMBER_SEARCH
 import com.devicetracker.ui.Destinations.NEW_ASSET
 import com.devicetracker.ui.Destinations.NEW_MEMBER
+import com.devicetracker.ui.components.FullScreenImage
 import com.devicetracker.ui.dashbord.assets.AddAssetRoute
 import com.devicetracker.ui.dashbord.assets.AssetDetailScreen
 import com.devicetracker.ui.dashbord.assets.AssetEditScreen
@@ -143,6 +146,16 @@ fun DashboardNavHostContent(navigationController: NavHostController, drawerState
         }
         composable(ASSET_SEARCH){
             AssetSearchScreen(navigationController){
+                navigationController.navigateUp()
+            }
+        }
+        composable(
+            route = FULL_IMAGE,
+            arguments = listOf(navArgument("imageUrl") { type = NavType.StringType }, navArgument("resourceId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val imageUrl = backStackEntry.arguments?.getString("imageUrl")
+            val resourceId = backStackEntry.arguments?.getInt("resourceId") ?: R.drawable.ic_devices
+            FullScreenImage(imageUrl, resourceId){
                 navigationController.navigateUp()
             }
         }

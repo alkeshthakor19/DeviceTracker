@@ -1,8 +1,10 @@
 package com.devicetracker.ui.dashbord.assets
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -125,7 +127,7 @@ fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController
                 contentPadding = PaddingValues(16.dp)
             ) {
                 item {
-                    AssetDetailSection(assetData.value)
+                    AssetDetailSection(assetData.value, navHostController)
                     HorizontalDivider(color = MaterialTheme.colorScheme.primary)
                     Spacer(modifier = Modifier.height(20.dp))
                     DescriptionSection(assetData.value?.description)
@@ -152,7 +154,7 @@ fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AssetDetailSection(assetData: Asset?){
+fun AssetDetailSection(assetData: Asset?, navController: NavHostController){
     val assetOwner = if(assetData != null && !assetData.assetOwnerName.isNullOrEmpty()){
         assetData.assetOwnerName
     } else {
@@ -164,7 +166,7 @@ fun AssetDetailSection(assetData: Asset?){
             .padding(top = TopAppBarDefaults.TopAppBarExpandedHeight, bottom = 18.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AssetPhoto(assetData)
+        AssetPhoto(assetData, navController)
         Spacer(modifier = Modifier.height(4.dp))
         assetData?.assetName?.let {
             Text(
@@ -269,7 +271,7 @@ fun LazyListScope.assetHistorySection(assignedHistories: List<AssetHistory>) {
 }
 
 @Composable
-fun AssetPhoto(asset: Asset?){
+fun AssetPhoto(asset: Asset?, navController: NavHostController){
     Card(
         shape = RoundedCornerShape(5.dp),
         border = BorderStroke(
@@ -281,6 +283,8 @@ fun AssetPhoto(asset: Asset?){
             defaultElevation = 6.dp
         )
     ) {
+        // State to manage full-screen mode
+        var isFullScreen by remember { mutableStateOf(false) }
         val resourceId = when(asset?.assetType) {
             AssetType.TAB.name -> R.drawable.ic_devices
             AssetType.CABLE.name -> R.drawable.ic_baseline_cable
@@ -299,10 +303,13 @@ fun AssetPhoto(asset: Asset?){
             placeholder = painterResource(id = resourceId),
             error = painterResource(id = resourceId),
             contentDescription = stringResource(R.string.app_name),
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.FillBounds,
             modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .height(imageSize.dp)
+                .fillMaxWidth(0.95f)
+                .height(imageSize.dp).clickable {
+                    val encodedUrl = Uri.encode(asset?.imageUrl)
+                    navController.navigate("fullScreenImage/$encodedUrl/$resourceId")
+                }
         )
     }
 }

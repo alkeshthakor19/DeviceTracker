@@ -150,10 +150,11 @@ fun MemberProfileScreen(
                             style = MaterialTheme.typography.titleMedium,
                             fontStyle = FontStyle.Italic
                         )
-                        Spacer(modifier = Modifier.width(50.dp))
+                        // Comment this code for now it may use in future
+                        /*Spacer(modifier = Modifier.width(50.dp))
                         Text(text = stringResource(id = R.string.str_refresh_list), modifier = Modifier
                             .padding(bottom = 2.dp)
-                            .clickable { onRefreshAssetList() } )
+                            .clickable { onRefreshAssetList() } )*/
                     }
                 }
                 if(assetViewModel.isLoaderShowing){
@@ -253,7 +254,7 @@ fun AssignedAssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit
     ){
         Row(
             modifier = Modifier
-                .padding(start = 16.dp, top = 5.dp, bottom = 5.dp)
+                .padding(start = 8.dp, top = 5.dp, bottom = 5.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start

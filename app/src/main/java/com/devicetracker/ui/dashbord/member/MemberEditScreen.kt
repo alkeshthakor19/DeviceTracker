@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -49,6 +50,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -56,7 +58,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.core.Constants
 import com.devicetracker.ui.ImagePickUpDialog
@@ -232,8 +236,6 @@ fun UpdateMember(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -249,30 +251,27 @@ fun UpdateMember(
                         modifier = imageModifier,
                         contentScale = ContentScale.Crop
                     )
-                } ?: imageUri?.let {
-                    Image(
-                        painter = rememberAsyncImagePainter(it),
-                        contentDescription = null,
-                        modifier = imageModifier,
-                        contentScale = ContentScale.Crop
-                    )
-                } ?: Image(
-                    painter =  painterResource(id = R.drawable.ic_person),
-                    contentDescription = stringResource(id = R.string.str_profile_picture),
-                    modifier = imageModifier,
-                    contentScale = ContentScale.Crop
+                } ?: AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(imageUri)
+                        .crossfade(true)
+                        .build(),
+                    placeholder = painterResource(R.drawable.ic_baseline_users),
+                    error = painterResource(id = R.drawable.ic_baseline_users),
+                    contentDescription = stringResource(R.string.app_name),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxWidth()
                 )
-
-                    FloatingActionButton(
-                        onClick = { showImagePickDialog = true },
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(8.dp)
-                            .size(32.dp),
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ) {
-                        Icon(imageVector = Icons.Filled.Edit, contentDescription = stringResource(id = R.string.str_edit_image))
-                    }
+                FloatingActionButton(
+                    onClick = { showImagePickDialog = true },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp)
+                        .size(32.dp),
+                    containerColor = MaterialTheme.colorScheme.primary
+                ) {
+                    Icon(imageVector = Icons.Filled.Edit, contentDescription = stringResource(id = R.string.str_edit_image))
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

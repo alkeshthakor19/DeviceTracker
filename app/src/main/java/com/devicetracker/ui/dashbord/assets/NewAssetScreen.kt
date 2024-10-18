@@ -227,7 +227,7 @@ fun AddAsset(
             }
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.6f)
+                    .fillMaxWidth(0.95f)
                     .height(imageSize.dp)
                     .clip(RoundedCornerShape(5.dp))
                     .background(Color.Gray)
@@ -247,13 +247,13 @@ fun AddAsset(
                         painter = rememberAsyncImagePainter(it),
                         contentDescription = null,
                         modifier = imageModifier,
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.FillBounds
                     )
                 } ?: Image(
                     painter = painterResource(id = R.drawable.ic_devices),
                     contentDescription = "Profile Picture",
                     modifier = imageModifier,
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.FillBounds
                 )
 
                 FloatingActionButton(

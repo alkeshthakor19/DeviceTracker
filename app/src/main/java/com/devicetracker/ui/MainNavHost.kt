@@ -28,6 +28,7 @@ object Destinations {
     const val ASSET_MODEL = "asset_model"
     const val MEMBER_SEARCH = "member_search"
     const val ASSET_SEARCH = "asset_search"
+    const val FULL_IMAGE = "fullScreenImage/{imageUrl}/{resourceId}"
     const val LOGOUT = "logout"
 }
 
