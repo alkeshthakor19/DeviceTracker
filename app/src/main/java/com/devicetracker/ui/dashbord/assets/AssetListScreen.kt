@@ -75,7 +75,7 @@ fun AssetListScreen(openDrawer: () -> Unit, navHostController: NavHostController
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(id = R.string.str_asset_list),  style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
+                title = { Text(stringResource(id = R.string.str_asset_list),  style = MaterialTheme.typography.headlineMedium, fontSize = getFontSizeByPercent(fontSizeInPercent = 5f), color = AssetTrackerTheme.colors.textColor) },
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
                         Icon(imageVector = Icons.Filled.Menu, contentDescription = stringResource(id = R.string.str_menu))

@@ -51,6 +51,7 @@ fun HomeScreen(navHostController: NavHostController, openDrawer: () -> Unit) {
                 Text(
                     text = stringResource(id = R.string.str_home),
                     style = MaterialTheme.typography.headlineMedium,
+                    fontSize = getFontSizeByPercent(fontSizeInPercent = 5f),
                     color = AssetTrackerTheme.colors.textColor
                 )
             },

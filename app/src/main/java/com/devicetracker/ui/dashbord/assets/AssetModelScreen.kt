@@ -46,6 +46,7 @@ import com.devicetracker.singleClick
 import com.devicetracker.ui.components.AssetDescriptionState
 import com.devicetracker.ui.components.AssetModelField
 import com.devicetracker.ui.components.AssetTypeSpinner
+import com.devicetracker.ui.getFontSizeByPercent
 import com.devicetracker.ui.theme.AssetTrackerTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +58,7 @@ fun AssetModelScreen(openDrawer: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(id = R.string.str_asset_model),  style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
+                title = { Text(stringResource(id = R.string.str_asset_model),  style = MaterialTheme.typography.headlineMedium, fontSize = getFontSizeByPercent(fontSizeInPercent = 5f), color = AssetTrackerTheme.colors.textColor) },
                 navigationIcon = {
                     IconButton(onClick = openDrawer) {
                         Icon(imageVector = Icons.Filled.Menu, contentDescription = stringResource(id = R.string.str_menu))

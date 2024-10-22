@@ -2,8 +2,6 @@ package com.devicetracker.ui.dashbord.assets
 
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.util.Log
-import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -70,7 +68,6 @@ import com.devicetracker.core.Constants
 import com.devicetracker.core.Constants.INT_SIZE_170
 import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UNASSIGN_NAME
-import com.devicetracker.core.imageCompressions.FileManager
 import com.devicetracker.core.imageCompressions.ImageCompressor
 import com.devicetracker.createImageFile
 import com.devicetracker.ui.ImagePickUpDialog

@@ -47,7 +47,7 @@ fun TopBarWithTitleAndBackNavigation(
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
-        title = { Text(text = titleText, style = MaterialTheme.typography.headlineMedium, color = AssetTrackerTheme.colors.textColor) },
+        title = { Text(text = titleText, style = MaterialTheme.typography.headlineMedium, fontSize = getFontSizeByPercent(fontSizeInPercent = 5f), color = AssetTrackerTheme.colors.textColor) },
         navigationIcon = {
             IconButton(onClick = onNavUp) {
                 Icon(
