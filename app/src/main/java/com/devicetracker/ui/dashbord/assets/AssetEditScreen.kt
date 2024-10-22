@@ -2,6 +2,7 @@ package com.devicetracker.ui.dashbord.assets
 
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.util.Log
 import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -62,6 +63,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.core.Constants
@@ -349,11 +351,12 @@ fun UpdateAsset(
                     AssetType.CABLE.name -> R.drawable.ic_baseline_cable
                     else -> R.drawable.ic_devices_other
                 }
-
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(imageUri)
                         .crossfade(true)
+                        .memoryCachePolicy(CachePolicy.DISABLED) // Disable memory caching
+                        .diskCachePolicy(CachePolicy.DISABLED) // Disable disk caching
                         .build(),
                     placeholder = painterResource(resourceId),
                     error = painterResource(resourceId),

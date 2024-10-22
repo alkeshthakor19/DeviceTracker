@@ -11,6 +11,8 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import kotlin.math.roundToInt
 
 class ImageCompressor(
@@ -49,7 +51,7 @@ class ImageCompressor(
                 }
 
                 var outputBytes: ByteArray
-                var quality = 90
+                var quality = 100
 
                 do {
                     ByteArrayOutputStream().use { outputStream ->
@@ -120,5 +122,20 @@ class ImageCompressor(
                 BitmapFactory.decodeByteArray(outputBytes, 0, outputBytes.size)
             }
         }
+    }
+
+    fun compressImageFile(uri: Uri, context: Context): Uri {
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        val outputFile = File(context.externalCacheDir, "compressed_${System.currentTimeMillis()}.jpg")
+        Log.d("ImageCompression", "nkp outputFile ${outputFile.path}")
+        val outputStream = FileOutputStream(outputFile)
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream) // Adjust quality as needed
+
+        outputStream.close()
+        inputStream?.close()
+
+        return Uri.fromFile(outputFile)
     }
 }

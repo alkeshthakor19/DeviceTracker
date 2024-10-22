@@ -71,7 +71,7 @@ fun getDateStringFromTimestamp(timestamp: Timestamp?): String {
 
 fun Context.createImageFile(): File {
     // Create an image file name
-   val imageFileName = "Temp_image_store.jpg"
+    val imageFileName = "Temp_image_store.jpg"
     val image = File(externalCacheDir, imageFileName)
     return image
 }
