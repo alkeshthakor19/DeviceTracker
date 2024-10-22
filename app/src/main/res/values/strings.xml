@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">DeviceTracker</string>
+    <string name="app_name">AssetTracker</string>
     <string name="app_title">Device Tracker</string>
     <string name="str_email_address">Email Address</string>
     <string name="str_employee_code">Employee Code</string>

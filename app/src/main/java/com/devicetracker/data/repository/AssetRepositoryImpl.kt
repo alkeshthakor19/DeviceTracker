@@ -1,7 +1,5 @@
 package com.devicetracker.data.repository
 
-import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
 import com.devicetracker.core.Constants.ADMIN_EMAIL
 import com.devicetracker.core.Constants.ASSET_DESCRIPTION
@@ -29,6 +27,7 @@ import com.devicetracker.core.Constants.IMAGE_URL
 import com.devicetracker.core.Constants.LAST_VERIFICATION_AT
 import com.devicetracker.core.Constants.PROJECT_NAME
 import com.devicetracker.core.Constants.UPDATED_AT
+import com.devicetracker.core.Utils.Companion.extractFilePathFromUrl
 import com.devicetracker.domain.models.Response.Failure
 import com.devicetracker.domain.models.Response.Success
 import com.devicetracker.domain.repository.AddAssetResponse
@@ -48,7 +47,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.tasks.await
-import java.io.ByteArrayOutputStream
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -127,8 +125,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
     }
 
     override suspend fun uploadImageAndAddNewAssetToFirebase(
-        imageUri: Uri?,
-        imageBitmap: Bitmap?,
+        imageByteArray: ByteArray?,
         assetName: String,
         assetType: String,
         modelName: String,
@@ -141,17 +138,9 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         assetWorkingStatus: Boolean,
         onNavUp: () -> Unit
     ): AddAssetResponse = try {
-        val imageRef = storageReference.child("$FIRE_STORAGE_IMAGES/${UUID.randomUUID()}.jpg")
-        val uploadTask = if (imageUri != null) {
-            imageRef.putFile(imageUri)
-        } else {
-            val data = imageBitmap?.let {
-                ByteArrayOutputStream().apply {
-                    it.compress(Bitmap.CompressFormat.PNG, 100, this)
-                }.toByteArray()
-            }
-            imageRef.putBytes(data ?: byteArrayOf())
-        }
+        val fileName = assetId.ifEmpty { UUID.randomUUID() }
+        val imageRef = storageReference.child("$FIRE_STORAGE_IMAGES/$fileName.jpg")
+        val uploadTask = imageRef.putBytes(imageByteArray ?: byteArrayOf())
 
         uploadTask.await()
         val resultUri = imageRef.downloadUrl.await()
@@ -276,8 +265,7 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         assetDocId: String,
         isNeedToUpdateImageUrl: Boolean,
         isNeedToAddAssetOwnerHistory: Boolean,
-        imageUri: Uri?,
-        imageBitmap: Bitmap?,
+        imageByteArray: ByteArray?,
         assetName: String,
         assetType: String,
         modelName: String,
@@ -292,17 +280,9 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
     ): UpdateAssetResponse {
         return try {
             val resultUri = if(isNeedToUpdateImageUrl){
-                val imageRef = storageReference.child("$FIRE_STORAGE_IMAGES/${UUID.randomUUID()}.jpg")
-                val uploadTask = if (imageUri != null) {
-                    imageRef.putFile(imageUri)
-                } else {
-                    val data = imageBitmap?.let {
-                        ByteArrayOutputStream().apply {
-                            it.compress(Bitmap.CompressFormat.PNG, 100, this)
-                        }.toByteArray()
-                    }
-                    imageRef.putBytes(data ?: byteArrayOf())
-                }
+                val fileName = assetId.ifEmpty { UUID.randomUUID() }
+                val imageRef = storageReference.child("$FIRE_STORAGE_IMAGES/$fileName.jpg")
+                val uploadTask = imageRef.putBytes(imageByteArray ?: byteArrayOf())
                 uploadTask.await()
                 val resultUri = imageRef.downloadUrl.await()
                 resultUri.toString()
@@ -405,45 +385,60 @@ class AssetRepositoryImpl @Inject constructor(private val db: FirebaseFirestore,
         return isAssetEditablePermission
     }
 
-    override suspend fun deleteAsset(assetDocId: String, onSuccess: () -> Unit) {
+    override suspend fun deleteAsset(assetDocId: String, filePathUrl: String?, onSuccess: () -> Unit) {
         db.collection(COLLECTION_ASSETS).document(assetDocId).delete()
         .addOnSuccessListener {
-            db.collection(COLLECTION_ASSET_OWNER_HISTORY).whereEqualTo(ASSET_DOC_ID, assetDocId).get().addOnSuccessListener { querySnapshot ->
-                if(!querySnapshot.isEmpty){
-                    for((index, document) in querySnapshot.documents.withIndex()) {
-                        document.reference.delete().addOnSuccessListener {
-                            if( index == (querySnapshot.size().minus(1)) ) {
-                                onSuccess()
-                            }
-                        }
-                        .addOnFailureListener { e ->
-                            Log.w("AssetRepositoryImp", "Error deleting assetHistory by assetDocId: ${e.message}")
-                        }
-                    }
-                } else {
-                    onSuccess()
+            val filePath = extractFilePathFromUrl(filePathUrl)
+            if (filePath.isNullOrEmpty()){
+                // Delete any additional related documents
+                deleteRelatedDocuments(assetDocId, onSuccess)
+            } else {
+                // Delete associated file from Firebase Storage
+                val fileRef = storageReference.child(filePath)
+                fileRef.delete().addOnSuccessListener {
+                    // Delete any additional related documents
+                    deleteRelatedDocuments(assetDocId, onSuccess)
+                }.addOnFailureListener { e ->
+                    Log.w("AssetRepositoryImpl", "Error deleting file from Storage: ${e.message}")
                 }
-            }
-            db.collection(COLLECTION_ASSETS_HISTORY).whereEqualTo(ASSET_DOC_ID, assetDocId).get().addOnSuccessListener { querySnapshot ->
-                if(!querySnapshot.isEmpty){
-                    for((index, document) in querySnapshot.documents.withIndex()) {
-                        document.reference.delete().addOnSuccessListener {
-                            /*if( index == (querySnapshot.size().minus(1)) ) {
-                                onSuccess()
-                            }*/
-                        }
-                            .addOnFailureListener { e ->
-                                Log.w("AssetRepositoryImp", "Error deleting assetHistory by assetDocId: ${e.message}")
-                            }
-                    }
-                }/* else {
-                    onSuccess()
-                }*/
             }
         }
         .addOnFailureListener { e ->
             // Handle failure
             Log.w("AssetRepositoryImp", "Error deleting Asset", e)
+        }
+    }
+
+    private fun deleteRelatedDocuments(assetDocId: String, onSuccess: () -> Unit) {
+        db.collection(COLLECTION_ASSET_OWNER_HISTORY).whereEqualTo(ASSET_DOC_ID, assetDocId).get().addOnSuccessListener { querySnapshot ->
+            if(!querySnapshot.isEmpty){
+                for((index, document) in querySnapshot.documents.withIndex()) {
+                    document.reference.delete().addOnSuccessListener {
+                        if( index == (querySnapshot.size().minus(1)) ) {
+                            onSuccess()
+                        }
+                    }.addOnFailureListener { e ->
+                        Log.w("AssetRepositoryImp", "Error deleting assetHistory by assetDocId: ${e.message}")
+                    }
+                }
+            } else {
+                onSuccess()
+            }
+        }
+        db.collection(COLLECTION_ASSETS_HISTORY).whereEqualTo(ASSET_DOC_ID, assetDocId).get().addOnSuccessListener { querySnapshot ->
+            if(!querySnapshot.isEmpty){
+                for((index, document) in querySnapshot.documents.withIndex()) {
+                    document.reference.delete().addOnSuccessListener {
+                        /*if( index == (querySnapshot.size().minus(1)) ) {
+                            onSuccess()
+                        }*/
+                    }.addOnFailureListener { e ->
+                        Log.w("AssetRepositoryImp", "Error deleting assetHistory by assetDocId: ${e.message}")
+                    }
+                }
+            }/* else {
+                onSuccess()
+            }*/
         }
     }
 

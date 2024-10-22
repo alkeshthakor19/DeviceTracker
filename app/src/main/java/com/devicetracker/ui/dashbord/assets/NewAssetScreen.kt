@@ -1,9 +1,10 @@
 package com.devicetracker.ui.dashbord.assets
 
-import android.graphics.Bitmap
+import android.content.pm.PackageManager
 import android.net.Uri
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,26 +46,29 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import com.devicetracker.R
 import com.devicetracker.core.Constants
-import com.devicetracker.core.Constants.INT_SIZE_130
 import com.devicetracker.core.Constants.INT_SIZE_170
 import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UNASSIGN_NAME
+import com.devicetracker.core.imageCompressions.ImageCompressor
+import com.devicetracker.createImageFile
 import com.devicetracker.singleClick
 import com.devicetracker.ui.ImagePickUpDialog
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
@@ -91,6 +96,8 @@ import com.devicetracker.ui.dashbord.member.Member
 import com.devicetracker.ui.dashbord.member.MemberSaver
 import com.devicetracker.ui.dashbord.member.MemberViewModel
 import com.devicetracker.ui.isLandScapeMode
+import kotlinx.coroutines.launch
+import java.util.Objects
 
 @Composable
 fun NewAssetScreen(onNavUp: () -> Unit) {
@@ -115,10 +122,9 @@ fun NewAssetScreen(onNavUp: () -> Unit) {
         ) {
             val newAssetViewModel: AssetViewModel = hiltViewModel()
             AddAsset(
-                onAssetSaved = { imageUri, imageBitmap, assetName, assetType, model, serialNumber, description, selectedMember, assetId, assetQuantity, projectName, assetWorkingStatus->
+                onAssetSaved = { imageByteArray, assetName, assetType, model, serialNumber, description, selectedMember, assetId, assetQuantity, projectName, assetWorkingStatus->
                     newAssetViewModel.uploadImageAndAddNewAssetToFirebase(
-                        imageUri,
-                        imageBitmap,
+                        imageByteArray,
                         assetName,
                         assetType,
                         model,
@@ -141,7 +147,7 @@ fun NewAssetScreen(onNavUp: () -> Unit) {
 
 @Composable
 fun AddAsset(
-    onAssetSaved: (imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber : String, description: String, memberViewModel : Member, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean) -> Unit,
+    onAssetSaved: (imageByteArray: ByteArray?, assetName: String, assetType: String, modelName: String, serialNumber : String, description: String, memberViewModel : Member, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?
 ) {
@@ -162,10 +168,8 @@ fun AddAsset(
         memberViewModel.refreshMembers()
     }
     val assetNameState by rememberSaveable(stateSaver = AssetNameStateSaver) {  mutableStateOf(AssetNameState()) }
-    Log.d("AssetNew", "nkp state : ${assetNameState.text}")
-
     var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
-    var imageBitmap by rememberSaveable { mutableStateOf<Bitmap?>(null) }
+    var imageByteArray by rememberSaveable { mutableStateOf<ByteArray?>(null) }
     var showImagePickDialog by rememberSaveable { mutableStateOf(false) }
     var selectedAssetType by rememberSaveable { mutableStateOf(AssetType.TAB) }
     var selectedModel by rememberSaveable { mutableStateOf(Constants.EMPTY_STR) }
@@ -177,21 +181,54 @@ fun AddAsset(
     var selectedProjectName by rememberSaveable { mutableStateOf(Constants.EMPTY_STR) }
     var assetWorkingStatus by rememberSaveable { mutableStateOf(true) }
 
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
     val galleryPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri: Uri? ->
-            imageUri = uri
-            imageBitmap = null
+        contract = ActivityResultContracts.PickVisualMedia(),
+    ){ contentUri ->
+        if(contentUri == null) {
+            return@rememberLauncherForActivityResult
         }
+        scope.launch {
+            val compressedImage = ImageCompressor(context).compressImage(
+                contentUri = contentUri,
+                compressionThreshold = 200 * 1024L
+            )
+            imageUri = null
+            imageByteArray = compressedImage
+        }
+    }
+
+    val file = context.createImageFile()
+    val contentUri = FileProvider.getUriForFile(
+        Objects.requireNonNull(context),
+        context.packageName + ".provider", file
     )
 
-    val cameraPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview(),
-        onResult = { bitmap ->
-            imageBitmap = bitmap
-            imageUri = null
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+        imageUri = contentUri
+        if(contentUri == null) {
+            return@rememberLauncherForActivityResult
         }
-    )
+        scope.launch {
+            val compressedImage = ImageCompressor(context).compressImage(
+                contentUri = contentUri,
+                compressionThreshold = 200 * 1024L
+            )
+            imageByteArray = compressedImage
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        if (it) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+            cameraLauncher.launch(contentUri)
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     val scrollState = rememberScrollState()
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -205,10 +242,8 @@ fun AddAsset(
     val onAddNewAssetInAction = {
         if (!assetNameState.isValid) {
             assetNameState.enableShowError()
-        } else if (selectedModel.isEmpty()) {
-            // Show error or handle model not selected
         } else {
-            onAssetSaved(imageUri, imageBitmap, assetNameState.text, selectedAssetType.name, selectedModel, serialNumberState.text, description.text, selectedOwner, assetIdState.text, assetQuantityState.text, selectedProjectName, assetWorkingStatus)
+            onAssetSaved(imageByteArray, assetNameState.text, selectedAssetType.name, selectedModel, serialNumberState.text, description.text, selectedOwner, assetIdState.text, assetQuantityState.text, selectedProjectName, assetWorkingStatus)
         }
     }
 
@@ -236,14 +271,7 @@ fun AddAsset(
             ) {
                 val imageModifier = Modifier.fillMaxSize()
 
-                imageBitmap?.let {
-                    Image(
-                        bitmap = it.asImageBitmap(),
-                        contentDescription = null,
-                        modifier = imageModifier,
-                        contentScale = ContentScale.FillBounds
-                    )
-                } ?: imageUri?.let {
+                imageUri?.let {
                     Image(
                         painter = rememberAsyncImagePainter(it),
                         contentDescription = null,
@@ -295,15 +323,28 @@ fun AddAsset(
                 description = description
             )
             Spacer(modifier = Modifier.height(15.dp))
-
         }
         ImagePickUpDialog(
             title = stringResource(id = R.string.str_choose_image),
             message = stringResource(id = R.string.str_image_pickup_message),
             isDialogOpen = showImagePickDialog,
             onDismiss = { showImagePickDialog = false },
-            onCamera = { cameraPicker.launch(null) },
-            onGallery = { galleryPicker.launch("image/*") }
+            onCamera = {
+                val permissionCheckResult = ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA)
+                if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                    cameraLauncher.launch(contentUri)
+                } else {
+                    // Request a permission
+                    permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                }
+            },
+            onGallery = {
+                galleryPicker.launch(
+                    PickVisualMediaRequest(
+                        mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                    )
+                )
+            }
         )
         // Save Button
         Button(

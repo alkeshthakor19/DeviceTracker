@@ -39,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +56,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
+import com.devicetracker.core.Constants
 import com.devicetracker.core.Constants.INT_SIZE_130
 import com.devicetracker.core.Constants.INT_SIZE_170
 import com.devicetracker.getDateStringFromTimestamp
@@ -79,14 +81,16 @@ fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController
     val assetData = assetViewModel.asset.observeAsState()
     val assignedHistories by assetViewModel.assetHistories.observeAsState(initial = emptyList())
     val assetEditablePermission by assetViewModel.isAssetEditablePermission().observeAsState(false)
-    var isDialogOpen by remember { mutableStateOf(false) }
+    var isDialogOpen by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val memberViewModel : MemberViewModel = hiltViewModel()
     val assetOwnerDetail by memberViewModel.member.observeAsState()
+    var imagePath by rememberSaveable { mutableStateOf(Constants.EMPTY_STR) }
 
     LaunchedEffect(assetDocId) {
         assetViewModel.fetchAssetDetailById(assetDocId)
         assetViewModel.getAssetHistories(assetDocId)
+        imagePath = assetData.value?.imageUrl.toString()
     }
     Scaffold(
         topBar = {
@@ -140,7 +144,7 @@ fun AssetDetailScreen(assetDocId: String, onNavUp: () -> Unit, navHostController
                         isDialogOpen = isDialogOpen,
                         onDismiss = { isDialogOpen = false },
                         onConfirm = {
-                            assetViewModel.deleteAssetByAssetDocId(assetDocId){
+                            assetViewModel.deleteAssetByAssetDocId(assetDocId, imagePath){
                                 Toast.makeText(context, R.string.asset_delete_success_message, Toast.LENGTH_LONG).show()
                                 navHostController.popBackStack()
                             }
@@ -307,7 +311,8 @@ fun AssetPhoto(asset: Asset?, navController: NavHostController){
             contentScale = ContentScale.FillBounds,
             modifier = Modifier
                 .fillMaxWidth(0.95f)
-                .height(imageSize.dp).clickable {
+                .height(imageSize.dp)
+                .clickable {
                     val encodedUrl = Uri.encode(asset?.imageUrl)
                     navController.navigate("fullScreenImage/$encodedUrl/$resourceId")
                 }

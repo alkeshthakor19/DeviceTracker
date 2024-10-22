@@ -1,11 +1,12 @@
 package com.devicetracker.ui.dashbord.assets
 
-import android.graphics.Bitmap
+import android.content.pm.PackageManager
 import android.net.Uri
-import android.util.Log
+import android.webkit.MimeTypeMap
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,7 +46,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -57,16 +58,19 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.devicetracker.R
 import com.devicetracker.core.Constants
-import com.devicetracker.core.Constants.INT_SIZE_130
 import com.devicetracker.core.Constants.INT_SIZE_170
 import com.devicetracker.core.Constants.UNASSIGN_ID
 import com.devicetracker.core.Constants.UNASSIGN_NAME
+import com.devicetracker.core.imageCompressions.FileManager
+import com.devicetracker.core.imageCompressions.ImageCompressor
+import com.devicetracker.createImageFile
 import com.devicetracker.ui.ImagePickUpDialog
 import com.devicetracker.ui.TopBarWithTitleAndBackNavigation
 import com.devicetracker.ui.components.AssetDescriptionField
@@ -92,6 +96,8 @@ import com.devicetracker.ui.dashbord.assets.components.ProjectDropdown
 import com.devicetracker.ui.dashbord.member.Member
 import com.devicetracker.ui.dashbord.member.MemberViewModel
 import com.devicetracker.ui.isLandScapeMode
+import kotlinx.coroutines.launch
+import java.util.Objects
 
 @Composable
 fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
@@ -121,13 +127,12 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
                     }
             ) {
                 UpdateAsset(
-                    onAssetSaved = { isNeedToUpdateImageUrl, isNeedToAddAssetOwnerHistory, imageUri, imageBitmap, assetName, assetType, assetModelName, serialNumber, description, selectedOwner, assetId, assetQuantity, projectName, assetWorkingStatus ->
+                    onAssetSaved = { isNeedToUpdateImageUrl, isNeedToAddAssetOwnerHistory, imageByteArray, assetName, assetType, assetModelName, serialNumber, description, selectedOwner, assetId, assetQuantity, projectName, assetWorkingStatus ->
                         assetViewModel.uploadImageAndUpdateAsset(
                             assetDocId,
                             isNeedToUpdateImageUrl,
                             isNeedToAddAssetOwnerHistory,
-                            imageUri,
-                            imageBitmap,
+                            imageByteArray,
                             assetName,
                             assetType,
                             assetModelName,
@@ -152,7 +157,7 @@ fun AssetEditScreen(assetDocId: String, onNavUp: () -> Unit) {
 
 @Composable
 fun UpdateAsset(
-    onAssetSaved: (isNeedToUpdateImageUrl: Boolean, isNeedToAddAssetOwnerHistory: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, modelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean) -> Unit,
+    onAssetSaved: (isNeedToUpdateImageUrl: Boolean, isNeedToAddAssetOwnerHistory: Boolean, imageByteArray: ByteArray?, assetName: String, assetType: String, modelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean) -> Unit,
     focusManager: FocusManager,
     keyboardController: SoftwareKeyboardController?,
     initialAssetData: Asset?,
@@ -206,14 +211,13 @@ fun UpdateAsset(
     }
     var isNeedToUpdateImageUrl by rememberSaveable { mutableStateOf(false) }
     var imageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
-    if(imageUri==null || imageUri == Uri.parse(initialAssetData?.imageUrl)){
+    if(imageUri==null && !isNeedToUpdateImageUrl || imageUri == Uri.parse(initialAssetData?.imageUrl)){
         imageUri = initImageUri
     }
-    var imageBitmap by rememberSaveable { mutableStateOf<Bitmap?>(null) }
+    var imageByteArray by rememberSaveable { mutableStateOf<ByteArray?>(null) }
     var showImagePickDialog by rememberSaveable { mutableStateOf(false) }
 
     val selectedAssetType = rememberSaveable { mutableStateOf(Constants.EMPTY_STR) }
-    Log.d("AssetEdit", "nkp selectedAssetType ${selectedAssetType.value} assetType ${initialAssetData?.assetType}")
     if((selectedAssetType.value.isBlank() && initialAssetData?.assetType != null) || selectedAssetType.value == initialAssetData?.assetType) {
         selectedAssetType.value = assetType
     }
@@ -248,24 +252,54 @@ fun UpdateAsset(
     if((assetWorkingStatus == null) || assetWorkingStatus == initialAssetData?.assetWorkingStatus) {
         assetWorkingStatus = initialAssetData?.assetWorkingStatus ?: true
     }
-
-    val galleryPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent(),
-        onResult = { uri: Uri? ->
-            imageUri = uri
-            isNeedToUpdateImageUrl = true
-            imageBitmap = null
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val galleryPicker = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),) { contentUri ->
+        if(contentUri == null) {
+            return@rememberLauncherForActivityResult
         }
+        scope.launch {
+            val compressedImage = ImageCompressor(context).compressImage(
+                contentUri = contentUri,
+                compressionThreshold = 200 * 1024L
+            )
+            imageUri = contentUri
+            imageByteArray = compressedImage
+            isNeedToUpdateImageUrl = true
+        }
+    }
+
+    val file = context.createImageFile()
+    val contentUri = FileProvider.getUriForFile(
+        Objects.requireNonNull(context),
+        context.packageName + ".provider", file
     )
 
-    val cameraPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicturePreview(),
-        onResult = { bitmap ->
-            imageBitmap = bitmap
-            isNeedToUpdateImageUrl = true
-            imageUri = null
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+        if(contentUri == null) {
+            return@rememberLauncherForActivityResult
         }
-    )
+        scope.launch {
+            val compressedImage = ImageCompressor(context).compressImage(
+                contentUri = contentUri,
+                compressionThreshold = 200 * 1024L
+            )
+            imageUri = contentUri
+            isNeedToUpdateImageUrl = true
+            imageByteArray = compressedImage
+        }
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
+        if (it) {
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+            cameraLauncher.launch(contentUri)
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     val scrollState = rememberScrollState()
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -279,10 +313,8 @@ fun UpdateAsset(
     val onAddNewAssetInAction = {
         if (!assetNameState.isValid) {
             assetNameState.enableShowError()
-        } else if (selectedModel.value.isEmpty()) {
-            // Show error or handle model not selected
         } else {
-            onAssetSaved(isNeedToUpdateImageUrl, (selectedOwner.value?.memberId != initialAssetData?.assetOwnerId), imageUri, imageBitmap, assetNameState.text,
+            onAssetSaved(isNeedToUpdateImageUrl, (selectedOwner.value?.memberId != initialAssetData?.assetOwnerId), imageByteArray, assetNameState.text,
                 selectedAssetType.value, selectedModel.value, serialNumberState.text, description.text, selectedOwner.value,
                 assetIdState.text, assetQuantityState.text, selectedProjectName.value, assetWorkingStatus==true
             )
@@ -318,14 +350,7 @@ fun UpdateAsset(
                     else -> R.drawable.ic_devices_other
                 }
 
-                imageBitmap?.let {
-                    Image(
-                        bitmap = it.asImageBitmap(),
-                        contentDescription = null,
-                        modifier = imageModifier,
-                        contentScale = ContentScale.FillBounds
-                    )
-                } ?: AsyncImage(
+                AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(imageUri)
                         .crossfade(true)
@@ -380,8 +405,22 @@ fun UpdateAsset(
                 message = stringResource(id = R.string.str_image_pickup_message),
                 isDialogOpen = showImagePickDialog, 
                 onDismiss = { showImagePickDialog = false },
-                onCamera = { cameraPicker.launch(null) }, 
-                onGallery = { galleryPicker.launch("image/*") }
+                onCamera = {
+                    val permissionCheckResult = ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA)
+                    if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+                        cameraLauncher.launch(contentUri)
+                    } else {
+                        // Request a permission
+                        permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                    }
+                },
+                onGallery = {
+                    galleryPicker.launch(
+                        PickVisualMediaRequest(
+                            mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                        )
+                    )
+                }
             )
         }
         // Save Button

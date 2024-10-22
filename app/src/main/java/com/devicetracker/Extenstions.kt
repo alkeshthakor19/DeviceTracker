@@ -1,6 +1,7 @@
 package com.devicetracker
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
@@ -9,6 +10,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.semantics.Role
 import com.devicetracker.core.Constants
 import com.google.firebase.Timestamp
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -65,4 +67,11 @@ fun getDateStringFromTimestamp(timestamp: Timestamp?): String {
         stringDate = sdf.format(netDate).toString()
     }
     return stringDate
+}
+
+fun Context.createImageFile(): File {
+    // Create an image file name
+   val imageFileName = "Temp_image_store.jpg"
+    val image = File(externalCacheDir, imageFileName)
+    return image
 }

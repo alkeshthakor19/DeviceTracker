@@ -1,7 +1,5 @@
 package com.devicetracker.ui.dashbord.assets
 
-import android.graphics.Bitmap
-import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -55,8 +53,7 @@ class AssetViewModel @Inject constructor(
     private var updateAssetResponse by mutableStateOf<AddAssetResponse>(Response.Success(false))
 
     fun uploadImageAndAddNewAssetToFirebase(
-        imageUri: Uri?,
-        imageBitmap: Bitmap?,
+        imageByteArray: ByteArray?,
         assetName: String,
         assetType: String,
         modelName: String,
@@ -71,8 +68,7 @@ class AssetViewModel @Inject constructor(
     ) = viewModelScope.launch {
         addedAssetResponse = Response.Loading
         addedAssetResponse = repo.uploadImageAndAddNewAssetToFirebase(
-            imageUri,
-            imageBitmap,
+            imageByteArray,
             assetName,
             assetType,
             modelName,
@@ -169,14 +165,13 @@ class AssetViewModel @Inject constructor(
     }
 
     // Function to upload image and update the asset in Firebase
-    fun uploadImageAndUpdateAsset(assetDocId: String, isNeedToUpdateImageUrl: Boolean, isNeedToAddAssetOwnerHistory: Boolean, imageUri: Uri?, imageBitmap: Bitmap?, assetName: String, assetType: String, assetModelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean, onNavUp: () -> Unit) = viewModelScope.launch {
+    fun uploadImageAndUpdateAsset(assetDocId: String, isNeedToUpdateImageUrl: Boolean, isNeedToAddAssetOwnerHistory: Boolean, imageByteArray: ByteArray?, assetName: String, assetType: String, assetModelName: String, serialNumber: String, description: String, selectedOwner: Member?, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean, onNavUp: () -> Unit) = viewModelScope.launch {
         updateAssetResponse = Response.Loading
         updateAssetResponse = repo.uploadImageAndUpdateAsset(
             assetDocId,
             isNeedToUpdateImageUrl,
             isNeedToAddAssetOwnerHistory,
-            imageUri,
-            imageBitmap,
+            imageByteArray,
             assetName,
             assetType,
             assetModelName,
@@ -204,12 +199,13 @@ class AssetViewModel @Inject constructor(
      * For Delete the asset details by assetDocId
      *
      * @param assetDocId
+     * @param filePath
      * @param onSuccess
      */
-    fun deleteAssetByAssetDocId(assetDocId: String, onSuccess: () -> Unit) {
+    fun deleteAssetByAssetDocId(assetDocId: String, filePath: String?, onSuccess: () -> Unit) {
         isLoaderShowing = true
         viewModelScope.launch(Dispatchers.IO) {
-            repo.deleteAsset(assetDocId){
+            repo.deleteAsset(assetDocId, filePath){
                 onSuccess()
                 isLoaderShowing = false
             }

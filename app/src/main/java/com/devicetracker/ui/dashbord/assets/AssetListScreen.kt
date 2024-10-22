@@ -46,7 +46,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.devicetracker.R
-import com.devicetracker.core.Constants.INT_SIZE_72
+import com.devicetracker.core.Constants.INT_SIZE_80
 import com.devicetracker.noDoubleClick
 import com.devicetracker.ui.AppFloatingButton
 import com.devicetracker.ui.Destinations.ASSET_SEARCH
@@ -148,8 +148,8 @@ fun AssetRow(asset: Asset, navigateDeviceDetailCallBack: (String)-> Unit) {
         ) {
             AssetPicture(asset,
                 if (isLandScapeMode()) {
-                    (INT_SIZE_72 * 1.7).toInt()
-                } else INT_SIZE_72)
+                    (INT_SIZE_80 * 1.7).toInt()
+                } else INT_SIZE_80)
             AssetContent(asset)
         }
     }

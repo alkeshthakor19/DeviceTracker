@@ -1,7 +1,5 @@
 package com.devicetracker.domain.repository
 
-import android.graphics.Bitmap
-import android.net.Uri
 import com.devicetracker.domain.models.Response
 import com.devicetracker.ui.dashbord.assets.Asset
 import com.devicetracker.ui.dashbord.assets.AssetHistory
@@ -20,8 +18,7 @@ interface AssetRepository {
     suspend fun addAsset(assetName: String, assetType: String, modelName: String, serialNumber: String, description: String ,selectedMember: Member, imageUrl: String, assetId: String, assetQuantity: String, projectName: String, assetWorkingStatus: Boolean): AddAssetResponse
 
     suspend fun uploadImageAndAddNewAssetToFirebase(
-        imageUri: Uri?,
-        imageBitmap: Bitmap?,
+        imageByteArray: ByteArray?,
         assetName: String,
         assetType: String,
         modelName: String,
@@ -61,8 +58,7 @@ interface AssetRepository {
         assetDocId: String,
         isNeedToUpdateImageUrl: Boolean,
         isNeedToAddAssetOwnerHistory: Boolean,
-        imageUri: Uri?,
-        imageBitmap: Bitmap?,
+        imageByteArray: ByteArray?,
         assetName: String,
         assetType: String,
         modelName: String,
@@ -86,7 +82,7 @@ interface AssetRepository {
 
     suspend fun isAssetEditablePermission() : Boolean
 
-    suspend fun deleteAsset(assetDocId: String, onSuccess: () -> Unit)
+    suspend fun deleteAsset(assetDocId: String, filePath: String?, onSuccess: () -> Unit)
 
     suspend fun getProjectList() : List<Project>
 }
