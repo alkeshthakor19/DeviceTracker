@@ -102,8 +102,9 @@ fun AssetListByTypeScreen(assetType: String, navHostController: NavHostControlle
             contentAlignment = Alignment.TopCenter
         ) {
             val workingAssets = assets.filter { asset -> asset.assetWorkingStatus }
+            val notWorkingAssets = assets.filter { asset -> !asset.assetWorkingStatus }
             Column(modifier = Modifier.fillMaxSize()) {
-                Text(modifier = Modifier.fillMaxWidth(), text = "No. of working assets is: ${workingAssets.size}", fontSize = getFontSizeByPercent(fontSizeInPercent = 4f), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
+                Text(modifier = Modifier.fillMaxWidth(), text = "Working: ${workingAssets.size}    Not Working: ${notWorkingAssets.size}", fontSize = getFontSizeByPercent(fontSizeInPercent = 4f), color = MaterialTheme.colorScheme.primary, textAlign = TextAlign.Center)
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     if(assetsFilter.isEmpty()){
                         item {
