@@ -3,6 +3,8 @@ package com.devicetracker.core.imageCompressions
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import androidx.exifinterface.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.util.Log
@@ -41,6 +43,22 @@ class ImageCompressor(
                 }
                 ensureActive()
 
+                // Read the Exif metadata
+                val exifInterface = ExifInterface(inputBytes.inputStream())
+                val orientation = exifInterface.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL
+                )
+                Log.d("ImageCompressor", "nkp orientation $orientation")
+
+                // Rotate the bitmap based on orientation
+                val rotatedBitmap = when (orientation) {
+                    ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
+                    ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
+                    ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
+                    else -> bitmap
+                }
+
                 val compressFormat = when(mimeType) {
                     "image/png" -> Bitmap.CompressFormat.PNG
                     "image/jpeg" -> Bitmap.CompressFormat.JPEG
@@ -55,7 +73,7 @@ class ImageCompressor(
 
                 do {
                     ByteArrayOutputStream().use { outputStream ->
-                        bitmap.compress(compressFormat, quality, outputStream)
+                        rotatedBitmap.compress(compressFormat, quality, outputStream)
                         outputBytes = outputStream.toByteArray()
                         quality -= (quality * 0.1).roundToInt()
                     }
@@ -122,6 +140,11 @@ class ImageCompressor(
                 BitmapFactory.decodeByteArray(outputBytes, 0, outputBytes.size)
             }
         }
+    }
+
+    private fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
+        val matrix = Matrix().apply { postRotate(degrees) }
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
     fun compressImageFile(uri: Uri, context: Context): Uri {
